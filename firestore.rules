@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// The website reads content server-side with the Firebase web SDK and no signed-in user,
+// so published site content must be publicly readable. Nothing is writable from clients
+// yet — write access for authenticated admins will be added with the admin dashboard.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public website content (read-only).
+    match /{collection}/{docId} {
+      allow read: if collection in [
+        'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
+        'philosophy', 'insights', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks'
+      ];
+      allow write: if false;
+    }
+  }
+}

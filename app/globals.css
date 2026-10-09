@@ -1,0 +1,336 @@
+@import "tailwindcss";
+
+/* ==================================================================
+   DESIGN TOKENS
+   Values sampled/measured from the reference (761px mock → 1440px desktop).
+   Raw values live on :root, then map into Tailwind's theme below.
+   ================================================================== */
+
+:root {
+  /* Colour */
+  --background: #f8f6f2;          /* warm editorial off-white */
+  --surface: #fdfcfa;             /* cards */
+  --foreground: #1c1a1a;          /* near-black, warm */
+  --muted: #5b5654;               /* body copy / descriptions */
+  --subtle: #8a8380;              /* metadata */
+  --burgundy: #4a1119;            /* buttons, accent text */
+  --burgundy-deep: #431118;       /* footer */
+  --rose: #9a5c67;                /* eyebrow labels, control outlines */
+  --dark-section: #4a5562;        /* quote panel (top) */
+  --dark-section-deep: #252c31;   /* quote panel (bottom) */
+  --border: #e6e1da;              /* hairlines */
+  --white: #ffffff;
+
+  /* Layout */
+  --container-max: 85rem;                        /* 1360px → 1280px content at 2.5rem gutter */
+  --gutter: clamp(1.25rem, 3.5vw, 2.5rem);
+  --bleed: calc(max(0px, (100vw - var(--container-max)) / 2) + var(--gutter)); /* container edge → viewport edge */
+  --nav-height: 4.75rem;
+  --section-y: clamp(2.5rem, 3.2vw, 2.75rem);    /* vertical section rhythm (reference: ~40-44px) */
+  --grid-gap: clamp(2rem, 3.6vw, 3.25rem);       /* between major columns */
+  --card-gap: 1.25rem;                           /* between cards */
+  --card-pad: clamp(1.125rem, 1.6vw, 1.5rem);    /* inside cards */
+  --heading-gap: clamp(1.5rem, 2.1vw, 1.875rem); /* section heading → content (reference: ~30px) */
+  --paragraph-gap: 1.125rem;
+}
+
+@theme inline {
+  /* Breakpoints: xs 480 · sm 640 · md 768 · lg 1024 · xl 1280 · 2xl 1440 */
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 90rem;
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-burgundy: var(--burgundy);
+  --color-burgundy-deep: var(--burgundy-deep);
+  --color-rose: var(--rose);
+  --color-dark-section: var(--dark-section);
+  --color-dark-section-deep: var(--dark-section-deep);
+  --color-border: var(--border);
+  --color-white: var(--white);
+
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-serif: var(--font-crimson), "Crimson Pro", Georgia, serif;
+  --font-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section-y);
+  --spacing-grid: var(--grid-gap);
+  --spacing-card: var(--card-gap);
+  --spacing-card-pad: var(--card-pad);
+  --spacing-heading: var(--heading-gap);
+  --spacing-nav: var(--nav-height);
+  --container-site: var(--container-max);
+
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==================================================================
+   TYPOGRAPHY TOKENS
+   Display serif (Cormorant Garamond): display, h1, h2, quote.
+   Text serif (Crimson Pro): lead, body, small, h3, h4.
+   Sans (Montserrat): label, meta, button, navigation.
+   ================================================================== */
+
+/* Hero name — "NISHA KRISHNAN" */
+@utility type-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(3.25rem, 6.4vw, 5.875rem);
+  line-height: 0.88;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Section headings — "SELECTED WORK & IMPACT" */
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+
+/* Insight titles */
+@utility type-h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.375rem, 1.8vw, 1.625rem);
+  line-height: 1.22;
+}
+
+/* Work card titles */
+@utility type-h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.6vw, 1.4375rem);
+  line-height: 1.25;
+}
+
+@utility type-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.875rem, 3.1vw, 2.875rem);
+  line-height: 1.22;
+}
+
+/* Hero tagline */
+@utility type-lead {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.3125rem, 2vw, 1.8rem);
+  line-height: 1.45;
+}
+
+@utility type-body {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.125rem, 1.46vw, 1.3125rem);
+  line-height: 1.5;
+}
+
+/* Descriptions in stats and cards */
+@utility type-small {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.0625rem, 1.32vw, 1.1875rem);
+  line-height: 1.42;
+}
+
+/* Sans paragraph — used on the dark quote panel */
+@utility type-body-sans {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.9;
+}
+
+/* Eyebrows — "ABOUT NISHA", "INITIATIVES" */
+@utility type-label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Caps titles — "YEARS IN MEDIA", "QUICK LINKS" */
+@utility type-caps {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(0.8125rem, 1.05vw, 0.9375rem);
+  line-height: 1.45;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Dates, small captions */
+@utility type-meta {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@utility type-button {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility type-nav {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ==================================================================
+   SPACING / LAYOUT PRIMITIVES
+   Sections compose these instead of ad-hoc margins.
+   ================================================================== */
+
+@utility container-site {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility section-y {
+  padding-block: var(--section-y);
+}
+
+/* Hairline-topped section body, as between About → Work → Media. */
+@utility section-rule {
+  border-top: 1px solid var(--border);
+  padding-top: var(--section-y);
+}
+
+@utility stack-heading {
+  margin-bottom: var(--heading-gap);
+}
+
+@utility prose-editorial {
+  & > * + * {
+    margin-top: var(--paragraph-gap);
+  }
+}
+
+@utility hairline {
+  border-color: var(--border);
+}
+
+/* Pull an element from the container edge out to the viewport edge. */
+@utility bleed-left {
+  margin-left: calc(-1 * var(--bleed));
+}
+
+@utility bleed-right {
+  margin-right: calc(-1 * var(--bleed));
+}
+
+/* Horizontal scroll track without a visible scrollbar. */
+@utility scroll-track {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  & > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* Above-the-fold entrance: pure CSS so content is visible before hydration (and without JS).
+   Elements are sequenced with [animation-delay:…] at the call site. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Portrait: a slightly longer, calmer rise. */
+@utility animate-rise-slow {
+  animation: rise 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-slow {
+    animation: none;
+  }
+
+  /* Scroll reveals (components/ui/Reveal.tsx): show immediately, no movement. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ==================================================================
+   BASE
+   ================================================================== */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--nav-height);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-serif);
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--burgundy);
+    color: var(--white);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--burgundy);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
