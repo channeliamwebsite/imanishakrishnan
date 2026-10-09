@@ -18,34 +18,47 @@ const DESKTOP_COLUMNS = ["lg:grid-cols-1", "lg:grid-cols-2", "lg:grid-cols-3", "
 export function ImpactStats({ items }: { items: ImpactStatistic[] }) {
   if (items.length === 0) return null;
   const columns = DESKTOP_COLUMNS[Math.min(items.length, 4) - 1];
+  // Tablet (768–1023px): exactly three stats fit on one row; otherwise keep the 2-up grid.
+  const tabletRow = items.length === 3;
 
   return (
     <section id={SECTION_IDS.leadership} aria-label="Impact">
       <div className="container-site">
-        <ul className={cn("grid grid-cols-2 border-b hairline py-4 lg:py-[clamp(2.5rem,3.6vw,3.25rem)]", columns)}>
+        <ul
+          className={cn(
+            // Mobile: equal 2-up grid, rows separated by spacing only (no half-width rules).
+            "grid grid-cols-2 gap-y-8 border-b hairline py-8",
+            tabletRow && "md:grid-cols-3 md:py-10",
+            "lg:gap-y-0 lg:py-[clamp(2.5rem,3.6vw,3.25rem)]",
+            columns,
+          )}
+        >
           {items.map((stat, i) => (
             <li
               key={stat.id ?? i}
               className={cn(
-                "hairline py-8 lg:py-1",
-                // Mobile/tablet 2-up: divider between the pair, rule between rows.
-                i % 2 === 1 ? "border-l pl-5 sm:pl-8" : "pr-5 sm:pr-8",
-                i >= 2 && "border-t lg:border-t-0",
-                // Desktop: one row.
+                "hairline min-w-0 lg:py-1",
+                // Mobile 2-up: a divider only between the two cards of a row.
+                i % 2 === 1 ? "border-l pl-4 xs:pl-6" : "pr-4 xs:pr-6",
+                // Tablet 3-up: dividers between all three.
+                tabletRow && i === 2 && "md:border-l md:pl-8",
+                tabletRow && i === 1 && "md:pr-8",
+                tabletRow && i === 0 && "md:pr-8",
+                // Desktop: one row (unchanged).
                 "lg:px-[clamp(1.5rem,3.5vw,3.5rem)] lg:first:pl-0",
                 i > 0 && "lg:border-l",
               )}
             >
-              <Reveal delay={i * 0.08} className="flex flex-col gap-4 sm:flex-row sm:gap-8">
+              <Reveal delay={i * 0.08} className="flex flex-col gap-3 lg:flex-row lg:gap-8">
                 <Icon
                   name={stat.icon ?? DEFAULT_ICONS[i % DEFAULT_ICONS.length]}
-                  className="size-10 shrink-0 text-burgundy lg:size-11"
+                  className="size-9 shrink-0 text-burgundy md:size-10 lg:size-11"
                 />
                 <div className="flex min-w-0 flex-col gap-2">
-                  <p className="font-display text-[clamp(2.25rem,4.2vw,3.875rem)] font-medium leading-[0.9] text-foreground">
+                  <p className="font-display text-[clamp(1.875rem,8vw,2.25rem)] font-medium leading-[0.9] text-foreground md:text-[clamp(2.25rem,4.2vw,3.875rem)]">
                     {stat.value}
                   </p>
-                  <p className="type-caps mt-1 text-foreground">{stat.title}</p>
+                  <p className="type-caps mt-1 text-foreground [overflow-wrap:anywhere]">{stat.title}</p>
                   {stat.description && (
                     <p className="type-small mt-1 max-w-[16rem] text-muted">{stat.description}</p>
                   )}

@@ -104,7 +104,7 @@ export const hero: HeroContent = {
 export const statistics: ImpactStatistic[] = [
   {
     id: "years-in-media",
-    value: "23+",
+    value: "24+",
     title: "YEARS IN MEDIA",
     description: "A journey of impactful storytelling",
     order: 1,
@@ -138,7 +138,7 @@ export const about: AboutContent = {
     "Nisha Krishnan|Media Entrepreneur | Visionary Leader | Startup Ecosystem Builder | Women’s Empowerment Advocate",
   // Approved profile facts only.
   paragraphs: [
-    "Nisha Krishnan is a charismatic, award-winning journalist, media entrepreneur, and founder of channeliam.com. With 23 years of media experience, she is a visionary, results-driven leader known for her dedication, execution excellence, and team leadership. She champions innovation, entrepreneurship, and women’s empowerment, transforming powerful ideas into meaningful impact through media and strategic collaborations."
+    "Nisha Krishnan is a charismatic, award-winning journalist, media entrepreneur, and founder of channeliam.com. With 24 years of media experience, she is a visionary, results-driven leader known for her dedication, execution excellence, and team leadership. She champions innovation, entrepreneurship, and women’s empowerment, transforming powerful ideas into meaningful impact through media and strategic collaborations."
 
   ],
   cta: { label: "Read More About Nisha", href: sectionHref(SECTION_IDS.about) },
@@ -165,13 +165,21 @@ export const timeline: TimelineEntry[] = [
   {
     ...item("t2", 2),
     kind: "milestone",
-    year: "2016",
-    title: "Founded Channeliam.com",
+    year: "2008",
+    title: "Recognition for Excellence in Journalism",
     description:
-      "She founded Channeliam.com, a digital media platform dedicated to entrepreneurship, innovation and business journalism.",
+      "Earned prestigious honours, including the Laadli Media Award for gender-sensitive reporting and the Kerala State Media Award for impactful visual journalism. Her achievements also include the Dr. B. R. Ambedkar Award and P. C. Sukumaran ",
   },
   {
     ...item("t3", 3),
+    kind: "milestone",
+    year: "2016",
+    title: "Founded Channeliam.com",
+    description:
+    " Established channeliam.com as a bootstrapped digital media startup, introducing a distinctive news culture focused on entrepreneurship, startups, business innovation, emerging technologies, and economic growth.",
+  },
+  {
+    ...item("t4", 4),
     kind: "milestone",
     year: "2019",
     title: "U.S. State Department IVLP & TIES Kazakhstan",
@@ -179,7 +187,7 @@ export const timeline: TimelineEntry[] = [
       "Her international engagements include the U.S. Department of State's International Visitor Leadership Program (IVLP) and TIES Kazakhstan, and a U.S. State Department women's empowerment grant. She also holds a UAE Golden Visa.",
   },
   {
-    ...item("t4", 4),
+    ...item("t5", 5),
     kind: "figure",
     year: "15,000+",
     title: "Business stories produced by Channeliam",
@@ -187,7 +195,7 @@ export const timeline: TimelineEntry[] = [
       "Channeliam has produced more than 15,000 business stories — a growing record of entrepreneurship, innovation and enterprise.",
   },
   {
-    ...item("t5", 5),
+    ...item("t6", 6),
     kind: "vision",
     year: "Next",
     title: "Vision: Channeliam Strategic Business Advisory",
