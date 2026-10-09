@@ -71,6 +71,19 @@ export function publicIdFromUrl(value: string): string | undefined {
 }
 
 /**
+ * Prepend a raw transformation component (e.g. an effect) to a stored secure_url, keeping the
+ * asset and version. The global loader still adds sizing/format on top. Non-Cloudinary URLs
+ * are returned unchanged.
+ */
+export function withCloudinaryTransformation(value: string, component: string): string {
+  if (!isCloudinaryUrl(value)) return value;
+  const url = new URL(value);
+  const [, cloud, resourceType, rest] = url.pathname.match(DELIVERY_PATH)!;
+  url.pathname = `/${cloud}/${resourceType}/upload/${component}/${rest}`;
+  return url.toString();
+}
+
+/**
  * Add delivery transformations to a stored secure_url (e.g. from Firestore), keeping the
  * original asset and any transformations already in the URL. Non-Cloudinary URLs are
  * returned unchanged.

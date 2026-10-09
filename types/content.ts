@@ -74,9 +74,13 @@ export interface HeroContent {
 
 /** about/main — Cloudinary: nisha-krishnan/profile */
 export interface AboutContent {
-  label: string; // "ABOUT NISHA"
-  heading: string; // "A Journey Built on Stories"
+  label: string; // "BEHIND THE JOURNEY"
+  heading: string; // "A journey built on stories."
+  /** Short lead line under the heading. */
+  intro?: string;
   paragraphs: string[];
+  /** Closing line after the story timeline (site copy, not an attributed quote). */
+  closing?: string;
   cta: Link;
   images: MediaAsset[]; // collage: [0] wide primary (8:5), [1] secondary (14:15)
   keywords?: string[]; // small caps list beside the secondary image
@@ -144,11 +148,16 @@ export interface ImpactStatistic {
   icon?: IconName;
 }
 
-/** timeline/{id} */
+/** timeline/{id} — rendered as the About section's story timeline, in `order`. */
 export interface TimelineEntry extends ListItemBase {
-  year: string; // "2016", "Today"
+  year: string; // marker: "2016", "15,000+", "Next"
   title: string;
   description?: string;
+  /**
+   * milestone (default): dated achievement · figure: a key number · vision: a forward-looking
+   * ambition, styled distinctly so it is never read as a completed achievement.
+   */
+  kind?: "milestone" | "figure" | "vision";
   image?: MediaAsset; // Cloudinary: nisha-krishnan/timeline
 }
 

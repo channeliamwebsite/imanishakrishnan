@@ -264,6 +264,61 @@
   }
 }
 
+/* Hero portrait backdrop: layered radial gradients (warm beige wash, muted rose, faint burgundy)
+   centred behind the portrait's shoulders/upper body, masked away toward the edges so it melts
+   into the page background with no visible boundary. Position/size per breakpoint follow the
+   portrait's actual placement (components/home/Hero.tsx). Decorative only. */
+@layer components {
+  .hero-backdrop {
+    /* Mobile: portrait fills the full-width 4:5 frame — glow sits behind the shoulders. */
+    --hb-x: 50%;
+    --hb-y: 62%;
+    --hb-w: 92%;
+    --hb-h: 64%;
+    /* Tints are the --burgundy (#4a1119), --rose (#9a5c67) and --border (#e6e1da) tokens with
+       alpha, written as rgb() because the CSS minifier drops color-mix() over var(). */
+    background:
+      radial-gradient(calc(var(--hb-w) * 0.45) calc(var(--hb-h) * 0.5) at var(--hb-x) var(--hb-y),
+        rgb(74 17 25 / 0.1), transparent),
+      radial-gradient(calc(var(--hb-w) * 0.72) calc(var(--hb-h) * 0.78) at var(--hb-x) var(--hb-y),
+        rgb(154 92 103 / 0.2), transparent),
+      radial-gradient(var(--hb-w) var(--hb-h) at var(--hb-x) var(--hb-y),
+        rgb(230 225 218), transparent);
+    /* Fade out at the top and bottom edges (the mobile frame spans the full viewport width). */
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+  }
+
+  /* Tablet (stacked, 4:3 frame, portrait centred). */
+  @media (min-width: 40rem) {
+    .hero-backdrop {
+      --hb-x: 50%;
+      --hb-y: 58%;
+      --hb-w: 70%;
+      --hb-h: 82%;
+    }
+  }
+
+  /* Desktop: portrait in the right column, close to the text — the wash spans the whole column
+     and also fades out toward the text (left), the top and the bottom. */
+  @media (min-width: 64rem) {
+    .hero-backdrop {
+      --hb-x: 44%;
+      --hb-y: 56%;
+      --hb-w: 80%;
+      --hb-h: 84%;
+      -webkit-mask-image:
+        linear-gradient(to right, transparent, #000 20%),
+        linear-gradient(to bottom, transparent, #000 12%, #000 80%, transparent);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to right, transparent, #000 20%),
+        linear-gradient(to bottom, transparent, #000 12%, #000 80%, transparent);
+      mask-composite: intersect;
+    }
+  }
+}
+
 /* Above-the-fold entrance: pure CSS so content is visible before hydration (and without JS).
    Elements are sequenced with [animation-delay:…] at the call site. */
 @keyframes rise {

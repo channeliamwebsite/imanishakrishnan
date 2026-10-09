@@ -2,6 +2,14 @@ import { Fragment } from "react";
 import type { HeroContent } from "@/types/content";
 import { Button } from "@/components/ui/Button";
 import { MediaImage } from "@/components/ui/Image";
+import { withCloudinaryTransformation } from "@/lib/cloudinary/url";
+
+/**
+ * The hero photo is a studio shot on a flat #f7f7f7 backdrop. Cloudinary makes that backdrop
+ * transparent at delivery (the stored asset and URL are unchanged), so the hero background
+ * gradient shows behind the portrait. Update the colour if the photo is replaced.
+ */
+const PORTRAIT_BACKDROP_TO_TRANSPARENT = "e_make_transparent:10,co_rgb:f7f7f7";
 
 /** "I'm Nisha Krishnan" → greeting "I'm", lines ["Nisha", "Krishnan"]. Works without a greeting too. */
 function splitName(name: string) {
@@ -34,7 +42,9 @@ export function Hero({ content }: { content: HeroContent }) {
   const roleLine = [designation, ...roles].filter(Boolean);
   const locationLines = splitOn(location, "/");
   // No uploaded image yet → keep the placeholder frame, labelled for screen readers.
-  const portrait = image?.url ? image : { url: "", publicId: "", alt: image?.alt ?? `Portrait of ${lines.join(" ")}` };
+  const portrait = image?.url
+    ? { ...image, url: withCloudinaryTransformation(image.url, PORTRAIT_BACKDROP_TO_TRANSPARENT) }
+    : { url: "", publicId: "", alt: image?.alt ?? `Portrait of ${lines.join(" ")}` };
 
   return (
     <section className="relative">
@@ -101,9 +111,11 @@ export function Hero({ content }: { content: HeroContent }) {
           The source is a tall portrait (≈0.555:1; hair from ~10% of its height, hands to ~80%).
           Sizing it from the frame's WIDTH (object-cover across the column) zooms in further the wider
           the screen — at 1920px only the face fits. So from 640px up the photo is sized from the
-          frame's HEIGHT instead: drawn at 140% of it, shifted up 10% and anchored to the right edge,
-          which shows head to hands (~7%–79% of the photo) at the same scale on every desktop width.
+          frame's HEIGHT instead: drawn at 140% of it and shifted up 10%, which shows head to hands
+          (~7%–79% of the photo) at the same scale on every desktop width.
           Mobile keeps its full-width 4:5 frame, anchored near the top so the head stays in view.
+          The photo's flat backdrop is made transparent at delivery (see PORTRAIT_BACKDROP_TO_TRANSPARENT),
+          so the layered .hero-backdrop gradient fills the whole area behind and around her.
         */}
         <div className="animate-rise-slow relative -mx-gutter overflow-hidden [animation-delay:200ms] sm:aspect-[4/3] lg:mx-0 lg:aspect-auto lg:bleed-right">
           {/*
@@ -111,36 +123,22 @@ export function Hero({ content }: { content: HeroContent }) {
             Desktop: anchored from the column's LEFT, measured against the column's content width
             (excluding the viewport bleed), so she sits close to the text at every desktop width.
           */}
+          {/* Layered editorial backdrop filling the whole portrait area (app/globals.css → .hero-backdrop) */}
+          <span aria-hidden className="hero-backdrop pointer-events-none absolute inset-0" />
           <div className="relative aspect-[4/5] sm:absolute sm:right-[21%] sm:top-[-10%] sm:h-[140%] sm:aspect-[555/1000] lg:right-auto lg:left-[calc((100%-var(--bleed))*0.02)] xl:left-[calc((100%-var(--bleed))*0.12)]">
-            {/*
-              Desktop backdrop: a very soft warm-beige glow (existing --border tone) with a faint rose
-              warmth, sitting behind the photo. It shows where the photo's edges dissolve, so the
-              portrait reads as part of the page rather than a separate rectangle.
-            */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -inset-x-[42%] bottom-[22%] top-[6%] hidden bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--rose)_7%,transparent),transparent_70%),radial-gradient(closest-side,color-mix(in_oklab,var(--border)_85%,transparent),transparent)] lg:block"
-            />
             <MediaImage
               media={portrait}
               ratio={null}
               preload
               sizes="(min-width: 1024px) 45vw, (min-width: 640px) 70vw, 100vw"
-              // ≥640px: the photo's left/right edges fade to transparent (not painted over), so its
-              // own light backdrop dissolves into the page and the glow behind it.
-              className="h-full w-full sm:[-webkit-mask-image:linear-gradient(to_right,transparent,#000_12%,#000_90%,transparent)] sm:[mask-image:linear-gradient(to_right,transparent,#000_12%,#000_90%,transparent)]"
+              className="h-full w-full"
               imageClassName="object-[70%_15%] sm:object-center"
             />
           </div>
-          {/* Soft top edge (≥640px), above the hair line, so the photo's backdrop has no hard line */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 hidden h-5 bg-gradient-to-b from-background to-transparent sm:block"
-          />
           {/* Soft fade where the portrait meets the next section */}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent sm:h-[12%]"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-background/70 to-transparent sm:h-[16%]"
           />
           {locationLines.length > 0 && (
             <div className="absolute right-[7%] top-[12%] text-right sm:text-left">

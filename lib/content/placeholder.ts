@@ -132,13 +132,14 @@ export const statistics: ImpactStatistic[] = [
 ];
 
 export const about: AboutContent = {
-  label: "About Nisha",
-  heading: "A Journey Built on Stories",
+  label: "Behind the Journey",
+  heading: "A journey built on stories.",
+  intro:
+    "Nisha Krishnan|Media Entrepreneur | Visionary Leader | Startup Ecosystem Builder | Women’s Empowerment Advocate",
   // Approved profile facts only.
   paragraphs: [
-    "Nisha Krishnan is a journalist, media entrepreneur and the Founder & CEO of Channeliam.com. She began in broadcast journalism in 2002 and founded Channeliam in 2016, building a platform that has produced 15,000+ business stories.",
-    "Across 23+ years in media, her work spans startup ecosystem development, strategic business growth, strategic positioning, digital transformation and AI-powered media — alongside initiatives such as She Power and I AM Startup Studio.",
-    "Her international engagements include the U.S. Department of State's International Visitor Leadership Program (IVLP), TIES Kazakhstan and a U.S. State Department women's empowerment grant. She also holds a UAE Golden Visa.",
+    "Nisha Krishnan is a charismatic, award-winning journalist, media entrepreneur, and founder of channeliam.com. With 23 years of media experience, she is a visionary, results-driven leader known for her dedication, execution excellence, and team leadership. She champions innovation, entrepreneurship, and women’s empowerment, transforming powerful ideas into meaningful impact through media and strategic collaborations."
+
   ],
   cta: { label: "Read More About Nisha", href: sectionHref(SECTION_IDS.about) },
   images: [
@@ -148,16 +149,50 @@ export const about: AboutContent = {
   keywords: ["Stories", "People", "Ideas", "Communities", "A Brighter Tomorrow"],
 };
 
-/** Dated facts from the approved profile only — undated work belongs in the About copy, not here. */
+/**
+ * The About story timeline. Approved profile facts only; the final "vision" entry is a stated
+ * ambition, not an achievement, and is styled as such.
+ */
 export const timeline: TimelineEntry[] = [
-  { ...item("t1", 1), year: "2002", title: "Began broadcast journalism" },
-  { ...item("t2", 2), year: "2016", title: "Founded Channeliam" },
-  { ...item("t3", 3), year: "2019", title: "U.S. Department of State IVLP" },
-  { ...item("t4", 4), year: "2019", title: "TIES Kazakhstan" },
+  {
+    ...item("t1", 1),
+    kind: "milestone",
+    year: "2002",
+    title: "Began career in broadcast journalism",
+    description:
+      "Nisha began her career in broadcast journalism — work that shaped her approach to communication, public engagement and storytelling.",
+  },
+  {
+    ...item("t2", 2),
+    kind: "milestone",
+    year: "2016",
+    title: "Founded Channeliam.com",
+    description:
+      "She founded Channeliam.com, a digital media platform dedicated to entrepreneurship, innovation and business journalism.",
+  },
+  {
+    ...item("t3", 3),
+    kind: "milestone",
+    year: "2019",
+    title: "U.S. State Department IVLP & TIES Kazakhstan",
+    description:
+      "Her international engagements include the U.S. Department of State's International Visitor Leadership Program (IVLP) and TIES Kazakhstan, and a U.S. State Department women's empowerment grant. She also holds a UAE Golden Visa.",
+  },
+  {
+    ...item("t4", 4),
+    kind: "figure",
+    year: "15,000+",
+    title: "Business stories produced by Channeliam",
+    description:
+      "Channeliam has produced more than 15,000 business stories — a growing record of entrepreneurship, innovation and enterprise.",
+  },
   {
     ...item("t5", 5),
-    year: "Today",
-    title: "Media, entrepreneurship, technology, business growth and strategic collaboration",
+    kind: "vision",
+    year: "Next",
+    title: "Vision: Channeliam Strategic Business Advisory",
+    description:
+      "The vision for Channeliam Strategic Business Advisory: moving beyond documenting business success toward execution-oriented support for business growth.",
   },
 ];
 
@@ -216,9 +251,8 @@ export const mediaFeatures: MediaFeature[] = [
 ].map((publication, i) => ({ ...item(`m${i + 1}`, i + 1), publication }));
 
 export const philosophy: PhilosophyContent = {
-  quote: "I believe storytelling is a catalyst for innovation, empowerment and change.",
-  supportingText:
-    "When we tell the right stories, we create possibilities — for people, for businesses and for a more inclusive world.",
+  quote: "“I don't believe in leadership that merely inspires ideas." ,
+  supportingText:"I believe in leadership that empowers people, drives execution, and creates lasting impact.",
   author: "Nisha Krishnan",
   image: placeholder("Nisha Krishnan", 1100, 1000),
 };
