@@ -44,7 +44,7 @@ export function Navbar({ siteName, links, cta }: NavbarProps) {
         <nav className="container-site flex h-nav items-center justify-between gap-6" aria-label="Primary">
           <Link
             href="/"
-            className="shrink-0 font-display text-[1.375rem] font-medium uppercase leading-none tracking-[0.04em] text-foreground sm:text-[1.5rem] xl:text-[1.75rem]"
+            className="shrink-0 font-display text-[1.375rem] font-semibold leading-none text-foreground sm:text-[1.5rem] xl:text-[1.625rem]"
           >
             {siteName}
           </Link>
@@ -118,7 +118,7 @@ export function Navbar({ siteName, links, cta }: NavbarProps) {
                   <Link
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-center justify-between py-4 font-display text-[1.875rem] font-medium uppercase leading-tight text-foreground"
+                    className="flex items-center justify-between py-4 font-sans text-xl font-medium leading-tight text-foreground"
                   >
                     {link.label}
                     <ArrowRight className="size-4 text-burgundy" aria-hidden />

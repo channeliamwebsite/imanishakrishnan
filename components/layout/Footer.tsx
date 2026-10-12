@@ -19,7 +19,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr] lg:grid-cols-[2.1fr_1fr_1.3fr] lg:gap-grid">
           {/* Identity */}
           <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-1">
-            <p className="font-display text-[1.75rem] font-medium uppercase leading-none tracking-[0.06em]">
+            <p className="font-display text-[1.625rem] font-semibold leading-none">
               {siteName}
             </p>
             <p className="type-small flex flex-wrap items-center gap-x-3 text-[0.9375rem] text-white/60">
@@ -39,7 +39,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
             <ul className="grid grid-cols-2 gap-x-8 xs:grid-cols-3 md:grid-cols-1">
               {navigation.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="type-small leading-[1.6] text-white/85 transition-colors hover:text-white">
+                  <Link href={link.href} className="type-ui text-white/85 transition-colors hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -96,7 +96,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
                     |
                   </span>
                 )}
-                <Link href={link.href} className="type-small text-[0.875rem] text-white/70 transition-colors hover:text-white">
+                <Link href={link.href} className="type-ui text-[0.875rem] text-white/70 transition-colors hover:text-white">
                   {link.label}
                 </Link>
               </li>

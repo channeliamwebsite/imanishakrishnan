@@ -55,7 +55,7 @@ export function ImpactStats({ items }: { items: ImpactStatistic[] }) {
                   className="size-9 shrink-0 text-burgundy md:size-10 lg:size-11"
                 />
                 <div className="flex min-w-0 flex-col gap-2">
-                  <p className="font-display text-[clamp(1.875rem,8vw,2.25rem)] font-medium leading-[0.9] text-foreground md:text-[clamp(2.25rem,4.2vw,3.875rem)]">
+                  <p className="type-figure text-[clamp(1.875rem,7.5vw,2.25rem)] leading-none text-foreground md:text-[clamp(2.25rem,3.2vw,2.875rem)]">
                     {stat.value}
                   </p>
                   <p className="type-caps mt-1 text-foreground [overflow-wrap:anywhere]">{stat.title}</p>

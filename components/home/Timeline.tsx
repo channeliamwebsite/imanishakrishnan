@@ -43,13 +43,13 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
             <Reveal delay={i * 0.06} y={10}>
               <p
                 className={cn(
-                  "font-serif text-[1.1875rem] font-semibold leading-tight",
-                  vision ? "italic text-rose" : "text-burgundy",
+                  "type-figure text-[1.125rem] leading-tight",
+                  vision ? "text-rose" : "text-burgundy",
                 )}
               >
                 {entry.year}
               </p>
-              <p className="type-small mt-1 max-w-[11rem] text-[0.9375rem] leading-snug text-muted">{entry.title}</p>
+              <p className="type-small mt-1 max-w-[11rem] text-[1rem] leading-snug text-muted">{entry.title}</p>
             </Reveal>
           </li>
         );

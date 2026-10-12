@@ -42,7 +42,7 @@ export default async function AboutPage() {
       <section id="biography" className="section-y">
         <div className="container-site">
           <Reveal>
-            <SectionHeading label="Biography" title="A journey built on stories." />
+            <SectionHeading label="Biography" title="From broadcast journalism to business growth." />
           </Reveal>
           <div className="prose-editorial type-body max-w-[46rem] text-foreground/80">
             {profile.detailedBio.map((p, i) => (
@@ -84,9 +84,9 @@ export default async function AboutPage() {
                       )}
                     />
                     <Reveal y={10}>
-                      <p className={cn("font-serif text-[1.1875rem] font-semibold leading-tight", vision ? "italic text-rose" : "text-burgundy")}>
+                      <p className={cn("type-figure text-[1.125rem] leading-tight", vision ? "text-rose" : "text-burgundy")}>
                         {entry.year}
-                        {vision && <span className="type-label ml-3 align-middle not-italic text-rose">Vision</span>}
+                        {vision && <span className="type-label ml-3 align-middle text-rose">Vision</span>}
                       </p>
                       <h3 className="type-h4 mt-1 text-foreground">{entry.title}</h3>
                       {entry.description && <p className="type-small mt-2 text-muted">{entry.description}</p>}
@@ -100,7 +100,7 @@ export default async function AboutPage() {
       </section>
 
       {/* Achievements */}
-      <section id="achievements" className="pb-section">
+      <section id="awards" className="pb-section">
         <div className="container-site">
           <div className="section-rule">
             <Reveal>
@@ -116,7 +116,7 @@ export default async function AboutPage() {
                     {group.items.map((a, i) => (
                       <li key={a.title} className="border-t hairline pt-5">
                         <Reveal y={10} className="flex gap-5">
-                          <span className="font-display text-[1.75rem] leading-none text-burgundy/70">{num(offset + i + 1)}</span>
+                          <span className="type-figure text-xl leading-none text-burgundy/70">{num(offset + i + 1)}</span>
                           <div>
                             <h4 className="type-h4 text-foreground">{a.title}</h4>
                             <p className="type-small mt-2 text-muted">{a.description}</p>
@@ -148,7 +148,7 @@ export default async function AboutPage() {
               {profile.expertise.items.map((x, i) => (
                 <li key={x.title} id={x.anchor} className="border-t hairline pt-6">
                   <Reveal y={10}>
-                    <p className="font-display text-[1.75rem] leading-none text-burgundy/70">{num(i + 1)}</p>
+                    <p className="type-figure text-xl leading-none text-burgundy/70">{num(i + 1)}</p>
                     <h3 className="type-h4 mt-3 text-foreground">{x.title}</h3>
                     <p className="type-small mt-2 text-foreground/80">{x.description}</p>
                     {x.details?.map((d, j) => (

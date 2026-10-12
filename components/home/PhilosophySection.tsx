@@ -20,7 +20,7 @@ export function PhilosophySection({ content }: { content: PhilosophyContent }) {
         <div className="w-full px-gutter py-[clamp(3.5rem,6vw,4.5rem)] lg:pl-[36%] lg:pr-[clamp(2.5rem,6vw,5rem)]">
           <blockquote className="relative">
             <Reveal y={0} duration={0.6} className="lg:absolute lg:-left-[4.25rem] lg:-top-1">
-              <span aria-hidden className="block h-10 font-serif text-[6rem] font-semibold leading-[0.85] text-white/95">
+              <span aria-hidden className="block h-10 font-display text-[5.5rem] font-semibold leading-[0.85] text-white/95">
                 &ldquo;
               </span>
             </Reveal>
