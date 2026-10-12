@@ -19,7 +19,7 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
         const vision = entry.kind === "vision";
         const last = i === entries.length - 1;
         return (
-          <li key={entry.id} className={cn("relative pl-9", !last && "pb-8 lg:pb-0", "lg:flex-1")}>
+          <li key={entry.id} className={cn("relative pl-9", !last && "pb-7", "lg:flex-1")}>
             {/* Line segment down to the next entry */}
             {!last && (
               <span aria-hidden className="absolute bottom-0 left-0 top-[0.6rem] w-px">

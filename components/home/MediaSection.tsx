@@ -40,7 +40,7 @@ export function MediaSection({ items, copy }: { items: MediaFeature[]; copy: Sec
                 />
               ) : (
                 // Wordmark fallback until logos are uploaded to Cloudinary.
-                <span className="block whitespace-nowrap font-serif text-[clamp(1.5rem,2.2vw,2.125rem)] font-semibold leading-none tracking-tight text-foreground/50 transition-colors duration-300 hover:text-foreground/80">
+                <span className="block whitespace-nowrap font-serif text-[clamp(1.25rem,1.7vw,1.625rem)] font-semibold leading-none tracking-tight text-foreground/50 transition-colors duration-300 hover:text-foreground/80">
                   {item.publication}
                 </span>
               );

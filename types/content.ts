@@ -84,6 +84,35 @@ export interface AboutContent {
   cta: Link;
   images: MediaAsset[]; // collage: [0] wide primary (8:5), [1] secondary (14:15)
   keywords?: string[]; // small caps list beside the secondary image
+  /** Long-form profile rendered on the /about page (detailed bio, achievements, expertise, philosophy). */
+  profile?: ProfileContent;
+}
+
+/** A titled item with a short description (achievements, expertise areas). */
+export interface ProfileItem {
+  title: string;
+  description: string;
+  /** Extra paragraphs (expertise areas). */
+  details?: string[];
+  /** "Core strengths" line (expertise areas). */
+  strengths?: string;
+  /** In-page anchor id. */
+  anchor?: string;
+}
+
+export interface ProfileContent {
+  /** "Award-Winning Journalist | Media Entrepreneur | …" */
+  tagline: string;
+  detailedBio: string[];
+  achievements: { heading: string; tagline?: string; groups: { heading: string; items: ProfileItem[] }[] };
+  expertise: {
+    heading: string;
+    subtitle: string;
+    intro: string[];
+    items: ProfileItem[];
+    distinctiveStrength: { heading: string; paragraphs: string[] };
+  };
+  philosophy: { heading: string; subtitle: string; paragraphs: string[] };
 }
 
 /** philosophy/main */
@@ -110,8 +139,10 @@ export interface FooterContent {
   quickLinksTitle: string;
   connectTitle: string;
   connectText: string;
-  contactEmail: string;
-  newsletterPlaceholder: string;
+  /** Optional — rendered only when supplied. */
+  contactEmail?: string;
+  /** Newsletter field placeholder — the form is shown only when a submission endpoint exists. */
+  newsletterPlaceholder?: string;
   copyright: string;
   legalLinks: Link[];
 }

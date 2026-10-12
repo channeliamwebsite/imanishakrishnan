@@ -50,28 +50,20 @@ export function Footer({ settings, socialLinks }: FooterProps) {
           {/* Connect */}
           <div>
             <p className="type-caps mb-4 text-[0.75rem] text-white/75">{footer.connectTitle}</p>
-            <p className="type-small mb-6 max-w-[21rem] text-white/75">{footer.connectText}</p>
+            <p className="type-small max-w-[21rem] text-white/75">{footer.connectText}</p>
 
-            {/* Visual shell — submission is wired up with the contact backend later. */}
-            <form className="flex max-w-[24rem]" action="#">
-              <label htmlFor="footer-email" className="sr-only">
-                {footer.newsletterPlaceholder}
-              </label>
-              <input
-                id="footer-email"
-                type="email"
-                placeholder={footer.newsletterPlaceholder}
-                className="type-small h-11 min-w-0 flex-1 bg-white px-4 text-[0.9375rem] text-foreground placeholder:text-subtle focus:outline-none"
-              />
-              <button
-                type="submit"
-                aria-label="Subscribe"
-                className="grid h-11 w-14 place-items-center border border-white/80 text-white transition-colors hover:bg-white hover:text-burgundy-deep"
+            {/* Rendered only with real details — no non-functional newsletter form or invented contacts. */}
+            {footer.contactEmail && (
+              <a
+                href={`mailto:${footer.contactEmail}`}
+                className="type-small group mt-5 inline-flex items-center gap-3 text-white transition-colors hover:text-white/80"
               >
-                <ArrowRight className="size-4" aria-hidden />
-              </button>
-            </form>
+                {footer.contactEmail}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              </a>
+            )}
 
+            {socialLinks.length > 0 && (
             <ul className="mt-6 flex items-center gap-9">
               {socialLinks.map((social) => {
                 const external = !social.url.startsWith("mailto:");
@@ -89,11 +81,13 @@ export function Footer({ settings, socialLinks }: FooterProps) {
                 );
               })}
             </ul>
+            )}
           </div>
         </div>
 
         <div className="mt-[clamp(2.5rem,4vw,3.25rem)] flex flex-col gap-3 border-t border-white/20 py-5 md:flex-row md:items-center md:justify-between">
           <p className="type-small text-[0.875rem] text-white/70">{footer.copyright}</p>
+          {footer.legalLinks.length > 0 && (
           <ul className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {footer.legalLinks.map((link, i) => (
               <li key={link.href} className="flex items-center gap-3">
@@ -108,6 +102,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
               </li>
             ))}
           </ul>
+          )}
         </div>
       </div>
     </footer>

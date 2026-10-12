@@ -12,10 +12,16 @@ import type {
   WorkItem,
 } from "@/types/content";
 import { SECTION_IDS, sectionHref } from "@/lib/sections";
+import { profile } from "./profile";
 
 /**
  * Fallback content used until Firestore is connected (and if a document is missing).
  * Shapes match the Firestore documents exactly, so this file doubles as seed data.
+ *
+ * Source of truth for wording: the approved workbook
+ * "Nisha Web Site 02 Word - Hima Content Page.xlsx". Nothing here may be invented —
+ * sections without approved content (published articles, social profiles, contact
+ * details) are left empty and render accordingly.
  *
  * Placeholder width/height record the aspect ratio each slot expects, so uploads
  * to Cloudinary can be cropped to match the reference layout.
@@ -32,6 +38,9 @@ const placeholder = (alt: string, width = 1200, height = 1500): MediaAsset => ({
 
 const item = (id: string, order: number) => ({ id, order, published: true });
 
+/** The long-form profile page. */
+export const PROFILE_PATH = "/about";
+
 export const siteSettings: SiteSettings = {
   siteName: "I'm Nisha Krishnan",
   roles: ["Founder & CEO", "Journalist", "Media Entrepreneur"],
@@ -40,7 +49,8 @@ export const siteSettings: SiteSettings = {
     { label: "Leadership", href: sectionHref(SECTION_IDS.leadership) },
     { label: "Impact", href: sectionHref(SECTION_IDS.impact) },
     { label: "Media", href: sectionHref(SECTION_IDS.media) },
-    { label: "Speaking", href: sectionHref(SECTION_IDS.speaking) },
+    // No homepage speaking section: public speaking is documented on the profile page.
+    { label: "Speaking", href: `${PROFILE_PATH}#speaking` },
     { label: "Insights", href: sectionHref(SECTION_IDS.insights) },
     { label: "Contact", href: sectionHref(SECTION_IDS.contact) },
   ],
@@ -51,36 +61,27 @@ export const siteSettings: SiteSettings = {
     quickLinksTitle: "Quick Links",
     connectTitle: "Let's Connect",
     connectText: "Join me in the journey of ideas, impact and opportunity.",
-    contactEmail: "hello@nishakrishnan.com",
-    newsletterPlaceholder: "Your email address",
+    // Contact email, newsletter endpoint and legal pages are not yet supplied — omitted, not invented.
     copyright: "© 2026 Nisha Krishnan. All rights reserved.",
-    legalLinks: [
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-      // { label: "Sitemap", href: "/sitemap.xml" },
-    ],
+    legalLinks: [],
   },
   seo: {
     title: "Nisha Krishnan — Founder & CEO · Journalist · Media Entrepreneur",
     titleTemplate: "%s | Nisha Krishnan",
     description:
-      "Nisha Krishnan is a founder, journalist and media entrepreneur building platforms, amplifying ideas and creating impact through storytelling.",
-    keywords: ["Nisha Krishnan", "Channeliam", "She Power", "media entrepreneur", "journalist"],
-    siteUrl: "https://nishakrishnan.com",
+      "Nisha Krishnan is an award-winning journalist, media entrepreneur and founder of channeliam.com, championing entrepreneurship, innovation and business growth.",
+    keywords: ["Nisha Krishnan", "Channeliam", "She Power", "I AM Startup Studio", "media entrepreneur", "journalist"],
+    siteUrl: "https://imanishakrishnan.vercel.app",
   },
   sections: {
     work: { label: "Initiatives", heading: "Selected Work & Impact" },
-    media: {
-      label: "Featured In",
-      heading: "In the Media",
-      tagline: "Stories that spark conversations.",
-    },
+    // No verified media coverage has been supplied; the section shows approved awards instead.
+    media: { label: "Recognition", heading: "Awards & Honours" },
     insights: {
       label: "Thoughts & Perspectives",
       heading: "Latest Insights",
       intro:
         "Ideas, experiences and perspectives on media, entrepreneurship, leadership and a more inclusive future.",
-      cta: { label: "View All Articles", href: sectionHref(SECTION_IDS.insights) },
     },
   },
 };
@@ -100,206 +101,197 @@ export const hero: HeroContent = {
   image: placeholder("Portrait of Nisha Krishnan", 1600, 1500),
 };
 
-/** Same shape as statistics/{id} Firestore documents. Approved facts only. */
+/** Same shape as statistics/{id} Firestore documents. Workbook section "3. Impact". */
 export const statistics: ImpactStatistic[] = [
-  {
-    id: "years-in-media",
-    value: "24+",
-    title: "YEARS IN MEDIA",
-    description: "A journey of impactful storytelling",
-    order: 1,
-    active: true,
-    icon: "mic",
-  },
-  {
-    id: "business-stories",
-    value: "15,000+",
-    title: "BUSINESS STORIES",
-    description: "Stories produced through Channeliam",
-    order: 2,
-    active: true,
-    icon: "newspaper",
-  },
-  {
-    id: "founded-channeliam",
-    value: "2016",
-    title: "FOUNDED CHANNELIAM",
-    description: "Building a platform for entrepreneurs and businesses",
-    order: 3,
-    active: true,
-    icon: "building",
-  },
+  { id: "stat-1", value: "24", title: "YEARS IN MEDIA", description: "Professional experience", order: 1, active: true, icon: "mic" },
+  { id: "stat-2", value: "15,000+", title: "BUSINESS STORIES", description: "Content impact", order: 2, active: true, icon: "newspaper" },
+  { id: "stat-3", value: "10", title: "YEARS OF CHANNELIAM", description: "Entrepreneurial journey since 2016", order: 3, active: true, icon: "building" },
 ];
 
+/** Homepage About: the workbook's medium bio (150–200 words); the detailed profile lives on /about. */
 export const about: AboutContent = {
   label: "Behind the Journey",
   heading: "A journey built on stories.",
-  intro:
-    "Nisha Krishnan|Media Entrepreneur | Visionary Leader | Startup Ecosystem Builder | Women’s Empowerment Advocate",
-  // Approved profile facts only.
+  intro: "Media Entrepreneur · Visionary Leader · Startup Ecosystem Builder · Women’s Empowerment Advocate",
   paragraphs: [
-    "Nisha Krishnan is a charismatic, award-winning journalist, media entrepreneur, and founder of channeliam.com. With 24 years of media experience, she is a visionary, results-driven leader known for her dedication, execution excellence, and team leadership. She champions innovation, entrepreneurship, and women’s empowerment, transforming powerful ideas into meaningful impact through media and strategic collaborations."
-
+    "Nisha Krishnan is a charismatic, award-winning journalist, media entrepreneur, and founder of channeliam.com, a digital media platform championing entrepreneurship, innovation, and constructive journalism. With over 23 years of media experience, she is known for her visionary leadership, unwavering dedication, strategic thinking, and results-driven execution. A dynamic team leader, she excels at transforming ambitious ideas into impactful initiatives.",
+    "Since founding channeliam.com in 2016, Nisha has built multidisciplinary teams and developed platforms connecting entrepreneurs, investors, businesses, policymakers, and institutions. Her international engagements include the prestigious U.S. Department of State's International Visitor Leadership Program (IVLP) and the Thematic International Exchange Seminar (TIES), held in Kazakhstan in 2019.",
+    "She also received a U.S. Department of State grant to develop solutions addressing challenges faced by women in the post-COVID period. Through initiatives including She Power and I AM Startup Studio, she continues to champion emerging entrepreneurs and innovative ideas.",
+    "A UAE Golden Visa recipient, Nisha combines inspiring leadership with disciplined execution, advancing AI-powered media, strategic collaborations, and entrepreneurial growth. Her mission is to transform powerful stories into opportunities, meaningful partnerships, and lasting impact.",
   ],
-  cta: { label: "Read More About Nisha", href: sectionHref(SECTION_IDS.about) },
+  cta: { label: "Read the full story", href: PROFILE_PATH },
   images: [
     placeholder("Nisha Krishnan speaking", 1600, 1000),
     placeholder("Kochi skyline", 1400, 1500),
   ],
   keywords: ["Stories", "People", "Ideas", "Communities", "A Brighter Tomorrow"],
+  profile,
 };
 
 /**
- * The About story timeline. Approved profile facts only; the final "vision" entry is a stated
- * ambition, not an achievement, and is styled as such.
+ * The 12 career milestones (workbook section "2. Career Journey"), in order. Titles are the
+ * workbook's headings; descriptions are its text. The final entry is styled as "vision":
+ * the advisory was initiated in 2026, but its ₹500 crore-by-2030 goal is an ambition.
  */
 export const timeline: TimelineEntry[] = [
   {
-    ...item("t1", 1),
-    kind: "milestone",
+    ...item("t01", 1),
     year: "2002",
-    title: "Began career in broadcast journalism",
+    title: "The Beginning of a Journalism Career",
     description:
-      "Nisha began her career in broadcast journalism — work that shaped her approach to communication, public engagement and storytelling.",
+      "Started her professional journey at the age of 21 with Jeevan TV, marking the beginning of a career spanning news presentation, reporting, editorial leadership, and television production.",
   },
   {
-    ...item("t2", 2),
-    kind: "milestone",
-    year: "2008",
+    ...item("t02", 2),
+    year: "2008–2011",
     title: "Recognition for Excellence in Journalism",
     description:
-      "Earned prestigious honours, including the Laadli Media Award for gender-sensitive reporting and the Kerala State Media Award for impactful visual journalism. Her achievements also include the Dr. B. R. Ambedkar Award and P. C. Sukumaran ",
+      "Earned prestigious honours, including the Laadli Media Award for gender-sensitive reporting and the Kerala State Media Award for impactful visual journalism. Her achievements also include the Dr. B. R. Ambedkar Award and P. C. Sukumaran Nair Memorial Award.",
   },
   {
-    ...item("t3", 3),
-    kind: "milestone",
+    ...item("t03", 3),
     year: "2016",
-    title: "Founded Channeliam.com",
+    title: "Founded channeliam.com",
     description:
-    " Established channeliam.com as a bootstrapped digital media startup, introducing a distinctive news culture focused on entrepreneurship, startups, business innovation, emerging technologies, and economic growth.",
+      "Established channeliam.com as a bootstrapped digital media startup, introducing a distinctive news culture focused on entrepreneurship, startups, business innovation, emerging technologies, and economic growth.",
   },
   {
-    ...item("t4", 4),
-    kind: "milestone",
+    ...item("t04", 4),
+    year: "2018",
+    title: "Launched I Am An Entrepreneur",
+    description:
+      "Founded an entrepreneurship-focused initiative that brought together more than 300 emerging entrepreneurs, encouraging innovation, networking, and entrepreneurial development.",
+  },
+  {
+    ...item("t05", 5),
     year: "2019",
-    title: "U.S. State Department IVLP & TIES Kazakhstan",
+    title: "Selected for the U.S. International Visitor Leadership Program",
     description:
-      "Her international engagements include the U.S. Department of State's International Visitor Leadership Program (IVLP) and TIES Kazakhstan, and a U.S. State Department women's empowerment grant. She also holds a UAE Golden Visa.",
+      "Selected for the prestigious International Visitor Leadership Program (IVLP) of the U.S. Department of State, expanding her international exposure and professional networks.",
   },
   {
-    ...item("t5", 5),
+    ...item("t06", 6),
+    year: "2019",
+    title: "Represented India at TIES, Kazakhstan",
+    description:
+      "Participated in the Thematic International Exchange Seminar (TIES) in Almaty, Kazakhstan, focusing on women in media, media literacy, and combating misinformation. She was among three Indian delegates.",
+  },
+  {
+    ...item("t07", 7),
+    year: "2019",
+    title: "Launched I AM Startup Studio",
+    description:
+      "Established an initiative connecting campus innovations with industry and entrepreneurial ecosystems. The programme engaged 45+ colleges and 3,500+ students, with a reported digital reach of 2.6 million.",
+  },
+  {
+    ...item("t08", 8),
+    year: "2020–2021",
+    title: "She Power & U.S. State Department Grant",
+    description:
+      "Led She Power, an initiative supporting women's entrepreneurship, leadership, and digital empowerment. Received U.S. Department of State grant support for initiatives addressing challenges faced by women.",
+  },
+  {
+    ...item("t09", 9),
+    year: "2023",
+    title: "International Recognition & UAE Golden Visa",
+    description:
+      "Received the UAE Golden Visa, reflecting her international professional standing. Her recognitions also include the 2023 Young Achievers Award from Naturals.",
+  },
+  {
+    ...item("t10", 10),
+    year: "2023–2025",
+    title: "Pioneering AI-Powered Journalism",
+    description:
+      "Led Channeliam's adoption of AI news presenters and AI-enabled newsroom technologies, exploring new possibilities in digital journalism, multilingual content production, and media innovation.",
+  },
+  {
+    ...item("t11", 11),
+    year: "2026",
     kind: "figure",
-    year: "15,000+",
-    title: "Business stories produced by Channeliam",
+    title: "Celebrating 10 Years of channeliam.com",
     description:
-      "Channeliam has produced more than 15,000 business stories — a growing record of entrepreneurship, innovation and enterprise.",
+      "Completed a decade of media entrepreneurship, with Channeliam producing 15,000+ business stories documenting entrepreneurial journeys, emerging innovations, and business opportunities across India and beyond.",
   },
   {
-    ...item("t6", 6),
+    ...item("t12", 12),
+    year: "2026",
     kind: "vision",
-    year: "Next",
-    title: "Vision: Channeliam Strategic Business Advisory",
+    title: "Launching Channeliam Strategic Business Advisory",
     description:
-      "The vision for Channeliam Strategic Business Advisory: moving beyond documenting business success toward execution-oriented support for business growth.",
+      "Initiated a new business acceleration venture designed to translate a decade of entrepreneurial insights into strategic growth support. The programme aims to help ambitious enterprises pursue expansion, stronger sales performance, digital transformation, enterprise valuation, and IPO readiness, with a long-term vision of enabling businesses to achieve ₹500 crore+ annual turnover by 2030.",
   },
 ];
 
+/** Ventures & initiatives (workbook bios, milestones and expertise). */
 export const work: WorkItem[] = [
   {
     ...item("channeliam", 1),
     icon: "newspaper",
     category: "Channeliam",
-    tagline: "A Media Platform for Tomorrow",
-    title: "Channeliam.com",
+    tagline: "Since 2016",
+    title: "channeliam.com",
     description:
-      "A leading digital media platform covering startups, entrepreneurship, innovation and business transformation.",
-    cta: { label: "Explore", href: sectionHref(SECTION_IDS.impact) },
+      "A digital media platform championing entrepreneurship, innovation, and constructive journalism — 15,000+ business stories in its first decade.",
+    cta: { label: "Visit Channeliam", href: "https://channeliam.com" },
     coverImage: placeholder("Channeliam", 1400, 600),
   },
   {
     ...item("she-power", 2),
     icon: "sparkles",
     category: "She Power",
-    tagline: "Empower · Enable · Elevate",
+    tagline: "Women's entrepreneurship",
     title: "She Power",
     description:
-      "A women empowerment initiative to create more opportunities for women to lead, innovate and make a difference.",
-    cta: { label: "Learn More", href: sectionHref(SECTION_IDS.impact) },
+      "An initiative supporting women's entrepreneurship, leadership, and digital empowerment, with U.S. Department of State grant support.",
+    cta: { label: "Learn More", href: `${PROFILE_PATH}#womens-entrepreneurship` },
     coverImage: placeholder("She Power", 1400, 600),
   },
   {
-    ...item("entrepreneurship", 3),
+    ...item("startup-studio", 3),
     icon: "lightbulb",
-    category: "Entrepreneurship",
-    title: "Entrepreneurship",
-    description: "Championing startup stories, founders and innovators who are shaping the future.",
-    cta: { label: "Our Coverage", href: sectionHref(SECTION_IDS.impact) },
-    coverImage: placeholder("Entrepreneurship", 1400, 600),
+    category: "I AM Startup Studio",
+    tagline: "Since 2019",
+    title: "I AM Startup Studio",
+    description:
+      "Connecting campus innovations with industry and entrepreneurial ecosystems — 45+ colleges and 3,500+ students engaged.",
+    cta: { label: "Learn More", href: `${PROFILE_PATH}#campus-entrepreneurship` },
+    coverImage: placeholder("I AM Startup Studio", 1400, 600),
   },
   {
-    ...item("speaking", 4),
-    icon: "mic",
-    category: "Speaking & Advocacy",
-    title: "Speaking & Advocacy",
+    ...item("advisory", 4),
+    icon: "chart",
+    category: "Strategic Business Advisory",
+    tagline: "Launched 2026",
+    title: "Channeliam Strategic Business Advisory",
     description:
-      "Sharing insights at global and national forums on media, leadership, entrepreneurship and women empowerment.",
-    cta: { label: "View Events", href: sectionHref(SECTION_IDS.speaking) },
-    coverImage: placeholder("Speaking & Advocacy", 1400, 600),
+      "Execution-oriented support to help ambitious enterprises strengthen sales, expand markets, and accelerate digital transformation.",
+    cta: { label: "Learn More", href: `${PROFILE_PATH}#business-growth` },
+    coverImage: placeholder("Strategic Business Advisory", 1400, 600),
   },
 ];
 
+/** Approved awards (workbook "Professional achievements") — no media coverage has been supplied. */
 export const mediaFeatures: MediaFeature[] = [
-  "The Times of India",
-  "Forbes",
-  "The Hindu",
-  "Business Standard",
-  "YourStory",
-  "CNBC",
-  "Mint",
+  "Kerala State Media Award",
+  "Laadli Media Award",
+  "Dr. B. R. Ambedkar Award",
+  "P. C. Sukumaran Nair Memorial Award",
+  "IMA Award",
+  "V. K. Madhavan Kutty Award",
+  "Nehru Yuva Kendra Award",
 ].map((publication, i) => ({ ...item(`m${i + 1}`, i + 1), publication }));
 
+/** Workbook "Blurb (Highlighted wordings)" and the leadership philosophy's heading line. */
 export const philosophy: PhilosophyContent = {
-  quote: "“I don't believe in leadership that merely inspires ideas." ,
-  supportingText:"I believe in leadership that empowers people, drives execution, and creates lasting impact.",
+  quote:
+    "I don't believe in leadership that merely inspires ideas. I believe in leadership that empowers people, drives execution, and creates lasting impact.",
+  supportingText: "Lead with Purpose. Inspire with Conviction. Deliver with Action.",
   author: "Nisha Krishnan",
   image: placeholder("Nisha Krishnan", 1100, 1000),
 };
 
-export const insights: Insight[] = [
-  {
-    ...item("i1", 1),
-    slug: "power-of-stories-stronger-ecosystem",
-    title: "The Power of Stories in Building a Stronger Ecosystem",
-    excerpt: "How storytelling can fuel entrepreneurship, connect communities and create lasting impact.",
-    category: "Media",
-    coverImage: placeholder("Insight cover", 1300, 500),
-    publishedAt: "2026-09-18T00:00:00.000Z",
-    featured: true,
-  },
-  {
-    ...item("i2", 2),
-    slug: "why-womens-leadership-matters",
-    title: "Why Women's Leadership Matters More Than Ever",
-    excerpt: "Reflections on opportunity, equity and the transformative power of women in business.",
-    category: "Leadership",
-    coverImage: placeholder("Insight cover", 1300, 500),
-    publishedAt: "2026-08-27T00:00:00.000Z",
-    featured: true,
-  },
-  {
-    ...item("i3", 3),
-    slug: "innovation-begins-with-conversations",
-    title: "Innovation Begins with Conversations",
-    excerpt: "Meaningful conversations can spark ideas, solve real problems and shape a better future.",
-    category: "Entrepreneurship",
-    coverImage: placeholder("Insight cover", 1300, 500),
-    publishedAt: "2026-08-04T00:00:00.000Z",
-    featured: true,
-  },
-];
+/** No published articles yet — the section shows an empty state until Firestore has some. */
+export const insights: Insight[] = [];
 
-export const socialLinks: SocialLink[] = [
-  { ...item("s1", 1), platform: "linkedin", url: "https://www.linkedin.com", label: "LinkedIn" },
-  { ...item("s2", 2), platform: "instagram", url: "https://www.instagram.com", label: "Instagram" },
-  { ...item("s3", 3), platform: "email", url: "mailto:hello@nishakrishnan.com", label: "Email" },
-];
+/** No verified social profiles supplied yet. */
+export const socialLinks: SocialLink[] = [];
