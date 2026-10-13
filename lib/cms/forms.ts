@@ -336,7 +336,7 @@ export const TESTIMONIALS_COPY_FIELDS: FieldDef[] = [
     folder: CLOUDINARY_FOLDERS.testimonials,
     help: "Each image already contains its testimonial. Shown in this order; the homepage shows them in a carousel and /testimonials shows all. Give each image alt text describing whose testimonial it is.",
   },
-  { kind: "link", key: "cta", label: "“View all” button", optional: true, help: "e.g. View All Testimonials → /testimonials" },
+  { kind: "link", key: "cta", label: "“View more” button", optional: true, help: "e.g. View More Testimonials → /testimonials" },
 ];
 
 /* ------------------------------------------------------------------ */

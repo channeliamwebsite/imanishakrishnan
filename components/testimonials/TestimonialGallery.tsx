@@ -181,7 +181,7 @@ export function TestimonialGallery({
   const hasMore = shown < images.length;
   return (
     <>
-      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+      <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4 lg:gap-5">
         {visible.map((image, i) => (
           <li key={image.publicId || i}>
             <button
@@ -197,7 +197,7 @@ export function TestimonialGallery({
                 image={image}
                 index={i}
                 priority={i < 4}
-                sizes="(min-width: 1024px) 23vw, (min-width: 768px) 46vw, 100vw"
+                sizes="(min-width: 1024px) 23vw, (min-width: 480px) 46vw, 100vw"
               />
             </button>
           </li>

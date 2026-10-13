@@ -97,7 +97,7 @@ export const siteSettings: SiteSettings = {
       label: "Voices of Trust",
       heading: "What People Are Saying",
       intro: "A collection of voices, experiences, and appreciation from the audience who have been part of the journey.",
-      cta: { label: "View All Testimonials", href: "/testimonials" },
+      cta: { label: "View More Testimonials", href: "/testimonials" },
     },
     insights: {
       label: "Thoughts & Perspectives",
