@@ -10,9 +10,10 @@ import type {
   SiteSettings,
   SocialLink,
   TimelineEntry,
+  WorkDetailCopy,
   WorkItem,
 } from "@/types/content";
-import { SECTION_IDS, sectionHref } from "@/lib/sections";
+import { SECTION_IDS, sectionHref, workPath } from "@/lib/sections";
 import { profile } from "./profile";
 
 /**
@@ -43,6 +44,17 @@ const item = (id: string, order: number) => ({ id, order, published: true });
 export const PROFILE_PATH = "/about";
 /** Detail page of a Selected Work item. */
 export const workPath = (slug: string) => `/work/${slug}`;
+
+/** Labels of the work detail pages; also the fallback when site settings don't define them. */
+export const workDetailCopy: WorkDetailCopy = {
+  backLabel: "Selected Work & Impact",
+  aboutLabel: "About",
+  highlightsLabel: "At a glance",
+  workLabel: "The work",
+  strengthsLabel: "Core strengths",
+  milestonesLabel: "Journey & impact",
+  galleryLabel: "Gallery",
+};
 
 export const siteSettings: SiteSettings = {
   siteName: "Beyond the Story",
@@ -78,17 +90,7 @@ export const siteSettings: SiteSettings = {
     siteUrl: "https://imanishakrishnan.vercel.app",
   },
   sections: {
-    work: {
-      label: "Initiatives",
-      heading: "Selected Work & Impact",
-      detail: {
-        backLabel: "Selected Work & Impact",
-        highlightsLabel: "At a glance",
-        workLabel: "The work",
-        strengthsLabel: "Core strengths",
-        milestonesLabel: "Milestones",
-      },
-    },
+    work: { label: "Initiatives", heading: "Selected Work & Impact", detail: workDetailCopy },
     // Publication names supplied by the client (not in the workbook) — text only, no links or logos.
     media: { label: "Featured In", heading: "In the Media", tagline: "Stories that spark conversations." },
     awards: { label: "Recognition", heading: "Awards & Honours" },
@@ -250,8 +252,30 @@ export const work: WorkItem[] = [
     title: "channeliam.com",
     description:
       "A digital media platform championing entrepreneurship, innovation, and constructive journalism — 15,000+ business stories in its first decade.",
-    cta: { label: "Visit Channeliam", href: "https://channeliam.com" },
+    cta: { label: "Learn More", href: workPath("channeliam") },
     coverImage: placeholder("Channeliam", 1400, 600),
+    slug: "channeliam",
+    // Every sentence below is from the approved biography (./profile.ts) and timeline above.
+    detail: {
+      title: "Channeliam",
+      aboutHeading: "About Channeliam",
+      paragraphs: [
+        profile.detailedBio[0],
+        profile.detailedBio[2],
+        profile.detailedBio[3],
+        profile.detailedBio[5],
+        profile.detailedBio[8],
+      ],
+      expertiseAnchor: "media-entrepreneurship",
+      milestoneIds: ["t03", "t10", "t11", "t12"],
+      // Workbook "3. Impact" (statistics above) and the 2026 milestone.
+      highlights: [
+        { value: "2016", label: "Founded" },
+        { value: "15,000+", label: "Business stories" },
+        { value: "10", label: "Years of Channeliam" },
+      ],
+      cta: { label: "Visit Channeliam", href: "https://channeliam.com" },
+    },
   },
   {
     ...item("she-power", 2),

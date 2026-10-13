@@ -17,3 +17,6 @@ export const SECTION_IDS = {
 export type SectionId = (typeof SECTION_IDS)[keyof typeof SECTION_IDS];
 
 export const sectionHref = (id: SectionId) => `/#${id}`;
+
+/** Detail page of a Selected Work item. */
+export const workPath = (slug: string) => `/work/${slug}`;

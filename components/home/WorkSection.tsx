@@ -3,7 +3,7 @@ import NextImage from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { SectionCopy, WorkItem } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
-import { SECTION_IDS } from "@/lib/sections";
+import { SECTION_IDS, workPath } from "@/lib/sections";
 import { Card, CardBody } from "@/components/ui/Card";
 import { CarouselNav } from "@/components/ui/CarouselNav";
 import { Icon } from "@/components/ui/Icon";
@@ -13,7 +13,8 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const TRACK_ID = "work-track";
 
-/** Detail pages (/work/{slug}) open in place; external sites in a new tab, safely. */
+/** Detail pages (/work/{slug}) open in place; external destinations open in a new tab, safely. */
+const cardHref = (item: WorkItem) => (item.slug ? workPath(item.slug) : item.cta.href);
 const linkProps = (href: string) =>
   /^https?:\/\//i.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
@@ -78,8 +79,8 @@ export function WorkSection({ items, copy }: { items: WorkItem[]; copy: SectionC
                       </h3>
                       <p className="type-small text-muted">{item.description}</p>
                       <Link
-                        href={item.cta.href}
-                        {...linkProps(item.cta.href)}
+href={cardHref(item)}
+                        {...linkProps(cardHref(item))}
                         className="type-button inline-flex items-center gap-3 self-start pt-4 text-burgundy transition-colors hover:text-foreground"
                       >
                         {item.cta.label}

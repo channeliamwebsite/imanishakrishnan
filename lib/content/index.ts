@@ -226,15 +226,19 @@ export async function getWorkDetailSlugs(): Promise<string[]> {
 
 /** A work item's detail page content, or null when no published item has that slug and a detail page. */
 export async function getWorkDetail(slug: string): Promise<WorkDetailContent | null> {
+  "use cache";
+  cacheTag(COLLECTIONS.work, COLLECTIONS.about, COLLECTIONS.timeline, COLLECTIONS.siteSettings);
   const [work, about, timeline, settings] = await Promise.all([getWork(), getAbout(), getTimeline(), getSiteSettings()]);
   const item = work.find((w) => w.slug === slug && w.detail);
   if (!item?.detail) return null;
   const expertiseItems = (about.profile ?? fallbackProfile).expertise.items;
   return {
     item,
-    expertise: expertiseItems.find((x) => x.anchor === item.detail?.expertiseAnchor),
+    expertise: item.detail.expertiseAnchor ? expertiseItems.find((x) => x.anchor === item.detail.expertiseAnchor) : undefined,
     milestones: (item.detail.milestoneIds ?? []).flatMap((id) => timeline.filter((entry) => entry.id === id)),
-    copy: settings.sections.work.detail ?? fallback.siteSettings.sections.work.detail!,
+    copy: settings.sections.work.detail ?? fallback.workDetailCopy,
+  };
+}
   };
 }
 
