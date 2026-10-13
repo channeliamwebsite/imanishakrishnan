@@ -4,6 +4,7 @@ import { COLLECTIONS } from "@/lib/firebase/collections";
 import { getAllDocuments, getPublishedList, getSingleton } from "@/lib/firebase/firestore";
 import type {
   AboutContent,
+  Achievement,
   HeroContent,
   HomeContent,
   ImpactStatistic,
@@ -163,6 +164,14 @@ export async function getMediaFeatures(): Promise<MediaFeature[]> {
     fallback.mediaFeatures,
     "mediaFeatures",
   );
+}
+
+/** Awards & Honours — the achievements collection, kept separate from media publications. */
+export async function getAchievements(): Promise<Achievement[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(COLLECTIONS.achievements);
+  return safe(() => getPublishedList<Achievement>(COLLECTIONS.achievements), fallback.achievements, "achievements");
 }
 
 export async function getPhilosophy(): Promise<PhilosophyContent> {

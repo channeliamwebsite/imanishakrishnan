@@ -1,26 +1,24 @@
-import { Cormorant_Garamond, Crimson_Pro, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, Crimson_Pro } from "next/font/google";
 
-/** Display serif — hero name, section headings, quote. High-contrast caps. */
+/**
+ * Editorial face — brand, headings, timeline and card titles, body copy, philosophy.
+ * Exposed as --font-display (and --font-serif) in app/globals.css.
+ */
 export const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
   display: "swap",
 });
 
-/** Text serif — body copy, descriptions, card titles. Cormorant is too light at reading sizes. */
+/**
+ * Functional face — navigation, numbers and years, statistic labels, buttons, metadata,
+ * footer links, form controls. Exposed as --font-sans in app/globals.css.
+ */
 export const crimson = Crimson_Pro({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-crimson",
-  display: "swap",
-});
-
-/** Sans — navigation, labels, buttons, metadata. */
-export const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-montserrat",
   display: "swap",
 });

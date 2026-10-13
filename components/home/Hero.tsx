@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import type { HeroContent } from "@/types/content";
 import { Button } from "@/components/ui/Button";
 import { MediaImage } from "@/components/ui/Image";
@@ -13,8 +12,10 @@ const PORTRAIT_BACKDROP_TO_TRANSPARENT = "e_make_transparent:10,co_rgb:f7f7f7";
 
 /** "I'm Nisha Krishnan" → greeting "I'm", lines ["Nisha", "Krishnan"]. Works without a greeting too. */
 function splitName(name: string) {
-  const match = name.match(/^(I['’]m)\s+(.+)$/i);
+  const match = name.match(/^(I\s+am|I['’]m)\s+(.+)$/i);
+
   const words = (match ? match[2] : name).trim().split(/\s+/);
+
   return {
     greeting: match?.[1],
     lines: words.length > 1 ? [words[0], words.slice(1).join(" ")] : words,
@@ -25,9 +26,8 @@ function splitName(name: string) {
 const splitOn = (value: string, separator: string) =>
   value.split(separator).map((part) => part.trim()).filter(Boolean);
 
-/** Video links open in a new tab; with no URL yet the button keeps its in-page placeholder anchor. */
-function secondaryLinkProps(url?: string) {
-  if (!url) return { href: "#video" };
+/** External video links open in a new tab. */
+function secondaryLinkProps(url: string) {
   return /^https?:\/\//.test(url) ? { href: url, target: "_blank", rel: "noopener noreferrer" } : { href: url };
 }
 
@@ -53,19 +53,26 @@ export function Hero({ content }: { content: HeroContent }) {
         {/* Entrance: each element rises in sequence (CSS only — visible without JS, off for reduced motion). */}
         <div className="relative z-10 flex flex-col justify-center pb-12 pt-10 sm:pt-14 lg:py-12 lg:pr-8">
           {eyebrowWords.length > 0 && (
-            <p className="animate-rise type-label mb-5 flex flex-wrap items-center gap-x-3 text-rose">
-              {eyebrowWords.map((word, i) => (
-                <Fragment key={i}>
-                  {i > 0 && <span aria-hidden>|</span>}
-                  <span>{word}</span>
-                </Fragment>
-              ))}
-            </p>
+            // Separators live in each item's left padding; the row is shifted left by that padding and
+            // clips overflow, so the separator of whichever item starts a line is hidden — a wrapped
+            // line never starts or ends with "|".
+            <div className="animate-rise mb-5 overflow-hidden">
+              <p className="type-label -ml-6 flex flex-wrap items-center text-rose">
+                {eyebrowWords.map((word, i) => (
+                  <span
+                    key={i}
+                    className="relative whitespace-nowrap pl-6 before:absolute before:left-[0.55rem] before:content-['|']"
+                  >
+                    {word}
+                  </span>
+                ))}
+              </p>
+            </div>
           )}
 
           <h1 className="text-foreground">
             {greeting && (
-              <span className="animate-rise mb-2 block font-display text-[clamp(1.5rem,2.1vw,1.875rem)] italic normal-case leading-none text-muted [animation-delay:80ms]">
+              <span className="animate-rise mb-2 block font-display text-[clamp(1.5rem,2vw,1.875rem)] font-medium leading-none text-muted [animation-delay:80ms]">
                 {greeting}
               </span>
             )}
@@ -76,19 +83,21 @@ export function Hero({ content }: { content: HeroContent }) {
             ))}
           </h1>
 
-          {/* Each separator travels with the role after it, so wrapped lines never end on a dot. */}
-          <p className="animate-rise mt-5 flex flex-wrap items-center gap-x-5 gap-y-1 font-serif text-[clamp(1.125rem,1.7vw,1.5rem)] text-foreground/80 [animation-delay:260ms]">
-            {roleLine.map((role, i) => (
-              <span key={i} className="flex items-center gap-x-5 whitespace-nowrap">
-                {i > 0 && (
-                  <span aria-hidden className="text-foreground/50">
-                    ·
-                  </span>
-                )}
-                {role}
-              </span>
-            ))}
-          </p>
+          {/* Same clipped-separator technique as the eyebrow: no line starts or ends with "·". */}
+          
+<div className="animate-rise mt-5 overflow-hidden [animation-delay:260ms]">
+  <p className="-ml-6 flex flex-wrap items-center gap-y-2 font-sans text-[clamp(0.875rem,1.05vw,1rem)] font-semibold uppercase tracking-[0.08em] text-foreground/85">
+    {roleLine.map((role, i) => (
+      <span
+        key={i}
+        className="relative whitespace-nowrap pl-6 before:absolute before:left-[0.6rem] before:text-foreground/50 before:content-['·']"
+      >
+        {role}
+      </span>
+    ))}
+  </p>
+</div>
+
 
           <span aria-hidden className="animate-rise mt-7 block h-0.5 w-16 bg-burgundy [animation-delay:320ms]" />
 
@@ -96,7 +105,8 @@ export function Hero({ content }: { content: HeroContent }) {
 
           <div className="animate-rise mt-9 flex flex-wrap items-center gap-x-10 gap-y-5 [animation-delay:460ms]">
             <Button href={primaryCta.link}>{primaryCta.label}</Button>
-            {secondaryCta && (
+            {/* Only with a real video URL — no placeholder link. */}
+            {secondaryCta?.url && (
               <Button {...secondaryLinkProps(secondaryCta.url)} variant="ghost" icon="play">
                 {secondaryCta.label}
               </Button>

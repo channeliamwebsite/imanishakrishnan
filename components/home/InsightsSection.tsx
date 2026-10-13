@@ -20,6 +20,7 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 });
 
 export function InsightsSection({ items, copy }: { items: Insight[]; copy: SectionCopy["insights"] }) {
+  const hasArticles = items.length > 0;
   return (
     <section id={SECTION_IDS.insights} className="section-y">
       <div className="container-site">
@@ -29,16 +30,25 @@ export function InsightsSection({ items, copy }: { items: Insight[]; copy: Secti
           intro={copy.intro}
           introPlacement="inline"
           aside={
-            <>
-              {copy.cta && (
-                <Button href={copy.cta.href} variant="text">
-                  {copy.cta.label}
-                </Button>
-              )}
-              <CarouselNav targetId={TRACK_ID} className="hidden md:flex" />
-            </>
+            hasArticles && (
+              <>
+                {copy.cta && (
+                  <Button href={copy.cta.href} variant="text">
+                    {copy.cta.label}
+                  </Button>
+                )}
+                <CarouselNav targetId={TRACK_ID} className="hidden md:flex" />
+              </>
+            )
           }
         />
+
+        {/* No published articles yet (insights collection empty): an honest note instead of sample cards. */}
+        {!hasArticles && (
+          <p className="type-small border-t hairline pt-6 text-muted">
+            New articles and perspectives will be published here soon.
+          </p>
+        )}
 
         {/* Mobile: stacked. Tablet: 2 visible, scrollable. Desktop: 3. */}
         <ul id={TRACK_ID} className="grid gap-card md:scroll-track md:flex">

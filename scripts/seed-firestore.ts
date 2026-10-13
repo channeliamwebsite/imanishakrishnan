@@ -43,20 +43,24 @@ const HERO_IMAGE: SeedImage = {
 };
 
 const HERO: Omit<HeroContent, "image"> = {
-  eyebrow: "IDEAS | PEOPLE | IMPACT",
-  name: "I'm Nisha Krishnan",
+  eyebrow: "MEDIA | ENTREPRENEURSHIP | BUSINESS GROWTH",
+  name: "I am Nisha Krishnan",
   designation: "Founder & CEO",
   roles: ["Journalist", "Media Entrepreneur"],
-  description: "Building platforms, amplifying ideas and creating impact through the power of storytelling.",
-  location: "KOCHI / INDIA",
-  primaryCta: { label: "EXPLORE MY JOURNEY", link: "/#about" },
+  description:
+    "Award-winning journalist and founder of channeliam.com, a digital media platform for entrepreneurship, innovation and business growth.",
+  location: "INDIA / UAE",
+  primaryCta: { label: "EXPLORE MY JOURNEY", link: "/about" },
   secondaryCta: { label: "WATCH VIDEO", url: "" },
 };
 
 const STATISTICS: Array<Omit<ImpactStatistic, "id" | "icon"> & { id: string }> = [
-  { id: "stat-1", value: "23+", title: "YEARS IN MEDIA", description: "A journey of impactful storytelling", order: 1, active: true },
-  { id: "stat-2", value: "15,000+", title: "BUSINESS STORIES", description: "Stories produced through Channeliam", order: 2, active: true },
-  { id: "stat-3", value: "2016", title: "FOUNDED CHANNELIAM", description: "Building a platform for entrepreneurs and businesses", order: 3, active: true },
+  // Workbook "3. Impact": 24 Years in Media · 15,000+ Business Stories · 10 Years of Channeliam.
+  { id: "stat-1", value: "24", title: "YEARS IN MEDIA", description: "Professional experience", order: 1, active: true },
+  { id: "stat-2", value: "15,000+", title: "BUSINESS STORIES", description: "Content impact", order: 2, active: true },
+  { id: "stat-3", value: "10", title: "YEARS OF CHANNELIAM", description: "Entrepreneurial journey since 2016", order: 3, active: true },
+  // Workbook "Professional Achievements & Global Recognition" lists exactly 12 items.
+  { id: "stat-4", value: "12", title: "AWARDS & HONOURS", description: "Journalism awards and international recognition", order: 4, active: true },
 ];
 
 /* ------------------------------------------------------------------ */

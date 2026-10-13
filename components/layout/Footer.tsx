@@ -19,7 +19,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr] lg:grid-cols-[2.1fr_1fr_1.3fr] lg:gap-grid">
           {/* Identity */}
           <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-1">
-            <p className="font-display text-[1.75rem] font-medium uppercase leading-none tracking-[0.06em]">
+            <p className="font-display text-[1.625rem] font-semibold leading-none">
               {siteName}
             </p>
             <p className="type-small flex flex-wrap items-center gap-x-3 text-[0.9375rem] text-white/60">
@@ -39,7 +39,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
             <ul className="grid grid-cols-2 gap-x-8 xs:grid-cols-3 md:grid-cols-1">
               {navigation.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="type-small leading-[1.6] text-white/85 transition-colors hover:text-white">
+                  <Link href={link.href} className="type-ui text-white/85 transition-colors hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -50,28 +50,20 @@ export function Footer({ settings, socialLinks }: FooterProps) {
           {/* Connect */}
           <div>
             <p className="type-caps mb-4 text-[0.75rem] text-white/75">{footer.connectTitle}</p>
-            <p className="type-small mb-6 max-w-[21rem] text-white/75">{footer.connectText}</p>
+            <p className="type-small max-w-[21rem] text-white/75">{footer.connectText}</p>
 
-            {/* Visual shell — submission is wired up with the contact backend later. */}
-            <form className="flex max-w-[24rem]" action="#">
-              <label htmlFor="footer-email" className="sr-only">
-                {footer.newsletterPlaceholder}
-              </label>
-              <input
-                id="footer-email"
-                type="email"
-                placeholder={footer.newsletterPlaceholder}
-                className="type-small h-11 min-w-0 flex-1 bg-white px-4 text-[0.9375rem] text-foreground placeholder:text-subtle focus:outline-none"
-              />
-              <button
-                type="submit"
-                aria-label="Subscribe"
-                className="grid h-11 w-14 place-items-center border border-white/80 text-white transition-colors hover:bg-white hover:text-burgundy-deep"
+            {/* Rendered only with real details — no non-functional newsletter form or invented contacts. */}
+            {footer.contactEmail && (
+              <a
+                href={`mailto:${footer.contactEmail}`}
+                className="type-small group mt-5 inline-flex items-center gap-3 text-white transition-colors hover:text-white/80"
               >
-                <ArrowRight className="size-4" aria-hidden />
-              </button>
-            </form>
+                {footer.contactEmail}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              </a>
+            )}
 
+            {socialLinks.length > 0 && (
             <ul className="mt-6 flex items-center gap-9">
               {socialLinks.map((social) => {
                 const external = !social.url.startsWith("mailto:");
@@ -89,11 +81,13 @@ export function Footer({ settings, socialLinks }: FooterProps) {
                 );
               })}
             </ul>
+            )}
           </div>
         </div>
 
         <div className="mt-[clamp(2.5rem,4vw,3.25rem)] flex flex-col gap-3 border-t border-white/20 py-5 md:flex-row md:items-center md:justify-between">
           <p className="type-small text-[0.875rem] text-white/70">{footer.copyright}</p>
+          {footer.legalLinks.length > 0 && (
           <ul className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {footer.legalLinks.map((link, i) => (
               <li key={link.href} className="flex items-center gap-3">
@@ -102,12 +96,13 @@ export function Footer({ settings, socialLinks }: FooterProps) {
                     |
                   </span>
                 )}
-                <Link href={link.href} className="type-small text-[0.875rem] text-white/70 transition-colors hover:text-white">
+                <Link href={link.href} className="type-ui text-[0.875rem] text-white/70 transition-colors hover:text-white">
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
+          )}
         </div>
       </div>
     </footer>

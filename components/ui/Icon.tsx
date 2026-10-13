@@ -4,11 +4,15 @@ import {
   Building2,
   Globe2,
   Lightbulb,
+  Megaphone,
+  MessageSquare,
   Mic,
   Newspaper,
   Sparkles,
   TrendingUp,
+  Trophy,
   Users,
+  Video,
   type LucideProps,
 } from "lucide-react";
 import type { IconName } from "@/types/content";
@@ -24,6 +28,10 @@ const icons: Record<IconName, React.ComponentType<LucideProps>> = {
   trending: TrendingUp,
   chart: BarChart3,
   lightbulb: Lightbulb,
+  megaphone: Megaphone,
+  video: Video,
+  message: MessageSquare,
+  trophy: Trophy,
 };
 
 /** Resolves CMS icon keys (stored as strings in Firestore) to line icons. */

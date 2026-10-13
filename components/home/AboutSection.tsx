@@ -1,5 +1,6 @@
 import type { AboutContent, TimelineEntry } from "@/types/content";
 import { SECTION_IDS } from "@/lib/sections";
+import { Button } from "@/components/ui/Button";
 import { MediaImage } from "@/components/ui/Image";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -70,9 +71,17 @@ export function AboutSection({ content, timeline }: { content: AboutContent; tim
           {/* Closing line (site copy, not an attributed quote) — in the reference's link position */}
           {content.closing && (
             <Reveal delay={0.15 + content.paragraphs.length * 0.08} className="mt-7">
-              <p className="font-display text-[clamp(1.25rem,1.6vw,1.5rem)] italic leading-snug text-burgundy">
+              <p className="text-[clamp(1.0625rem,1.3vw,1.25rem)] font-semibold leading-snug text-burgundy">
                 {content.closing}
               </p>
+            </Reveal>
+          )}
+          {/* Link to the full profile (/about) — the reference's "Read more about Nisha" position */}
+          {content.cta?.href && (
+            <Reveal delay={0.2 + content.paragraphs.length * 0.08} className="mt-7 self-start">
+              <Button href={content.cta.href} variant="text">
+                {content.cta.label}
+              </Button>
             </Reveal>
           )}
         </div>
