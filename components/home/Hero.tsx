@@ -10,14 +10,17 @@ import { withCloudinaryTransformation } from "@/lib/cloudinary/url";
  */
 const PORTRAIT_BACKDROP_TO_TRANSPARENT = "e_make_transparent:10,co_rgb:f7f7f7";
 
-/** "I'm Nisha Krishnan" → greeting "I'm", lines ["Nisha", "Krishnan"]. Works without a greeting too. */
+/**
+ * "I am Nisha Krishnan" → greeting "I am", lines ["Nisha", "Krishnan"]. Works without a greeting too.
+ * The greeting is always set as "I am" — never "I'm" or all caps — whatever the stored spelling.
+ */
 function splitName(name: string) {
   const match = name.match(/^(I\s+am|I['’]m)\s+(.+)$/i);
 
   const words = (match ? match[2] : name).trim().split(/\s+/);
 
   return {
-    greeting: match?.[1],
+    greeting: match ? "I AM" : undefined,
     lines: words.length > 1 ? [words[0], words.slice(1).join(" ")] : words,
   };
 }

@@ -13,6 +13,10 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const TRACK_ID = "work-track";
 
+/** Detail pages (/work/{slug}) open in place; external sites in a new tab, safely. */
+const linkProps = (href: string) =>
+  /^https?:\/\//i.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {};
+
 /** Logo area: the brand logo when uploaded, otherwise icon + category + tagline. */
 function WorkLogo({ item }: { item: WorkItem }) {
   if (item.logo && isCloudinaryUrl(item.logo.url)) {
@@ -75,6 +79,7 @@ export function WorkSection({ items, copy }: { items: WorkItem[]; copy: SectionC
                       <p className="type-small text-muted">{item.description}</p>
                       <Link
                         href={item.cta.href}
+                        {...linkProps(item.cta.href)}
                         className="type-button inline-flex items-center gap-3 self-start pt-4 text-burgundy transition-colors hover:text-foreground"
                       >
                         {item.cta.label}
