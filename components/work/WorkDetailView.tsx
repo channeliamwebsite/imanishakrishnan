@@ -15,43 +15,55 @@ const linkProps = (href: string) =>
 /**
  * Detail page of a Selected Work item (/work/{slug}). Same editorial system as /about: page
  * header with the burgundy rule, section rules, SectionHeading, figure typography for numbers.
- * Every block renders only when its content exists.
- */
 export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetailContent) {
   const { detail } = item;
   const title = detail?.title ?? item.title;
   const eyebrow = [item.category, item.tagline].filter(Boolean).join(" · ");
-  const gallery = item.gallery ?? [];
+  const images = [item.coverImage, ...(item.gallery ?? [])].filter((m) => m !== undefined);
+  const [mainImage, ...gallery] = images;
   const backHref = sectionHref(SECTION_IDS.impact);
 
   return (
     <>
-      {/* Hero */}
+      {/* Header */}
       <section className="section-y pb-0">
         <div className="container-site">
           <Reveal>
             <Link
-              href={backHref}
+href={backHref}
               className="type-button inline-flex items-center gap-2 text-burgundy transition-colors hover:text-foreground"
             >
               <ArrowLeft className="size-3.5" aria-hidden /> {copy.backLabel}
             </Link>
             {eyebrow && <p className="type-label mt-8 text-rose">{eyebrow}</p>}
-            <h1 className="type-h1 mt-4 text-foreground">{title}</h1>
+<h1 className="type-h1 mt-4 text-foreground">{title}</h1>
             <span aria-hidden className="mt-6 block h-0.5 w-16 bg-burgundy" />
             <p className="type-lead mt-6 max-w-[48rem] text-foreground/85">{item.description}</p>
           </Reveal>
         </div>
       </section>
 
-      {/* Featured image — the card's cover at the same 7:3 proportion (placeholder frame until uploaded). */}
-      <section className="section-y">
-        <div className="container-site">
-          <Reveal>
-            <MediaImage media={item.coverImage} ratio="7/3" sizes="(min-width: 1360px) 1280px, 100vw" preload />
-          </Reveal>
-        </div>
-      </section>
+      {/* Images: main image at the card's 7:3 proportion, further images below. */}
+      {mainImage && (
+        <section className="section-y">
+          <div className="container-site">
+            <Reveal>
+              <MediaImage media={mainImage} ratio="7/3" sizes="(min-width: 1360px) 1280px, 100vw" preload />
+            </Reveal>
+            {gallery.length > 0 && (
+              <ul className="mt-card grid gap-card sm:grid-cols-2 lg:grid-cols-3">
+                {gallery.map((media, i) => (
+                  <li key={i}>
+                    <Reveal delay={Math.min(i, 3) * 0.06}>
+                      <MediaImage media={media} ratio="intrinsic" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" />
+                    </Reveal>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* About */}
       {detail?.paragraphs && (
@@ -74,7 +86,7 @@ export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetail
       )}
 
       {/* Key figures */}
-      {detail?.highlights && (
+      {detail?.highlights && detail.highlights.length > 0 && (
         <section className="pb-section">
           <div className="container-site">
             <div className="section-rule">
@@ -134,7 +146,7 @@ export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetail
         </section>
       )}
 
-      {/* Journey & impact — the same timeline entries as the homepage and /about */}
+      {/* Journey & impact — the same timeline entries as the homepage and /about, shown as milestones. */}
       {milestones.length > 0 && (
         <section className="pb-section">
           <div className="container-site">
@@ -203,23 +215,44 @@ export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetail
         </section>
       )}
 
-      {/* Call to action — the external site opens only from here */}
-      <section className="pb-section">
-        <div className="container-site">
-          <div className="section-rule">
-            <Reveal className="flex flex-wrap items-center gap-6">
-              {detail?.cta && (
+      {/* Call to action — rendered only with a verified destination */}
+      {detail?.cta && (
+        <section className="pb-section">
+          <div className="container-site">
+            <div className="section-rule">
+              <Reveal className="flex flex-wrap items-center gap-6">
                 <Button href={detail.cta.href} {...linkProps(detail.cta.href)}>
                   {detail.cta.label}
                 </Button>
-              )}
-              <Button href={backHref} variant="text" icon="none">
-                {copy.backLabel}
-              </Button>
-            </Reveal>
+                <Button href={backHref} variant="text" icon="none">
+                  {copy.backLabel}
+                </Button>
+              </Reveal>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+            </div>
+          </div>
+        </section>
+      )}
+      {/* Call to action — rendered only with a verified destination */}
+      {detail?.cta && (
+        <section className="pb-section">
+          <div className="container-site">
+            <div className="section-rule">
+              <Reveal className="flex flex-wrap items-center gap-6">
+                <Button href={detail.cta.href} {...linkProps(detail.cta.href)}>
+                  {detail.cta.label}
+                </Button>
+                <Button href={backHref} variant="text" icon="none">
+                  {copy.backLabel}
+                </Button>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }

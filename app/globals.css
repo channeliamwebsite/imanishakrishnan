@@ -52,13 +52,16 @@
   --color-border: var(--border);
   --color-white: var(--white);
 
-  /* Two families only.
-     display (Cormorant Garamond): brand, headings, titles, body copy, philosophy.
-     sans    (Crimson Pro):        navigation, numbers/years, labels, buttons, metadata, UI.
+  /* display (Cormorant Garamond): brand, headings, titles, body copy, philosophy.
+     sans    (Crimson Pro):        labels, buttons, metadata, UI.
+     ui      (Montserrat):         navigation labels.
+     figure  (Oswald):             statistics, years, numbered markers.
      serif is an alias of display so older font-serif classes stay on Cormorant. */
   --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
   --font-serif: var(--font-display);
   --font-sans: var(--font-crimson), "Crimson Pro", Georgia, serif;
+  --font-ui: var(--font-montserrat), "Montserrat", Arial, sans-serif;
+  --font-figure: var(--font-oswald), "Oswald", "Arial Narrow", sans-serif;
 
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-y);
@@ -77,7 +80,8 @@
    Cormorant Garamond (--font-display): display, h1–h4, quote, lead, body, small.
      Cormorant has a small x-height, so reading sizes sit a step larger and
      body text uses weight 500 for comfortable contrast.
-   Crimson Pro (--font-sans): label, caps, meta, button, nav, ui, figure.
+   Crimson Pro (--font-sans): label, caps, meta, button, ui.
+   Montserrat (--font-ui): nav.   Oswald (--font-figure): figure.
    Headings are sentence case; tracking is kept close to neutral.
    ================================================================== */
 
@@ -212,10 +216,12 @@
 
 /* Navigation links */
 @utility type-nav {
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-weight: 500;
-  font-size: clamp(0.9375rem, 1.05vw, 1rem);
+  font-size: clamp(0.75rem, 0.85vw, 0.8125rem);
   line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* Functional UI text — footer links, form controls */
@@ -226,12 +232,12 @@
   line-height: 1.6;
 }
 
-/* Prominent numbers and years — precise, not decorative */
+/* Prominent numbers and years — strong, condensed, aligned */
 @utility type-figure {
-  font-family: var(--font-sans);
-  font-weight: 600;
+  font-family: var(--font-figure);
+  font-weight: 500;
   font-variant-numeric: lining-nums tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.005em;
 }
 
 /* ==================================================================

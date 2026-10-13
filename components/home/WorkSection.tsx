@@ -13,10 +13,8 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const TRACK_ID = "work-track";
 
-/** Items with a detail page always open it (/work/{slug}); otherwise the button's own address. */
+/** Detail pages (/work/{slug}) open in place; external destinations open in a new tab, safely. */
 const cardHref = (item: WorkItem) => (item.slug ? workPath(item.slug) : item.cta.href);
-
-/** External destinations open in a new tab, safely. */
 const linkProps = (href: string) =>
   /^https?:\/\//i.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
@@ -81,7 +79,7 @@ export function WorkSection({ items, copy }: { items: WorkItem[]; copy: SectionC
                       </h3>
                       <p className="type-small text-muted">{item.description}</p>
                       <Link
-                        href={cardHref(item)}
+href={cardHref(item)}
                         {...linkProps(cardHref(item))}
                         className="type-button inline-flex items-center gap-3 self-start pt-4 text-burgundy transition-colors hover:text-foreground"
                       >

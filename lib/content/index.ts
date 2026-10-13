@@ -219,28 +219,26 @@ export interface WorkDetailContent {
   copy: WorkDetailCopy;
 }
 
-/** Slugs of the published work items that have a detail page. */
+/** Slugs of the work items that have a detail page. */
 export async function getWorkDetailSlugs(): Promise<string[]> {
-  return (await getWork()).flatMap((w) => (w.slug ? [w.slug] : []));
+  return (await getWork()).flatMap((item) => (item.slug && item.detail ? [item.slug] : []));
 }
 
-/**
- * A work item's detail page content, or null when no published item has that slug. Cached per
- * slug (like getInsightBySlug), so the page's params never stall rendering.
- */
+/** A work item's detail page content, or null when no published item has that slug and a detail page. */
 export async function getWorkDetail(slug: string): Promise<WorkDetailContent | null> {
   "use cache";
   cacheTag(COLLECTIONS.work, COLLECTIONS.about, COLLECTIONS.timeline, COLLECTIONS.siteSettings);
   const [work, about, timeline, settings] = await Promise.all([getWork(), getAbout(), getTimeline(), getSiteSettings()]);
-  const workItem = work.find((w) => w.slug === slug);
-  if (!workItem) return null;
-  const { detail } = workItem;
+  const item = work.find((w) => w.slug === slug && w.detail);
+  if (!item?.detail) return null;
   const expertiseItems = (about.profile ?? fallbackProfile).expertise.items;
   return {
-    item: workItem,
-    expertise: detail?.expertiseAnchor ? expertiseItems.find((x) => x.anchor === detail.expertiseAnchor) : undefined,
-    milestones: (detail?.milestoneIds ?? []).flatMap((id) => timeline.filter((entry) => entry.id === id)),
+    item,
+    expertise: item.detail.expertiseAnchor ? expertiseItems.find((x) => x.anchor === item.detail.expertiseAnchor) : undefined,
+    milestones: (item.detail.milestoneIds ?? []).flatMap((id) => timeline.filter((entry) => entry.id === id)),
     copy: settings.sections.work.detail ?? fallback.workDetailCopy,
+  };
+}
   };
 }
 
