@@ -6,26 +6,33 @@ import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import type { MediaAsset } from "@/types/content";
 import { cn } from "@/lib/cn";
 
-const PAGE_SIZE = 20;
-
 const altText = (image: MediaAsset, index: number) => image.alt?.trim() || `Testimonial ${index + 1}`;
 
-/** One testimonial image at its own aspect ratio, with a soft placeholder until it has loaded. */
+/**
+ * One testimonial image in a square frame (the images are 1:1), shown whole — object-contain, so
+ * nothing is cropped or stretched even if an upload isn't square. Soft placeholder until loaded.
+ */
 function GalleryImage({ image, index, sizes, priority }: { image: MediaAsset; index: number; sizes: string; priority?: boolean }) {
-  const [loaded, setLoaded] = useState(false);
-  const known = image.width && image.height;
+  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
+  if (status === "error") {
+    // The file is missing from Cloudinary (e.g. deleted after publishing): a neutral square, not a broken icon.
+    return (
+      <div role="img" aria-label={altText(image, index)} className="flex aspect-square w-full items-center justify-center bg-surface">
+        <span className="type-meta text-subtle">Image unavailable</span>
+      </div>
+    );
+  }
+  const loaded = status === "loaded";
   return (
-    <div
-      className={cn("relative overflow-hidden bg-surface", !loaded && "animate-pulse bg-border/60")}
-      style={{ aspectRatio: known ? `${image.width}/${image.height}` : "4/5" }}
-    >
+    <div className={cn("relative aspect-square w-full overflow-hidden bg-surface", !loaded && "animate-pulse bg-border/60")}>
       <NextImage
         src={image.url}
         alt={altText(image, index)}
         fill
         sizes={sizes}
         preload={priority}
-        onLoad={() => setLoaded(true)}
+        onLoad={() => setStatus("loaded")}
+        onError={() => setStatus("error")}
         className={cn(
           "object-contain transition-[opacity,transform] duration-500 ease-editorial motion-safe:group-hover:scale-[1.02]",
           loaded ? "opacity-100" : "opacity-0",
@@ -137,11 +144,27 @@ function Lightbox({
 }
 
 /**
- * All testimonial images: a grid that keeps each image's proportions (nothing is cropped),
- * revealed PAGE_SIZE at a time, each opening a lightbox. Images below the fold load lazily.
+ * Testimonial images in a grid — 1 column on phones, 2 on tablets, 4 on desktop — revealed
+ * `pageSize` at a time, each opening the lightbox. Images below the fold load lazily.
  */
-export function TestimonialGallery({ images }: { images: MediaAsset[] }) {
-  const [shown, setShown] = useState(PAGE_SIZE);
+export function TestimonialGallery({
+  images,
+  pageSize = 20,
+  moreLabel = "Load more",
+  showCount = true,
+  emptyText = "Testimonials will be added here soon.",
+  footer,
+}: {
+  images: MediaAsset[];
+  pageSize?: number;
+  moreLabel?: string;
+  /** "Showing x of y" under the grid. */
+  showCount?: boolean;
+  emptyText?: string | null;
+  /** Extra actions beside the "more" button (e.g. a link to the full page). */
+  footer?: React.ReactNode;
+}) {
+  const [shown, setShown] = useState(pageSize);
   const [open, setOpen] = useState<number | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
 
@@ -151,13 +174,14 @@ export function TestimonialGallery({ images }: { images: MediaAsset[] }) {
   }, []);
 
   if (images.length === 0) {
-    return <p className="type-body text-muted">Testimonials will be added here soon.</p>;
+    return emptyText ? <p className="type-body text-muted">{emptyText}</p> : null;
   }
 
   const visible = images.slice(0, shown);
+  const hasMore = shown < images.length;
   return (
     <>
-      <ul className="grid grid-cols-1 items-start gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4 lg:gap-5 2xl:grid-cols-5">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
         {visible.map((image, i) => (
           <li key={image.publicId || i}>
             <button
@@ -173,27 +197,34 @@ export function TestimonialGallery({ images }: { images: MediaAsset[] }) {
                 image={image}
                 index={i}
                 priority={i < 4}
-                sizes="(min-width: 1536px) 19vw, (min-width: 1024px) 23vw, (min-width: 420px) 48vw, 100vw"
+                sizes="(min-width: 1024px) 23vw, (min-width: 768px) 46vw, 100vw"
               />
             </button>
           </li>
         ))}
       </ul>
 
-      <div className="mt-10 flex flex-col items-center gap-3">
-        <p className="type-meta text-muted" aria-live="polite">
-          Showing {visible.length} of {images.length}
-        </p>
-        {shown < images.length && (
-          <button
-            type="button"
-            onClick={() => setShown((n) => n + PAGE_SIZE)}
-            className="type-button inline-flex h-12 items-center border border-foreground/80 px-6 text-foreground transition-colors hover:bg-foreground hover:text-background"
-          >
-            Load more
-          </button>
-        )}
-      </div>
+      {(hasMore || showCount || footer) && (
+        <div className="mt-8 flex flex-col items-center gap-4 lg:mt-10">
+          {showCount && (
+            <p className="type-meta text-muted" aria-live="polite">
+              Showing {visible.length} of {images.length}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+            {hasMore && (
+              <button
+                type="button"
+                onClick={() => setShown((n) => n + pageSize)}
+                className="type-button inline-flex h-12 items-center border border-foreground/80 px-6 text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
+                {moreLabel}
+              </button>
+            )}
+            {footer}
+          </div>
+        </div>
+      )}
 
       {open !== null && <Lightbox images={visible} index={open} onIndex={setOpen} onClose={close} />}
     </>
