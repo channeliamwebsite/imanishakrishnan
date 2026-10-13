@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-
-import { cormorant, crimson, montserrat, oswald } from "./fonts";
+import { cormorant, crimson } from "./fonts";
 import { getSiteSettings } from "@/lib/content";
 import "./globals.css";
 
@@ -27,7 +26,7 @@ export const viewport: Viewport = {
 /** Document shell shared by the public site (app/(site)) and the admin (app/admin). */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${crimson.variable} ${montserrat.variable} ${oswald.variable} h-full antialiased`}>
+    <html lang="en" className={`${cormorant.variable} ${crimson.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         {/* Without JavaScript, scroll reveals never run — show their content as-is. */}
         <noscript>

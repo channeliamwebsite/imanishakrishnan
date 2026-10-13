@@ -42,8 +42,6 @@ const item = (id: string, order: number) => ({ id, order, published: true });
 
 /** The long-form profile page. */
 export const PROFILE_PATH = "/about";
-/** Detail page of a Selected Work item. */
-export const workPath = (slug: string) => `/work/${slug}`;
 
 /** Labels of the work detail pages; also the fallback when site settings don't define them. */
 export const workDetailCopy: WorkDetailCopy = {
@@ -285,15 +283,8 @@ export const work: WorkItem[] = [
     title: "She Power",
     description:
       "An initiative supporting women's entrepreneurship, leadership, and digital empowerment, with U.S. Department of State grant support.",
-    cta: { label: "Learn More", href: workPath("she-power") },
+    cta: { label: "Learn More", href: `${PROFILE_PATH}#womens-entrepreneurship` },
     coverImage: placeholder("She Power", 1400, 600),
-    slug: "she-power",
-    detail: {
-      expertiseAnchor: "womens-entrepreneurship",
-      milestoneIds: ["t08"],
-      // No official She Power website has been supplied — link to the full profile instead.
-      cta: { label: "Read the Full Profile", href: PROFILE_PATH },
-    },
   },
   {
     ...item("startup-studio", 3),
@@ -303,21 +294,8 @@ export const work: WorkItem[] = [
     title: "I AM Startup Studio",
     description:
       "Connecting campus innovations with industry and entrepreneurial ecosystems — 45+ colleges and 3,500+ students engaged.",
-    cta: { label: "Learn More", href: workPath("i-am-startup-studio") },
+    cta: { label: "Learn More", href: `${PROFILE_PATH}#campus-entrepreneurship` },
     coverImage: placeholder("I AM Startup Studio", 1400, 600),
-    slug: "i-am-startup-studio",
-    detail: {
-      expertiseAnchor: "campus-entrepreneurship",
-      milestoneIds: ["t07"],
-      // Figures from the approved milestone (workbook "2. Career Journey", 2019).
-      highlights: [
-        { value: "45+", label: "Colleges engaged" },
-        { value: "3,500+", label: "Students engaged" },
-        { value: "2.6M", label: "Reported digital reach" },
-      ],
-      // No official I AM Startup Studio website has been supplied — link to the full profile instead.
-      cta: { label: "Read the Full Profile", href: PROFILE_PATH },
-    },
   },
   {
     ...item("advisory", 4),
@@ -327,15 +305,8 @@ export const work: WorkItem[] = [
     title: "Channeliam Strategic Business Advisory",
     description:
       "Execution-oriented support to help ambitious enterprises strengthen sales, expand markets, and accelerate digital transformation.",
-    cta: { label: "Learn More", href: workPath("strategic-business-advisory") },
+    cta: { label: "Learn More", href: `${PROFILE_PATH}#business-growth` },
     coverImage: placeholder("Strategic Business Advisory", 1400, 600),
-    slug: "strategic-business-advisory",
-    detail: {
-      expertiseAnchor: "business-growth",
-      milestoneIds: ["t11", "t12"],
-      // An initiative of Channeliam; channeliam.com is the verified official site.
-      cta: { label: "Visit channeliam.com", href: "https://channeliam.com" },
-    },
   },
 ];
 

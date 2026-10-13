@@ -178,16 +178,12 @@ export interface SeoContent {
 /** Fixed labels of the work detail pages (/work/{slug}). */
 export interface WorkDetailCopy {
   backLabel: string; // link back to the homepage section
-/** Fixed labels of the work detail pages (/work/{slug}). */
-export interface WorkDetailCopy {
-  backLabel: string; // link back to the homepage section
   aboutLabel: string; // label above the detail paragraphs
   highlightsLabel: string;
   workLabel: string; // label above the area-of-expertise text
   strengthsLabel: string;
   milestonesLabel: string;
   galleryLabel: string;
-}
 }
 
 /** Headings / intro copy for list sections, so nothing on the page is hard-coded. */
@@ -243,8 +239,8 @@ export interface WorkItem extends ListItemBase {
   logo?: MediaAsset;
   icon?: IconName;
   tagline?: string;
-  coverImage?: MediaAsset; // card image, displayed 7:3; also the detail page's featured/main image
-  gallery?: MediaAsset[]; // additional images on the detail page
+  coverImage?: MediaAsset; // card image, displayed 7:3; also the detail page's featured image
+  gallery?: MediaAsset[]; // the detail page's image gallery
   category: string;
   title: string;
   /** Short description — the card text and the detail page's introduction. */
@@ -254,11 +250,8 @@ export interface WorkItem extends ListItemBase {
   /** URL segment of the detail page (/work/{slug}), e.g. "channeliam". Without it there is no detail page. */
   slug?: string;
   detail?: WorkDetail;
-  slug?: string;
-  detail?: WorkDetail;
 }
 
-/**
 /**
  * Long-form content of a work item's detail page (/work/{slug}). Besides its own paragraphs, the
  * page can show an area of expertise (about/main → profile.expertise) and timeline entries by
