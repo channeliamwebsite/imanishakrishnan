@@ -5,7 +5,8 @@
  * nisha-krishnan/
  * ├── hero/  profile/  timeline/
  * ├── work/{channeliam, she-power, startup-studio, advisory}/
- * └── achievements/  media/  speaking/  insights/  testimonials/
+ * ├── achievements/  media/  speaking/  insights/  testimonials/
+ * └── statistics/  logos/  site/
  */
 export const CLOUDINARY_ROOT_FOLDER = "nisha-krishnan";
 
@@ -20,12 +21,20 @@ export const CLOUDINARY_FOLDERS = {
     shePower: folder("work/she-power"),
     startupStudio: folder("work/startup-studio"),
     advisory: folder("work/advisory"),
+    /** Cover images of initiatives added through the admin. */
+    covers: folder("work/covers"),
   },
   achievements: folder("achievements"),
   media: folder("media"),
   speaking: folder("speaking"),
   insights: folder("insights"),
   testimonials: folder("testimonials"),
+  /** Statistic icons. */
+  statistics: folder("statistics"),
+  /** Organisation and publication logos. */
+  logos: folder("logos"),
+  /** Branding and SEO images (share image, etc.). */
+  site: folder("site"),
 } as const;
 
 type Leaves<T> = T extends string ? T : { [K in keyof T]: Leaves<T[K]> }[keyof T];

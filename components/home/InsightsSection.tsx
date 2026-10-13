@@ -44,10 +44,8 @@ export function InsightsSection({ items, copy }: { items: Insight[]; copy: Secti
         />
 
         {/* No published articles yet (insights collection empty): an honest note instead of sample cards. */}
-        {!hasArticles && (
-          <p className="type-small border-t hairline pt-6 text-muted">
-            New articles and perspectives will be published here soon.
-          </p>
+        {!hasArticles && copy.emptyText && (
+          <p className="type-small border-t hairline pt-6 text-muted">{copy.emptyText}</p>
         )}
 
         {/* Mobile: stacked. Tablet: 2 visible, scrollable. Desktop: 3. */}

@@ -1,5 +1,6 @@
 import Image from "next/image";
-import type { IconName, ImpactStatistic } from "@/types/content";
+import type { IconName, ImpactStatistic, MediaAsset } from "@/types/content";
+import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { SECTION_IDS } from "@/lib/sections";
 import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
@@ -21,7 +22,21 @@ const STAT_ARTWORK: Partial<Record<IconName, string>> = {
 };
 const ARTWORK_SIZE = 132;
 
-function StatIcon({ name, index }: { name?: IconName; index: number }) {
+function StatIcon({ name, image, index }: { name?: IconName; image?: MediaAsset; index: number }) {
+  // An icon uploaded in the admin (Cloudinary, resized by the global loader) replaces the built-in one.
+  if (image?.url && isCloudinaryUrl(image.url)) {
+    return (
+      <Image
+        src={image.url}
+        alt=""
+        aria-hidden
+        width={ARTWORK_SIZE}
+        height={ARTWORK_SIZE}
+        sizes="44px"
+        className="size-9 shrink-0 object-contain md:size-10 lg:size-11"
+      />
+    );
+  }
   const src = (name && STAT_ARTWORK[name]) ?? STAT_ARTWORK[DEFAULT_ICONS[index % DEFAULT_ICONS.length]]!;
   return (
     // Local files bypass the Cloudinary loader, so they're served as-is.
@@ -89,7 +104,7 @@ export function ImpactStats({ items }: { items: ImpactStatistic[] }) {
                   items.length >= 4 ? "xl:flex-row xl:gap-6" : "lg:flex-row lg:gap-8",
                 )}
               >
-                <StatIcon name={stat.icon} index={i} />
+                <StatIcon name={stat.icon} image={stat.iconImage} index={i} />
                 <div className="flex min-w-0 flex-col gap-2">
                   <p className="type-figure text-[clamp(1.875rem,7.5vw,2.25rem)] leading-none text-foreground md:text-[clamp(2.25rem,3.2vw,2.875rem)]">
                     {stat.value}
