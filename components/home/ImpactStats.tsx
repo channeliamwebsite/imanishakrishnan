@@ -1,12 +1,41 @@
+import Image from "next/image";
 import type { IconName, ImpactStatistic } from "@/types/content";
 import { SECTION_IDS } from "@/lib/sections";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 
-/** Used by position when a statistic document has no `icon`. */
+/** Used by position when a statistic document has no `icon` (or one without an artwork). */
 // Years in media → megaphone · business stories → video camera · Channeliam → message box · awards → trophy.
 const DEFAULT_ICONS: IconName[] = ["megaphone", "video", "message", "trophy"];
+
+/**
+ * Line artworks keyed by the statistic's icon name: 132px transparent, burgundy PNGs built from the
+ * source files in public/images/stati by scripts/build-stat-icons.mjs (trimmed, strokes weighted
+ * for the icon size).
+ */
+const STAT_ARTWORK: Partial<Record<IconName, string>> = {
+  megaphone: "/images/stati/web/years_in_media.png",
+  video: "/images/stati/web/bus.png",
+  message: "/images/stati/web/channeliam.png",
+  trophy: "/images/stati/web/awards.png",
+};
+const ARTWORK_SIZE = 132;
+
+function StatIcon({ name, index }: { name?: IconName; index: number }) {
+  const src = (name && STAT_ARTWORK[name]) ?? STAT_ARTWORK[DEFAULT_ICONS[index % DEFAULT_ICONS.length]]!;
+  return (
+    // Local files bypass the Cloudinary loader, so they're served as-is.
+    <Image
+      src={src}
+      alt=""
+      aria-hidden
+      width={ARTWORK_SIZE}
+      height={ARTWORK_SIZE}
+      unoptimized
+      className="size-9 shrink-0 object-contain md:size-10 lg:size-11"
+    />
+  );
+}
 
 /** Desktop columns follow the number of statistics (1–4) so the row always fills edge to edge. */
 const DESKTOP_COLUMNS = ["lg:grid-cols-1", "lg:grid-cols-2", "lg:grid-cols-3", "lg:grid-cols-4"];
@@ -60,11 +89,7 @@ export function ImpactStats({ items }: { items: ImpactStatistic[] }) {
                   items.length >= 4 ? "xl:flex-row xl:gap-6" : "lg:flex-row lg:gap-8",
                 )}
               >
-                <Icon
-                  name={stat.icon ?? DEFAULT_ICONS[i % DEFAULT_ICONS.length]}
-                  aria-hidden
-                  className="size-9 shrink-0 text-burgundy md:size-10 lg:size-11"
-                />
+                <StatIcon name={stat.icon} index={i} />
                 <div className="flex min-w-0 flex-col gap-2">
                   <p className="type-figure text-[clamp(1.875rem,7.5vw,2.25rem)] leading-none text-foreground md:text-[clamp(2.25rem,3.2vw,2.875rem)]">
                     {stat.value}
