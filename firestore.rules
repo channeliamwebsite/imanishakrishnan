@@ -1,18 +1,53 @@
 rules_version = '2';
 
-// The website reads content server-side with the Firebase web SDK and no signed-in user,
-// so published site content must be publicly readable. Nothing is writable from clients
-// yet — write access for authenticated admins will be added with the admin dashboard.
+// Public website content is read server-side with no signed-in user, so published content is
+// publicly readable. Only administrators (users with an admins/{uid} document) may write.
+// admins/{uid} documents are created from the Firebase console or scripts/grant-admin.ts —
+// never from a client. See docs/cms-architecture.md.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Public website content (read-only).
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Admin role. A user may check their own role; nobody may grant one from a client.
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Unpublished edits and the uploaded-media record: administrators only.
+    match /cmsDrafts/{section} {
+      allow read, write: if isAdmin();
+    }
+    match /insightDrafts/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /mediaLibrary/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // Blog articles: the public sees published articles only.
+    match /insights/{id} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Published website content.
     match /{collection}/{docId} {
       allow read: if collection in [
         'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
-        'philosophy', 'insights', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks'
+        'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks'
       ];
-      allow write: if false;
+      allow write: if isAdmin() && collection in [
+        'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
+        'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks'
+      ];
     }
   }
 }

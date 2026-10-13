@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cormorant, crimson } from "./fonts";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { getSiteSettings, getSocialLinks } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,9 +23,8 @@ export const viewport: Viewport = {
   themeColor: "#f8f6f2",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const [settings, socialLinks] = await Promise.all([getSiteSettings(), getSocialLinks()]);
-
+/** Document shell shared by the public site (app/(site)) and the admin (app/admin). */
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${cormorant.variable} ${crimson.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
@@ -35,9 +32,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <noscript>
           <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
         </noscript>
-        <Navbar siteName={settings.siteName} links={settings.navigation} cta={settings.connectCta} />
-        <main className="flex-1">{children}</main>
-        <Footer settings={settings} socialLinks={socialLinks} />
+        {children}
       </body>
     </html>
   );

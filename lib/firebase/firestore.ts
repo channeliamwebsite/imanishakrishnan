@@ -5,14 +5,11 @@ import {
   getDoc,
   getDocs,
   getFirestore,
-  limit as limitTo,
-  orderBy,
   query,
   where,
   Timestamp,
   type DocumentData,
   type Firestore,
-  type QueryConstraint,
 } from "firebase/firestore/lite";
 import { getFirebaseApp } from "./config";
 import { SINGLETON_DOC_ID, type CollectionName } from "./collections";
@@ -69,27 +66,33 @@ export async function getAllDocuments(name: CollectionName): Promise<Array<{ id:
   return snap.docs.map((d) => ({ id: d.id, data: serialize(d.data()) }));
 }
 
-interface ListOptions {
-  /** Defaults to ordering by the `order` field ascending. */
-  orderField?: string;
-  direction?: "asc" | "desc";
-  limit?: number;
-  extra?: QueryConstraint[];
-}
-
-/** Fetch published items of a list collection. Returns null if Firebase isn't configured. */
-export async function getPublishedList<T>(
+/**
+ * Fetch the documents of a collection with `published == true` — the only query the rules allow
+ * the public for collections that hide unpublished documents (insights). Equality only, so no
+ * composite index is needed; callers sort in code. Returns null if Firebase isn't configured.
+ */
+export async function getPublishedDocuments(
   name: CollectionName,
-  { orderField = "order", direction = "asc", limit, extra = [] }: ListOptions = {},
-): Promise<T[] | null> {
+): Promise<Array<{ id: string; data: DocumentData }> | null> {
   const firestore = db();
   if (!firestore) return null;
-  const constraints: QueryConstraint[] = [
-    where("published", "==", true),
-    ...extra,
-    orderBy(orderField, direction),
-  ];
-  if (limit) constraints.push(limitTo(limit));
-  const snap = await getDocs(query(collection(firestore, name), ...constraints));
-  return snap.docs.map((d) => ({ id: d.id, ...serialize(d.data()) }) as T);
+  const snap = await getDocs(query(collection(firestore, name), where("published", "==", true)));
+  return snap.docs.map((d) => ({ id: d.id, data: serialize(d.data()) }));
+}
+
+/**
+ * Fetch the published documents of a collection where `field == value` (e.g. an article by slug).
+ * Equality filters only, so no composite index is needed. Returns null if Firebase isn't configured.
+ */
+export async function getPublishedDocumentsWhere(
+  name: CollectionName,
+  field: string,
+  value: string,
+): Promise<Array<{ id: string; data: DocumentData }> | null> {
+  const firestore = db();
+  if (!firestore) return null;
+  const snap = await getDocs(
+    query(collection(firestore, name), where("published", "==", true), where(field, "==", value)),
+  );
+  return snap.docs.map((d) => ({ id: d.id, data: serialize(d.data()) }));
 }

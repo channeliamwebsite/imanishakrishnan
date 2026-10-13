@@ -117,6 +117,7 @@ export function parseStatistic(id: string, raw: unknown): Parsed<ImpactStatistic
   if (!title) return fail("title is required");
   if (order === undefined) return fail("order must be a number");
   if (typeof raw.active !== "boolean") return fail("active must be true or false");
+  const iconImage = parseMedia(raw.iconImage, "iconImage");
 
   return {
     value: {
@@ -126,10 +127,11 @@ export function parseStatistic(id: string, raw: unknown): Parsed<ImpactStatistic
       description: str(raw.description),
       order,
       active: raw.active,
-      // Unknown names fall back to a default icon inside <Icon>.
+      // Unknown names fall back to the position's default icon in ImpactStats.
       icon: str(raw.icon) as IconName | undefined,
+      iconImage: iconImage.value?.url ? iconImage.value : undefined,
     },
-    warnings: [],
+    warnings: iconImage.issue ? [iconImage.issue] : [],
   };
 }
 

@@ -117,6 +117,21 @@ export interface ProfileContent {
     distinctiveStrength: { heading: string; paragraphs: string[] };
   };
   philosophy: { heading: string; subtitle: string; paragraphs: string[] };
+  /** Fixed labels and headings of the /about page. Defaults in lib/content/profile.ts. */
+  page?: ProfilePageCopy;
+}
+
+export interface ProfilePageCopy {
+  eyebrow: string; // "Profile"
+  title: string; // page heading — "Nisha Krishnan"
+  metaDescription: string;
+  biographyLabel: string;
+  biographyHeading: string;
+  milestonesLabel: string;
+  milestonesHeading: string;
+  milestonesIntro?: string;
+  recognitionLabel: string;
+  leadershipLabel: string;
 }
 
 /** philosophy/main */
@@ -166,7 +181,14 @@ export interface SectionCopy {
   media: { label?: string; heading: string; tagline?: string };
   /** Awards & Honours strip (achievements collection). */
   awards?: { label?: string; heading: string; tagline?: string };
-  insights: { label?: string; heading: string; intro: string; cta?: Link };
+  insights: {
+    label?: string;
+    heading: string;
+    intro: string;
+    cta?: Link;
+    /** Shown when no article is published yet. */
+    emptyText?: string;
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -181,8 +203,10 @@ export interface ImpactStatistic {
   description?: string;
   order: number;
   active: boolean;
-  /** Optional line icon; when omitted the component assigns one by position. */
+  /** Built-in line icon; when omitted the component assigns one by position. */
   icon?: IconName;
+  /** Uploaded icon (Cloudinary) — replaces the built-in icon when set. */
+  iconImage?: MediaAsset;
 }
 
 /** timeline/{id} — rendered as the About section's story timeline, in `order`. */
@@ -229,16 +253,29 @@ export interface MediaFeature extends ListItemBase {
   articleUrl?: string;
 }
 
-/** insights/{id} — Cloudinary: nisha-krishnan/insights */
+/**
+ * insights/{id} — blog articles. Cloudinary: nisha-krishnan/insights. Only documents with
+ * `published: true` are readable by the public (firestore.rules); unpublished edits live in
+ * insightDrafts/{id}.
+ */
 export interface Insight extends ListItemBase {
   slug: string;
   title: string;
   excerpt: string;
+  /** Primary category, shown on cards. */
   category: string;
-  coverImage?: MediaAsset; // displayed 13:5
+  /** Further categories (the primary one is not repeated). */
+  categories?: string[];
+  tags?: string[];
+  author?: string;
+  coverImage?: MediaAsset; // featured image, displayed 13:5
   publishedAt: string; // ISO date — converted from Firestore Timestamp in the data layer
+  updatedAt?: string;
+  createdAt?: string;
   featured: boolean;
+  /** Article body as HTML from the admin's rich-text editor. Sanitised again on render. */
   body?: string;
+  seo?: { title?: string; description?: string; image?: MediaAsset };
 }
 
 /** speaking/{id} — Cloudinary: nisha-krishnan/speaking. Not rendered yet. */

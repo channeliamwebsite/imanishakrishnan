@@ -1,7 +1,7 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
-import { COLLECTIONS } from "@/lib/firebase/collections";
-import { getAllDocuments, getPublishedList, getSingleton } from "@/lib/firebase/firestore";
+import { COLLECTIONS, LIST_META_DOC_ID, type CollectionName } from "@/lib/firebase/collections";
+import { getAllDocuments, getPublishedDocuments, getPublishedDocumentsWhere, getSingleton } from "@/lib/firebase/firestore";
 import type {
   AboutContent,
   Achievement,
@@ -9,53 +9,41 @@ import type {
   HomeContent,
   ImpactStatistic,
   Insight,
+  ListItemBase,
   MediaFeature,
   PhilosophyContent,
   SiteSettings,
   SocialLink,
+  SpeakingEvent,
+  Testimonial,
   TimelineEntry,
   WorkItem,
 } from "@/types/content";
-import { parseHero, parseStatistic, selectActiveStatistics } from "./normalize";
+import { parseHero, parseStatistic, selectActiveStatistics, type Parsed } from "./normalize";
+import {
+  aboutSchema,
+  insightSchema,
+  mediaFeatureSchema,
+  parseWith,
+  philosophySchema,
+  siteSettingsSchema,
+  socialLinkSchema,
+  speakingEventSchema,
+  testimonialSchema,
+  timelineItemSchema,
+  workItemSchema,
+} from "./schemas";
 import * as fallback from "./placeholder";
 
 /**
  * Content repository. Pages only ever call these functions — they never touch Firestore
- * directly — so swapping placeholders for live CMS data needs no component changes.
+ * directly. Firestore holds the *published* content (drafts live in admin-only collections and
+ * are never read here). Every document is validated before it reaches a component; when a
+ * section was never published, is invalid or can't be read, the placeholder content is used.
  *
- * Every getter is cached and tagged with its collection name, so the admin can call
- * `updateTag("<collection>")` after a write to refresh just that section.
+ * Every getter is cached and tagged with its collection name; the admin calls
+ * `updateTag("<collection>")` after publishing (lib/admin/actions.ts).
  */
-
-async function safe<T>(read: () => Promise<T | null>, fallbackValue: T, label: string): Promise<T> {
-  try {
-    const value = await read();
-    if (value === null) return fallbackValue;
-    if (Array.isArray(value) && value.length === 0) return fallbackValue;
-    return value;
-  } catch (error) {
-    console.error(`[content] Failed to load "${label}", using placeholder.`, error);
-    return fallbackValue;
-  }
-}
-
-export async function getSiteSettings(): Promise<SiteSettings> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag(COLLECTIONS.siteSettings);
-  return safe(() => getSingleton<SiteSettings>(COLLECTIONS.siteSettings), fallback.siteSettings, "siteSettings");
-}
-
-export async function getSocialLinks(): Promise<SocialLink[]> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag(COLLECTIONS.socialLinks);
-  return safe(() => getPublishedList<SocialLink>(COLLECTIONS.socialLinks), fallback.socialLinks, "socialLinks");
-}
-
-/* ------------------------------------------------------------------ */
-/* Validated loaders (Hero, Statistics)                                */
-/* ------------------------------------------------------------------ */
 
 const READ_TIMEOUT_MS = 8000;
 
@@ -77,17 +65,26 @@ async function withTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
 
 /**
  * Outcome of a read. `failed` (network/permission/timeout) is cached briefly so the site
- * recovers quickly; "not configured" and "no document" are normal states cached for hours.
+ * recovers quickly; "not configured", "never published" and "invalid" are cached for hours.
+ * `data: null` means "use the placeholder".
  */
 type Loaded<T> = { data: T | null; failed: boolean };
 
-async function readHero(): Promise<Loaded<HeroContent>> {
+/** Applies the cache lifetime for a read outcome and resolves the placeholder. Call inside "use cache". */
+function settle<T>({ data, failed }: Loaded<T>, placeholder: T): T {
+  if (failed) cacheLife("minutes");
+  else cacheLife("hours");
+  return data ?? placeholder;
+}
+
+/** A singleton document (collection/main), validated. */
+async function loadSingleton<T>(name: CollectionName, parse: (raw: unknown) => Parsed<T>): Promise<Loaded<T>> {
   try {
-    const raw = await withTimeout(getSingleton<unknown>(COLLECTIONS.hero), "hero");
-    if (raw === null) return { data: null, failed: false }; // not configured, or hero/main missing
-    const parsed = parseHero(raw, { primaryCta: fallback.hero.primaryCta });
-    if (parsed.value === null) console.warn(`[content] hero/main is invalid (${parsed.error}); using placeholder.`);
-    else for (const warning of parsed.warnings) console.warn(`[content] hero/main: ${warning}.`);
+    const raw = await withTimeout(getSingleton<unknown>(name), name);
+    if (raw === null) return { data: null, failed: false }; // not configured, or never published
+    const parsed = parse(raw);
+    if (parsed.value === null) console.warn(`[content] ${name}/main is invalid (${parsed.error}); using placeholder.`);
+    else for (const warning of parsed.warnings ?? []) console.warn(`[content] ${name}/main: ${warning}.`);
     return { data: parsed.value, failed: false };
   } catch (error) {
     console.error(error instanceof Error ? error.message : error, "— using placeholder.");
@@ -95,110 +92,205 @@ async function readHero(): Promise<Loaded<HeroContent>> {
   }
 }
 
-async function readStatistics(): Promise<Loaded<ImpactStatistic[]>> {
+type Doc = { id: string; data: Record<string, unknown> };
+
+/**
+ * Validates the documents of a list collection. Invalid documents are skipped. Returns null
+ * (placeholder) when the collection was never published, or when every document is invalid.
+ * A collection published by the admin always contains the _meta document, so publishing an
+ * empty or fully hidden list shows nothing rather than the placeholder.
+ */
+function validateList<T>(name: string, docs: Doc[], parse: (id: string, raw: unknown) => Parsed<T>): T[] | null {
+  const published = docs.some((d) => d.id === LIST_META_DOC_ID);
+  const items = docs.filter((d) => d.id !== LIST_META_DOC_ID);
+  if (items.length === 0) return published ? [] : null;
+  const valid: T[] = [];
+  for (const { id, data } of items) {
+    const parsed = parse(id, data);
+    if (parsed.value === null) console.warn(`[content] ${name}/${id} skipped (${parsed.error}).`);
+    else valid.push(parsed.value);
+  }
+  return valid.length === 0 && !published ? null : valid;
+}
+
+const byOrder = <T extends Pick<ListItemBase, "order" | "id">>(a: T, b: T) => a.order - b.order || a.id.localeCompare(b.id);
+
+/**
+ * A list collection's visible items in `order`. All documents are read and filtered in code —
+ * these collections are small, and it needs no composite index.
+ */
+async function loadList<T extends ListItemBase>(
+  name: CollectionName,
+  parse: (id: string, raw: unknown) => Parsed<T>,
+): Promise<Loaded<T[]>> {
   try {
-    const docs = await withTimeout(getAllDocuments(COLLECTIONS.statistics), "statistics");
-    if (docs === null || docs.length === 0) return { data: null, failed: false }; // not configured / empty
-    const valid: ImpactStatistic[] = [];
-    for (const { id, data } of docs) {
-      const parsed = parseStatistic(id, data);
-      if (parsed.value === null) console.warn(`[content] statistics/${id} skipped (${parsed.error}).`);
-      else valid.push(parsed.value);
-    }
-    // Every document invalid → placeholder. Valid but all inactive → editor hid them: show none.
-    if (valid.length === 0) return { data: null, failed: false };
-    return { data: selectActiveStatistics(valid), failed: false };
+    const docs = await withTimeout(getAllDocuments(name), name);
+    if (docs === null) return { data: null, failed: false };
+    const items = validateList(name, docs, parse);
+    return { data: items && items.filter((item) => item.published).sort(byOrder), failed: false };
   } catch (error) {
     console.error(error instanceof Error ? error.message : error, "— using placeholder.");
     return { data: null, failed: true };
   }
 }
 
+const item =
+  <T>(schema: Parameters<typeof parseWith<T>>[0]) =>
+  (id: string, raw: unknown) =>
+    parseWith(schema, { ...(raw as object), id });
+
+/* ------------------------------------------------------------------ */
+/* Site-wide                                                           */
+/* ------------------------------------------------------------------ */
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  "use cache";
+  cacheTag(COLLECTIONS.siteSettings);
+  return settle(await loadSingleton(COLLECTIONS.siteSettings, (raw) => parseWith(siteSettingsSchema, raw)), fallback.siteSettings);
+}
+
+export async function getSocialLinks(): Promise<SocialLink[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.socialLinks);
+  return settle(await loadList(COLLECTIONS.socialLinks, item(socialLinkSchema)), fallback.socialLinks);
+}
+
+/* ------------------------------------------------------------------ */
+/* Homepage sections                                                   */
+/* ------------------------------------------------------------------ */
+
 /** hero/main from Firestore, or placeholder content when unavailable/invalid. */
 export async function getHero(): Promise<HeroContent> {
   "use cache";
   cacheTag(COLLECTIONS.hero);
-  const { data, failed } = await readHero();
-  if (failed) cacheLife("minutes");
-  else cacheLife("hours");
-  return data ?? fallback.hero;
+  return settle(
+    await loadSingleton(COLLECTIONS.hero, (raw) => parseHero(raw, { primaryCta: fallback.hero.primaryCta })),
+    fallback.hero,
+  );
+}
+
+async function readStatistics(): Promise<Loaded<ImpactStatistic[]>> {
+  try {
+    const docs = await withTimeout(getAllDocuments(COLLECTIONS.statistics), "statistics");
+    if (docs === null) return { data: null, failed: false };
+    const valid = validateList("statistics", docs, parseStatistic);
+    // Valid but all inactive → the editor hid them: show none.
+    return { data: valid && selectActiveStatistics(valid), failed: false };
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error, "— using placeholder.");
+    return { data: null, failed: true };
+  }
 }
 
 /** Active statistics ordered by `order`, or placeholder content when unavailable/empty. */
 export async function getStatistics(): Promise<ImpactStatistic[]> {
   "use cache";
   cacheTag(COLLECTIONS.statistics);
-  const { data, failed } = await readStatistics();
-  if (failed) cacheLife("minutes");
-  else cacheLife("hours");
-  return data ?? fallback.statistics;
+  return settle(await readStatistics(), fallback.statistics);
 }
 
 export async function getAbout(): Promise<AboutContent> {
   "use cache";
-  cacheLife("hours");
   cacheTag(COLLECTIONS.about);
-  return safe(() => getSingleton<AboutContent>(COLLECTIONS.about), fallback.about, "about");
+  return settle(await loadSingleton(COLLECTIONS.about, (raw) => parseWith(aboutSchema, raw)), fallback.about);
 }
 
 export async function getTimeline(): Promise<TimelineEntry[]> {
   "use cache";
-  cacheLife("hours");
   cacheTag(COLLECTIONS.timeline);
-  return safe(() => getPublishedList<TimelineEntry>(COLLECTIONS.timeline), fallback.timeline, "timeline");
+  return settle(await loadList(COLLECTIONS.timeline, item(timelineItemSchema)), fallback.timeline);
 }
 
 export async function getWork(): Promise<WorkItem[]> {
   "use cache";
-  cacheLife("hours");
   cacheTag(COLLECTIONS.work);
-  return safe(() => getPublishedList<WorkItem>(COLLECTIONS.work), fallback.work, "work");
+  return settle(await loadList(COLLECTIONS.work, item(workItemSchema)), fallback.work);
 }
 
 export async function getMediaFeatures(): Promise<MediaFeature[]> {
   "use cache";
-  cacheLife("hours");
   cacheTag(COLLECTIONS.mediaFeatures);
-  return safe(
-    () => getPublishedList<MediaFeature>(COLLECTIONS.mediaFeatures),
-    fallback.mediaFeatures,
-    "mediaFeatures",
-  );
+  return settle(await loadList(COLLECTIONS.mediaFeatures, item(mediaFeatureSchema)), fallback.mediaFeatures);
 }
 
-/** Awards & Honours — the achievements collection, kept separate from media publications. */
+/**
+ * The achievements collection. Not rendered: the awards shown on /about come from
+ * about/main → profile.achievements (see docs/cms-architecture.md).
+ */
 export async function getAchievements(): Promise<Achievement[]> {
   "use cache";
   cacheLife("hours");
   cacheTag(COLLECTIONS.achievements);
-  return safe(() => getPublishedList<Achievement>(COLLECTIONS.achievements), fallback.achievements, "achievements");
+  return fallback.achievements;
 }
 
 export async function getPhilosophy(): Promise<PhilosophyContent> {
   "use cache";
-  cacheLife("hours");
   cacheTag(COLLECTIONS.philosophy);
-  return safe(() => getSingleton<PhilosophyContent>(COLLECTIONS.philosophy), fallback.philosophy, "philosophy");
+  return settle(await loadSingleton(COLLECTIONS.philosophy, (raw) => parseWith(philosophySchema, raw)), fallback.philosophy);
+}
+
+/** Speaking events, managed in the admin. No public section renders them yet. */
+export async function getSpeakingEvents(): Promise<SpeakingEvent[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.speaking);
+  return settle(await loadList(COLLECTIONS.speaking, item(speakingEventSchema)), []);
+}
+
+/** Testimonials, managed in the admin. No public section renders them yet. */
+export async function getTestimonials(): Promise<Testimonial[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.testimonials);
+  return settle(await loadList(COLLECTIONS.testimonials, item(testimonialSchema)), []);
+}
+
+/* ------------------------------------------------------------------ */
+/* Insights (blog)                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Every published article, newest first. The query filters on `published == true` (required by
+ * firestore.rules, which hide unpublished articles) and sorts in code — no composite index.
+ */
+export async function getInsights(): Promise<Insight[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.insights);
+  let loaded: Loaded<Insight[]>;
+  try {
+    const docs = await withTimeout(getPublishedDocuments(COLLECTIONS.insights), "insights");
+    const valid = docs && validateList("insights", docs, item(insightSchema));
+    loaded = {
+      data: valid && valid.filter((a) => a.published).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
+      failed: false,
+    };
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error, "— no articles shown.");
+    loaded = { data: null, failed: true };
+  }
+  return settle(loaded, fallback.insights);
+}
+
+export async function getLatestInsights(count = 3): Promise<Insight[]> {
+  return (await getInsights()).slice(0, count);
 }
 
 /**
- * Latest published insights, newest first.
- * Requires a Firestore composite index on insights: published ASC, publishedAt DESC.
+ * One published article. Cached per slug (not derived from getInsights()), so an article published
+ * after the build is read fresh the first time its page is requested.
  */
-export async function getLatestInsights(count = 3): Promise<Insight[]> {
+export async function getInsightBySlug(slug: string): Promise<Insight | null> {
   "use cache";
-  cacheLife("hours");
   cacheTag(COLLECTIONS.insights);
-  return safe(
-    () =>
-      getPublishedList<Insight>(COLLECTIONS.insights, {
-        orderField: "publishedAt",
-        direction: "desc",
-        limit: count,
-      }),
-    fallback.insights.slice(0, count),
-    "insights",
-  );
+  let loaded: Loaded<Insight | null>;
+  try {
+    const docs = await withTimeout(getPublishedDocumentsWhere(COLLECTIONS.insights, "slug", slug), `insights/${slug}`);
+    const valid = docs && validateList("insights", docs, item(insightSchema));
+    loaded = { data: valid?.find((a) => a.published && a.slug === slug) ?? null, failed: false };
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error, "— article not shown.");
+    loaded = { data: null, failed: true };
+  }
+  return settle(loaded, null);
 }
 
 export async function getHomeContent(): Promise<HomeContent> {

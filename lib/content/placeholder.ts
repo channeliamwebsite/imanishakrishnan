@@ -84,6 +84,7 @@ export const siteSettings: SiteSettings = {
       label: "Thoughts & Perspectives",
       heading: "Latest Insights",
       intro: "Commentary on media, entrepreneurship, leadership and business growth.",
+      emptyText: "New articles and perspectives will be published here soon.",
     },
   },
 };

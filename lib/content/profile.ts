@@ -260,4 +260,18 @@ export const profile: ProfileContent = {
       "For me, leadership is not about being at the forefront of every achievement. It is about enabling others to move forward with confidence—and ensuring that together, we deliver results that matter.",
     ],
   },
+
+  page: {
+    eyebrow: "Profile",
+    title: "Nisha Krishnan",
+    metaDescription:
+      "Biography, career milestones, professional achievements, areas of expertise and leadership philosophy of Nisha Krishnan — journalist, media entrepreneur and founder of channeliam.com.",
+    biographyLabel: "Biography",
+    biographyHeading: "From broadcast journalism to business growth.",
+    milestonesLabel: "Career Journey",
+    milestonesHeading: "Key milestones",
+    milestonesIntro: "From broadcast journalism to media entrepreneurship.",
+    recognitionLabel: "Recognition",
+    leadershipLabel: "Leadership",
+  },
 };
