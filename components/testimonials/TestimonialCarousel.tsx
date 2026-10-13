@@ -111,7 +111,8 @@ export function TestimonialCarousel({ images, label }: { images: MediaAsset[]; l
               aria-label={`${i + 1} of ${images.length}`}
               className="w-full shrink-0 md:w-[calc((100%-1.5rem)/2)]"
             >
-              <figure className="relative aspect-square w-full overflow-hidden border hairline bg-surface">
+              {/* No border or fill: the testimonial PNGs are transparent around their frame, so they sit on the section's cream. */}
+              <figure className="relative aspect-square w-full overflow-hidden">
                 <NextImage
                   src={image.url}
                   alt={altText(image, i)}

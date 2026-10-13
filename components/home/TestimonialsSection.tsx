@@ -4,12 +4,14 @@ import type { TestimonialsCopy } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { SECTION_IDS } from "@/lib/sections";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TestimonialCarousel } from "@/components/testimonials/TestimonialCarousel";
 
 /**
  * Homepage testimonials — the uploaded testimonial images (each already contains its text) in a
- * horizontal carousel: two per view from tablet up, one on phones. Centred editorial heading with
- * thin rules; the full collection is at /testimonials. Hidden until at least one image is published.
+ * horizontal carousel: two per view from tablet up, one on phones. Left-aligned section heading like
+ * the other homepage sections; the full collection is at /testimonials. Hidden until at least one
+ * image is published.
  */
 export function TestimonialsSection({ copy }: { copy: TestimonialsCopy }) {
   const images = (copy.images ?? []).filter((m) => isCloudinaryUrl(m.url));
@@ -18,17 +20,8 @@ export function TestimonialsSection({ copy }: { copy: TestimonialsCopy }) {
     <section id={SECTION_IDS.testimonials} className="pb-section">
       <div className="container-site">
         <div className="section-rule">
-          <Reveal className="mx-auto mb-10 flex max-w-[40rem] flex-col items-center text-center md:mb-12">
-            {copy.label && (
-              <p className="type-label flex items-center gap-4 text-rose">
-                <span aria-hidden className="block h-px w-8 bg-rose/50 md:w-12" />
-                {copy.label}
-                <span aria-hidden className="block h-px w-8 bg-rose/50 md:w-12" />
-              </p>
-            )}
-            <h2 className="type-h2 mt-4 text-foreground">{copy.heading}</h2>
-            <span aria-hidden className="mt-5 block h-0.5 w-12 bg-burgundy" />
-            {copy.intro && <p className="type-small mt-5 text-muted">{copy.intro}</p>}
+          <Reveal>
+            <SectionHeading label={copy.label} title={copy.heading} intro={copy.intro} rule="below" />
           </Reveal>
 
           <Reveal>
