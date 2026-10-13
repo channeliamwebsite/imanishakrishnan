@@ -8,6 +8,7 @@ export const SECTION_IDS = {
   leadership: "leadership",
   impact: "impact",
   media: "media",
+  awards: "awards",
   speaking: "speaking",
   insights: "insights",
   contact: "contact",

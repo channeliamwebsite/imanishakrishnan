@@ -44,7 +44,7 @@ export function Navbar({ siteName, links, cta }: NavbarProps) {
         <nav className="container-site flex h-nav items-center justify-between gap-6" aria-label="Primary">
           <Link
             href="/"
-            className="shrink-0 font-display text-[1.375rem] font-semibold leading-none text-foreground sm:text-[1.5rem] xl:text-[1.625rem]"
+            className="shrink-0 font-display text-[1.375rem] font-semibold uppercase leading-none text-foreground sm:text-[1.5rem] xl:text-[1.625rem]"
           >
             {siteName}
           </Link>
@@ -55,7 +55,7 @@ export function Navbar({ siteName, links, cta }: NavbarProps) {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="type-nav relative py-2 text-foreground/85 transition-colors hover:text-burgundy after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-burgundy after:transition-transform after:duration-300 hover:after:scale-x-100 focus-visible:after:scale-x-100"
+                  className="type-nav relative py-2 uppercase text-foreground/85 transition-colors hover:text-burgundy after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-burgundy after:transition-transform after:duration-300 hover:after:scale-x-100 focus-visible:after:scale-x-100"
                 >
                   {link.label}
                 </Link>
@@ -118,7 +118,7 @@ export function Navbar({ siteName, links, cta }: NavbarProps) {
                   <Link
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-center justify-between py-4 font-sans text-xl font-medium leading-tight text-foreground"
+                    className="flex items-center justify-between py-4 font-sans text-xl font-medium uppercase leading-tight text-foreground"
                   >
                     {link.label}
                     <ArrowRight className="size-4 text-burgundy" aria-hidden />

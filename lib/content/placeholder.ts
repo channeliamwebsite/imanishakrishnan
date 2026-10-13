@@ -1,5 +1,6 @@
 import type {
   AboutContent,
+  Achievement,
   HeroContent,
   ImpactStatistic,
   Insight,
@@ -42,25 +43,26 @@ const item = (id: string, order: number) => ({ id, order, published: true });
 export const PROFILE_PATH = "/about";
 
 export const siteSettings: SiteSettings = {
-  siteName: "I'm Nisha Krishnan",
-  roles: ["Founder & CEO", "Journalist", "Media Entrepreneur"],
+  siteName: "Beyond the Story",
+  roles: ["FOUNDER & CEO", "JOURNALIST", "MEDIA ENTREPRENEUR"],
   navigation: [
     { label: "About", href: sectionHref(SECTION_IDS.about) },
     { label: "Leadership", href: sectionHref(SECTION_IDS.leadership) },
     { label: "Impact", href: sectionHref(SECTION_IDS.impact) },
     { label: "Media", href: sectionHref(SECTION_IDS.media) },
     // No homepage speaking section: public speaking is documented on the profile page.
-    { label: "Speaking", href: `${PROFILE_PATH}#speaking` },
+    // Awards live on the profile page (the homepage awards strip was removed).
+    { label: "Awards", href: `${PROFILE_PATH}#awards` },
     { label: "Insights", href: sectionHref(SECTION_IDS.insights) },
     { label: "Contact", href: sectionHref(SECTION_IDS.contact) },
   ],
   connectCta: { label: "Connect", href: sectionHref(SECTION_IDS.contact) },
   footer: {
     description:
-      "Building a more inclusive, innovative and entrepreneurial tomorrow through the power of storytelling.",
+      "Nisha Krishnan — journalist, media entrepreneur and founder of channeliam.com. Business journalism, entrepreneurship and enterprise growth.",
     quickLinksTitle: "Quick Links",
-    connectTitle: "Let's Connect",
-    connectText: "Join me in the journey of ideas, impact and opportunity.",
+    connectTitle: "Contact",
+    connectText: "Contact details for collaborations, speaking and media enquiries will be published here.",
     // Contact email, newsletter endpoint and legal pages are not yet supplied — omitted, not invented.
     copyright: "© 2026 Nisha Krishnan. All rights reserved.",
     legalLinks: [],
@@ -75,56 +77,59 @@ export const siteSettings: SiteSettings = {
   },
   sections: {
     work: { label: "Initiatives", heading: "Selected Work & Impact" },
-    // No verified media coverage has been supplied; the section shows approved awards instead.
-    media: { label: "Recognition", heading: "Awards & Honours" },
+    // Publication names supplied by the client (not in the workbook) — text only, no links or logos.
+    media: { label: "Featured In", heading: "In the Media", tagline: "Stories that spark conversations." },
+    awards: { label: "Recognition", heading: "Awards & Honours" },
     insights: {
       label: "Thoughts & Perspectives",
       heading: "Latest Insights",
-      intro:
-        "Ideas, experiences and perspectives on media, entrepreneurship, leadership and a more inclusive future.",
+      intro: "Commentary on media, entrepreneurship, leadership and business growth.",
     },
   },
 };
 
 /** Same shape as the hero/main Firestore document. Approved facts only. */
 export const hero: HeroContent = {
-  eyebrow: "IDEAS | PEOPLE | IMPACT",
-  name: "I'm Nisha Krishnan",
+  eyebrow: "MEDIA | ENTREPRENEURSHIP | BUSINESS GROWTH",
+  name: "I am Nisha Krishnan",
   designation: "Founder & CEO",
   roles: ["Journalist", "Media Entrepreneur"],
   description:
-    "Building platforms, amplifying ideas and creating impact through the power of storytelling.",
-  primaryCta: { label: "EXPLORE MY JOURNEY", link: sectionHref(SECTION_IDS.about) },
+    "Award-winning journalist and founder of channeliam.com, a digital media platform for entrepreneurship, innovation and business growth.",
+  primaryCta: { label: "EXPLORE MY JOURNEY", link: PROFILE_PATH },
   secondaryCta: { label: "WATCH VIDEO", url: "" },
-  location: "KOCHI / INDIA",
+  location: "INDIA / UAE",
   // Fills the right ~55% of the hero, bleeding to the viewport edge. Subject should sit right of centre.
   image: placeholder("Portrait of Nisha Krishnan", 1600, 1500),
 };
 
 /** Same shape as statistics/{id} Firestore documents. Workbook section "3. Impact". */
 export const statistics: ImpactStatistic[] = [
-  { id: "stat-1", value: "24", title: "YEARS IN MEDIA", description: "Professional experience", order: 1, active: true, icon: "mic" },
-  { id: "stat-2", value: "15,000+", title: "BUSINESS STORIES", description: "Content impact", order: 2, active: true, icon: "newspaper" },
-  { id: "stat-3", value: "10", title: "YEARS OF CHANNELIAM", description: "Entrepreneurial journey since 2016", order: 3, active: true, icon: "building" },
+  { id: "stat-1", value: "24", title: "YEARS IN MEDIA", description: "Professional experience", order: 1, active: true, icon: "megaphone" },
+  { id: "stat-2", value: "15,000+", title: "BUSINESS STORIES", description: "Content impact", order: 2, active: true, icon: "video" },
+  { id: "stat-3", value: "10", title: "YEARS OF CHANNELIAM", description: "Entrepreneurial journey since 2016", order: 3, active: true, icon: "message" },
+  // The workbook's "Professional Achievements & Global Recognition" lists exactly 12 items
+  // (8 journalism awards + 4 international recognitions). "10+" is not stated anywhere.
+  { id: "stat-4", value: "12", title: "AWARDS & HONOURS", description: "Journalism awards and international recognition", order: 4, active: true, icon: "trophy" },
 ];
 
 /** Homepage About: the workbook's medium bio (150–200 words); the detailed profile lives on /about. */
 export const about: AboutContent = {
-  label: "Behind the Journey",
-  heading: "A journey built on stories.",
-  intro: "Media Entrepreneur · Visionary Leader · Startup Ecosystem Builder · Women’s Empowerment Advocate",
+  label: "About Nisha",
+  heading: "A Journey Built on Stories",
+  intro: "Media Entrepreneur · Startup Ecosystem Builder · Women’s Entrepreneurship Advocate",
   paragraphs: [
     "Nisha Krishnan is a charismatic, award-winning journalist, media entrepreneur, and founder of channeliam.com, a digital media platform championing entrepreneurship, innovation, and constructive journalism. With over 23 years of media experience, she is known for her visionary leadership, unwavering dedication, strategic thinking, and results-driven execution. A dynamic team leader, she excels at transforming ambitious ideas into impactful initiatives.",
     "Since founding channeliam.com in 2016, Nisha has built multidisciplinary teams and developed platforms connecting entrepreneurs, investors, businesses, policymakers, and institutions. Her international engagements include the prestigious U.S. Department of State's International Visitor Leadership Program (IVLP) and the Thematic International Exchange Seminar (TIES), held in Kazakhstan in 2019.",
     "She also received a U.S. Department of State grant to develop solutions addressing challenges faced by women in the post-COVID period. Through initiatives including She Power and I AM Startup Studio, she continues to champion emerging entrepreneurs and innovative ideas.",
     "A UAE Golden Visa recipient, Nisha combines inspiring leadership with disciplined execution, advancing AI-powered media, strategic collaborations, and entrepreneurial growth. Her mission is to transform powerful stories into opportunities, meaningful partnerships, and lasting impact.",
   ],
-  cta: { label: "Read the full story", href: PROFILE_PATH },
+  cta: { label: "Read full profile", href: PROFILE_PATH },
   images: [
     placeholder("Nisha Krishnan speaking", 1600, 1000),
     placeholder("Kochi skyline", 1400, 1500),
   ],
-  keywords: ["Stories", "People", "Ideas", "Communities", "A Brighter Tomorrow"],
+  keywords: ["Journalism", "Entrepreneurship", "Startups", "Women in Business", "Business Growth"],
   profile,
 };
 
@@ -271,15 +276,28 @@ export const work: WorkItem[] = [
 ];
 
 /** Approved awards (workbook "Professional achievements") — no media coverage has been supplied. */
+/** In the Media — publication names supplied by the client. Text only: no logos, links or headlines. */
 export const mediaFeatures: MediaFeature[] = [
+  "The Times of India",
+  "Forbes",
+  "The Hindu",
+  "Business Standard",
+  "YourStory",
+  "CNBC",
+  "Mint",
+].map((publication, i) => ({ ...item(`m${i + 1}`, i + 1), publication }));
+
+/**
+ * Awards & Honours (achievements collection) — kept separate from media publications.
+ * Names verified against the workbook; "IMA Award" = "Indian Medical Association (IMA) Award".
+ */
+export const achievements: Achievement[] = [
   "Kerala State Media Award",
   "Laadli Media Award",
   "Dr. B. R. Ambedkar Award",
   "P. C. Sukumaran Nair Memorial Award",
   "IMA Award",
-  "V. K. Madhavan Kutty Award",
-  "Nehru Yuva Kendra Award",
-].map((publication, i) => ({ ...item(`m${i + 1}`, i + 1), publication }));
+].map((title, i) => ({ ...item(`a${i + 1}`, i + 1), title }));
 
 /** Workbook "Blurb (Highlighted wordings)" and the leadership philosophy's heading line. */
 export const philosophy: PhilosophyContent = {

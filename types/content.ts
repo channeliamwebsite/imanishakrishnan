@@ -48,7 +48,11 @@ export type IconName =
   | "award"
   | "trending"
   | "chart"
-  | "lightbulb";
+  | "lightbulb"
+  | "megaphone"
+  | "video"
+  | "message"
+  | "trophy";
 
 export type SocialPlatform = "linkedin" | "x" | "instagram" | "youtube" | "facebook" | "email";
 
@@ -160,6 +164,8 @@ export interface SeoContent {
 export interface SectionCopy {
   work: { label?: string; heading: string; cta?: Link };
   media: { label?: string; heading: string; tagline?: string };
+  /** Awards & Honours strip (achievements collection). */
+  awards?: { label?: string; heading: string; tagline?: string };
   insights: { label?: string; heading: string; intro: string; cta?: Link };
 }
 

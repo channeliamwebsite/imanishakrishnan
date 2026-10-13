@@ -71,7 +71,7 @@ export function AboutSection({ content, timeline }: { content: AboutContent; tim
           {/* Closing line (site copy, not an attributed quote) — in the reference's link position */}
           {content.closing && (
             <Reveal delay={0.15 + content.paragraphs.length * 0.08} className="mt-7">
-              <p className="font-display text-[clamp(1.25rem,1.6vw,1.5rem)] italic leading-snug text-burgundy">
+              <p className="text-[clamp(1.0625rem,1.3vw,1.25rem)] font-semibold leading-snug text-burgundy">
                 {content.closing}
               </p>
             </Reveal>

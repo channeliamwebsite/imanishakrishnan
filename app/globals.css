@@ -83,11 +83,13 @@
 
 /* Hero name */
 @utility type-display {
+  /* Same treatment as the section headings (type-h2): Cormorant 500, uppercase, slight tracking. */
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 500;
   font-size: clamp(3.25rem, 6vw, 5.25rem);
   line-height: 0.95;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 /* Page titles (/about) */
@@ -101,11 +103,13 @@
 
 /* Section headings */
 @utility type-h2 {
+  /* Reference: uppercase editorial serif, regular-medium weight ("SELECTED WORK & IMPACT"). */
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(2.125rem, 3.4vw, 3rem);
-  line-height: 1.05;
-  letter-spacing: -0.005em;
+  font-weight: 500;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 /* Article titles */
@@ -125,8 +129,10 @@
 }
 
 /* Philosophy quote */
+/* Philosophy quote — italic editorial serif, as in the reference */
 @utility type-quote {
   font-family: var(--font-display);
+  font-style: italic;
   font-weight: 500;
   font-size: clamp(1.75rem, 2.8vw, 2.5rem);
   line-height: 1.22;

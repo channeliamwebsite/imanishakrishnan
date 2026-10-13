@@ -17,7 +17,7 @@ type SectionHeadingProps = {
   className?: string;
 };
 
-/** Eyebrow + uppercase display heading, with optional intro and actions. Owns the heading → content gap. */
+/** Eyebrow + section heading, with optional intro and actions. Owns the heading → content gap. */
 export function SectionHeading({
   label,
   title,

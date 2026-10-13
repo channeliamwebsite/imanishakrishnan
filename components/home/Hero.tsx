@@ -12,8 +12,10 @@ const PORTRAIT_BACKDROP_TO_TRANSPARENT = "e_make_transparent:10,co_rgb:f7f7f7";
 
 /** "I'm Nisha Krishnan" → greeting "I'm", lines ["Nisha", "Krishnan"]. Works without a greeting too. */
 function splitName(name: string) {
-  const match = name.match(/^(I['’]m)\s+(.+)$/i);
+  const match = name.match(/^(I\s+am|I['’]m)\s+(.+)$/i);
+
   const words = (match ? match[2] : name).trim().split(/\s+/);
+
   return {
     greeting: match?.[1],
     lines: words.length > 1 ? [words[0], words.slice(1).join(" ")] : words,
@@ -82,18 +84,20 @@ export function Hero({ content }: { content: HeroContent }) {
           </h1>
 
           {/* Same clipped-separator technique as the eyebrow: no line starts or ends with "·". */}
-          <div className="animate-rise mt-5 overflow-hidden [animation-delay:260ms]">
-            <p className="-ml-6 flex flex-wrap items-center gap-y-1 font-display text-[clamp(1.125rem,1.4vw,1.3125rem)] font-medium text-foreground/85">
-              {roleLine.map((role, i) => (
-                <span
-                  key={i}
-                  className="relative whitespace-nowrap pl-6 before:absolute before:left-[0.6rem] before:text-foreground/50 before:content-['·']"
-                >
-                  {role}
-                </span>
-              ))}
-            </p>
-          </div>
+          
+<div className="animate-rise mt-5 overflow-hidden [animation-delay:260ms]">
+  <p className="-ml-6 flex flex-wrap items-center gap-y-2 font-sans text-[clamp(0.875rem,1.05vw,1rem)] font-semibold uppercase tracking-[0.08em] text-foreground/85">
+    {roleLine.map((role, i) => (
+      <span
+        key={i}
+        className="relative whitespace-nowrap pl-6 before:absolute before:left-[0.6rem] before:text-foreground/50 before:content-['·']"
+      >
+        {role}
+      </span>
+    ))}
+  </p>
+</div>
+
 
           <span aria-hidden className="animate-rise mt-7 block h-0.5 w-16 bg-burgundy [animation-delay:320ms]" />
 
