@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { cormorant, crimson } from "./fonts";
+import { cormorant, crimson, montserrat, oswald } from "./fonts";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { getSiteSettings, getSocialLinks } from "@/lib/content";
@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const [settings, socialLinks] = await Promise.all([getSiteSettings(), getSocialLinks()]);
 
   return (
-    <html lang="en" className={`${cormorant.variable} ${crimson.variable} h-full antialiased`}>
+    <html lang="en" className={`${cormorant.variable} ${crimson.variable} ${montserrat.variable} ${oswald.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         {/* Without JavaScript, scroll reveals never run — show their content as-is. */}
         <noscript>

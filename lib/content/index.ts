@@ -11,13 +11,16 @@ import type {
   Insight,
   MediaFeature,
   PhilosophyContent,
+  ProfileItem,
   SiteSettings,
   SocialLink,
   TimelineEntry,
+  WorkDetailCopy,
   WorkItem,
 } from "@/types/content";
 import { parseHero, parseStatistic, selectActiveStatistics } from "./normalize";
 import * as fallback from "./placeholder";
+import { profile as fallbackProfile } from "./profile";
 
 /**
  * Content repository. Pages only ever call these functions — they never touch Firestore
@@ -153,6 +156,34 @@ export async function getWork(): Promise<WorkItem[]> {
   cacheLife("hours");
   cacheTag(COLLECTIONS.work);
   return safe(() => getPublishedList<WorkItem>(COLLECTIONS.work), fallback.work, "work");
+}
+
+/** Everything a work detail page (/work/{slug}) shows, resolved from its references. */
+export interface WorkDetailContent {
+  item: WorkItem;
+  /** The referenced area of expertise (about/main → profile.expertise). */
+  expertise?: ProfileItem;
+  milestones: TimelineEntry[];
+  copy: WorkDetailCopy;
+}
+
+/** Slugs of the work items that have a detail page. */
+export async function getWorkDetailSlugs(): Promise<string[]> {
+  return (await getWork()).flatMap((item) => (item.slug && item.detail ? [item.slug] : []));
+}
+
+/** A work item's detail page content, or null when no published item has that slug and a detail page. */
+export async function getWorkDetail(slug: string): Promise<WorkDetailContent | null> {
+  const [work, about, timeline, settings] = await Promise.all([getWork(), getAbout(), getTimeline(), getSiteSettings()]);
+  const item = work.find((w) => w.slug === slug && w.detail);
+  if (!item?.detail) return null;
+  const expertiseItems = (about.profile ?? fallbackProfile).expertise.items;
+  return {
+    item,
+    expertise: expertiseItems.find((x) => x.anchor === item.detail?.expertiseAnchor),
+    milestones: (item.detail.milestoneIds ?? []).flatMap((id) => timeline.filter((entry) => entry.id === id)),
+    copy: settings.sections.work.detail ?? fallback.siteSettings.sections.work.detail!,
+  };
 }
 
 export async function getMediaFeatures(): Promise<MediaFeature[]> {
