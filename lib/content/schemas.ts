@@ -254,7 +254,17 @@ const sectionsSchema: z.ZodType<SectionCopy> = z.object({
     .nullish()
     .transform((v) => v ?? undefined),
   testimonials: z
-    .object({ label: optional, heading: required("Testimonials heading"), intro: optional })
+    .object({
+      label: optional,
+      heading: required("Testimonials heading"),
+      intro: optional,
+      // Empty upload slots are dropped; every kept image is a validated Cloudinary asset.
+      images: mediaList.transform((list) => {
+        const uploaded = list.filter((m) => m.url);
+        return uploaded.length ? uploaded : undefined;
+      }),
+      cta: optionalLink,
+    })
     .nullish()
     .transform((v) => v ?? undefined),
   insights: z.object({

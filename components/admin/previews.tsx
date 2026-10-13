@@ -9,7 +9,6 @@ import type {
   PhilosophyContent,
   SiteSettings,
   SocialLink,
-  Testimonial,
   TimelineEntry,
   WorkItem,
 } from "@/types/content";
@@ -165,24 +164,6 @@ export function PhilosophyPreview({ data }: { data: unknown }) {
 
 const testimonialsCopy = (settings: SiteSettings) => settings.sections.testimonials ?? builtInSettings.sections.testimonials!;
 
-export function TestimonialsPreview({ data }: { data: unknown }) {
-  const settings = useLive<SiteSettings>("siteSettings");
-  if (!settings) return <Spinner />;
-  return (
-    <Checked<Testimonial[]> section="testimonials" data={data}>
-      {(items) =>
-        visible(items).length > 0 ? (
-          <TestimonialsSection items={visible(items)} copy={testimonialsCopy(settings)} />
-        ) : (
-          <div className="p-4">
-            <Notice tone="info">No visible testimonials — the section is hidden on the website.</Notice>
-          </div>
-        )
-      }
-    </Checked>
-  );
-}
-
 /** Settings drive the header, footer and section headings — preview the ones edited on each page. */
 export function SettingsPreview({
   data,
@@ -194,8 +175,7 @@ export function SettingsPreview({
   const work = useLive<WorkItem[]>("work");
   const media = useLive<MediaFeature[]>("mediaFeatures");
   const social = useLive<SocialLink[]>("socialLinks");
-  const testimonials = useLive<Testimonial[]>("testimonials");
-  if (!work || !media || !social || !testimonials) return <Spinner />;
+  if (!work || !media || !social) return <Spinner />;
   return (
     <Checked<SiteSettings> section="siteSettings" data={data}>
       {(settings) => {
@@ -206,8 +186,16 @@ export function SettingsPreview({
             return <MediaSection items={visible(media)} copy={settings.sections.media} />;
           case "insights":
             return <InsightsSection items={[]} copy={settings.sections.insights} />;
-          case "testimonials":
-            return <TestimonialsSection items={visible(testimonials)} copy={testimonialsCopy(settings)} />;
+          case "testimonials": {
+            const copy = testimonialsCopy(settings);
+            return copy.images?.length ? (
+              <TestimonialsSection copy={copy} />
+            ) : (
+              <div className="p-4">
+                <Notice tone="info">No testimonial images yet — the section is hidden on the website.</Notice>
+              </div>
+            );
+          }
           default:
             return (
               <>
@@ -248,7 +236,6 @@ export type PreviewKind =
   | "work"
   | "media"
   | "philosophy"
-  | "testimonials"
   | "settings-chrome"
   | "settings-work"
   | "settings-media"
@@ -276,8 +263,6 @@ export function PreviewRenderer({ kind, data }: { kind: PreviewKind; data: unkno
       return <MediaPreview data={data} />;
     case "philosophy":
       return <PhilosophyPreview data={data} />;
-    case "testimonials":
-      return <TestimonialsPreview data={data} />;
     case "settings-chrome":
       return <SettingsPreview data={data} part="chrome" />;
     case "settings-work":

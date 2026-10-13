@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, EyeOff, Plus, Trash2, Upload } from "lucide-react";
 import type { MediaAsset } from "@/types/content";
 import type { FieldDef } from "@/lib/cms/fields";
 import { cn } from "@/lib/cn";
-import { AdminButton, SelectInput, TextArea, TextInput, Toggle } from "../ui";
+import { ACCEPT_ATTRIBUTE, uploadImage } from "@/lib/cms/media";
+import { useAdminAuth } from "../AdminAuth";
+import { AdminButton, Notice, SelectInput, TextArea, TextInput, Toggle } from "../ui";
 import { ImageField } from "./ImageField";
 
 /**
@@ -254,6 +256,34 @@ function ImagesField({
   errors: FieldErrors;
   path: string;
 }) {
+  const { getIdToken, identity } = useAdminAuth();
+  const fileInput = useRef<HTMLInputElement>(null);
+  // The list as last rendered, so each finished upload appends to the current value.
+  const latest = useRef(value);
+  latest.current = value;
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [failed, setFailed] = useState<string[]>([]);
+
+  /** Uploads several files one after another (same signed upload as a single image). */
+  async function uploadMany(files: FileList | null) {
+    const list = Array.from(files ?? []);
+    if (list.length === 0) return;
+    setFailed([]);
+    setProgress({ done: 0, total: list.length });
+    for (const [i, file] of list.entries()) {
+      try {
+        const asset = await uploadImage(file, { folder: field.folder, idToken: await getIdToken(), by: identity });
+        latest.current = [...latest.current, asset];
+        onChange(latest.current);
+      } catch (e) {
+        setFailed((f) => [...f, `${file.name}: ${e instanceof Error ? e.message : "upload failed"}`]);
+      }
+      setProgress({ done: i + 1, total: list.length });
+    }
+    setProgress(null);
+    if (fileInput.current) fileInput.current.value = "";
+  }
+
   return (
     <fieldset className="min-w-0 space-y-3">
       <legend className="font-sans text-sm font-semibold text-foreground">{field.label}</legend>
@@ -283,9 +313,36 @@ function ImagesField({
           />
         </div>
       ))}
-      <AdminButton size="sm" onClick={() => onChange([...value, { url: "", publicId: "" }])}>
-        <Plus className="size-3.5" aria-hidden /> Add image
-      </AdminButton>
+      <div className="flex flex-wrap items-center gap-2">
+        <AdminButton size="sm" onClick={() => onChange([...value, { url: "", publicId: "" }])} disabled={!!progress}>
+          <Plus className="size-3.5" aria-hidden /> Add image
+        </AdminButton>
+        <AdminButton size="sm" variant="ghost" onClick={() => fileInput.current?.click()} disabled={!!progress}>
+          <Upload className="size-3.5" aria-hidden /> Upload several
+        </AdminButton>
+        <input
+          ref={fileInput}
+          type="file"
+          accept={ACCEPT_ATTRIBUTE}
+          multiple
+          hidden
+          onChange={(e) => uploadMany(e.target.files)}
+        />
+        {progress && (
+          <span className="font-sans text-xs text-muted" aria-live="polite">
+            Uploading {progress.done + 1 > progress.total ? progress.total : progress.done + 1} of {progress.total}…
+          </span>
+        )}
+      </div>
+      {failed.length > 0 && (
+        <Notice tone="error" title="Some files were not uploaded">
+          <ul className="list-disc pl-4">
+            {failed.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        </Notice>
+      )}
     </fieldset>
   );
 }

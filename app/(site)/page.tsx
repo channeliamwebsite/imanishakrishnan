@@ -20,10 +20,7 @@ export default async function HomePage() {
       <WorkSection items={content.work} copy={sections.work} />
       <MediaSection items={content.mediaFeatures} copy={sections.media} />
       <PhilosophySection content={content.philosophy} />
-      <TestimonialsSection
-        items={content.testimonials}
-        copy={sections.testimonials ?? fallbackSettings.sections.testimonials!}
-      />
+      <TestimonialsSection copy={sections.testimonials ?? fallbackSettings.sections.testimonials!} />
       <InsightsSection items={content.insights} copy={sections.insights} />
     </>
   );

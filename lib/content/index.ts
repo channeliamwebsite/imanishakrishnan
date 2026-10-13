@@ -274,7 +274,7 @@ export async function getSpeakingEvents(): Promise<SpeakingEvent[]> {
   return settle(await loadList(COLLECTIONS.speaking, item(speakingEventSchema)), []);
 }
 
-/** Published testimonials in `order` — the homepage Testimonials section. None published → []. */
+/** Written testimonials, managed in the admin. Not rendered: the site shows testimonial images (siteSettings). */
 export async function getTestimonials(): Promise<Testimonial[]> {
   "use cache";
   cacheTag(COLLECTIONS.testimonials);
@@ -331,7 +331,7 @@ export async function getInsightBySlug(slug: string): Promise<Insight | null> {
 }
 
 export async function getHomeContent(): Promise<HomeContent> {
-  const [hero, statistics, about, timeline, work, mediaFeatures, philosophy, testimonials, insights] =
+  const [hero, statistics, about, timeline, work, mediaFeatures, philosophy, insights] =
     await Promise.all([
       getHero(),
       getStatistics(),
@@ -340,8 +340,7 @@ export async function getHomeContent(): Promise<HomeContent> {
       getWork(),
       getMediaFeatures(),
       getPhilosophy(),
-      getTestimonials(),
       getLatestInsights(3),
     ]);
-  return { hero, statistics, about, timeline, work, mediaFeatures, philosophy, testimonials, insights };
+  return { hero, statistics, about, timeline, work, mediaFeatures, philosophy, insights };
 }

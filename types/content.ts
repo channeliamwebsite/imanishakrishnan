@@ -186,14 +186,27 @@ export interface WorkDetailCopy {
   galleryLabel: string;
 }
 
+export interface TestimonialsCopy {
+  label?: string;
+  heading: string;
+  intro?: string;
+  /** Testimonial images in display order (Cloudinary: nisha-krishnan/testimonials). */
+  images?: MediaAsset[];
+  /** "View all testimonials" link under the homepage carousel. */
+  cta?: Link;
+}
+
 /** Headings / intro copy for list sections, so nothing on the page is hard-coded. */
 export interface SectionCopy {
   work: { label?: string; heading: string; cta?: Link; detail?: WorkDetailCopy };
   media: { label?: string; heading: string; tagline?: string };
   /** Awards & Honours strip (achievements collection). */
   awards?: { label?: string; heading: string; tagline?: string };
-  /** Testimonials section. Optional so settings published before it existed stay valid. */
-  testimonials?: { label?: string; heading: string; intro?: string };
+  /**
+   * Testimonials (homepage section and /testimonials). Optional so settings published before it
+   * existed stay valid. The testimonials are images — each already contains its text.
+   */
+  testimonials?: TestimonialsCopy;
   insights: {
     label?: string;
     heading: string;
@@ -358,6 +371,5 @@ export interface HomeContent {
   work: WorkItem[];
   mediaFeatures: MediaFeature[];
   philosophy: PhilosophyContent;
-  testimonials: Testimonial[];
   insights: Insight[];
 }

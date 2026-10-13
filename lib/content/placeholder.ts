@@ -92,10 +92,12 @@ export const siteSettings: SiteSettings = {
     // Publication names supplied by the client (not in the workbook) — text only, no links or logos.
     media: { label: "Featured In", heading: "In the Media", tagline: "Stories that spark conversations." },
     awards: { label: "Recognition", heading: "Awards & Honours" },
+    // No images until real testimonial images are uploaded in the admin — the section stays hidden.
     testimonials: {
       label: "Voices of Trust",
-      heading: "Words from the Journey",
-      intro: "Reflections from the entrepreneurs, partners and colleagues who have been part of the journey.",
+      heading: "What People Are Saying",
+      intro: "A collection of voices, experiences, and appreciation from the audience who have been part of the journey.",
+      cta: { label: "View All Testimonials", href: "/testimonials" },
     },
     insights: {
       label: "Thoughts & Perspectives",
