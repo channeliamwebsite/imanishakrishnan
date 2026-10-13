@@ -175,9 +175,18 @@ export interface SeoContent {
   ogImage?: MediaAsset;
 }
 
+/** Fixed labels of the work detail pages (/work/{slug}). */
+export interface WorkDetailCopy {
+  backLabel: string; // link back to the homepage section
+  highlightsLabel: string;
+  workLabel: string; // heading label above the area-of-expertise text
+  strengthsLabel: string;
+  milestonesLabel: string;
+}
+
 /** Headings / intro copy for list sections, so nothing on the page is hard-coded. */
 export interface SectionCopy {
-  work: { label?: string; heading: string; cta?: Link };
+  work: { label?: string; heading: string; cta?: Link; detail?: WorkDetailCopy };
   media: { label?: string; heading: string; tagline?: string };
   /** Awards & Honours strip (achievements collection). */
   awards?: { label?: string; heading: string; tagline?: string };
@@ -228,12 +237,33 @@ export interface WorkItem extends ListItemBase {
   logo?: MediaAsset;
   icon?: IconName;
   tagline?: string;
-  coverImage?: MediaAsset; // card image, displayed 7:3
-  gallery?: MediaAsset[]; // for a future detail page
+  coverImage?: MediaAsset; // card image, displayed 7:3; also the detail page's main image
+  gallery?: MediaAsset[]; // further images on the detail page
   category: string;
   title: string;
+  /** Short description — the card text and the detail page's introduction. */
   description: string;
+  /** Card link: the detail page (/work/{slug}) when the item has one, otherwise an external site. */
   cta: Link;
+  /** URL segment of the detail page, e.g. "she-power". Required when `detail` is set. */
+  slug?: string;
+  detail?: WorkDetail;
+}
+
+/**
+ * The detail page of a work item (/work/{slug}). Long-form text isn't copied here: the page
+ * shows the referenced area of expertise (about/main → profile.expertise) and timeline entries,
+ * so each fact lives in one place and the /about page and detail page always agree.
+ */
+export interface WorkDetail {
+  /** Area of expertise (by its `anchor`) whose description, paragraphs and core strengths are shown. */
+  expertiseAnchor?: string;
+  /** Timeline entry ids shown as milestones, in this order. */
+  milestoneIds?: string[];
+  /** Key figures, e.g. { value: "45+", label: "Colleges engaged" }. */
+  highlights?: { value: string; label: string }[];
+  /** Main call to action. Only verified destinations: internal routes or official sites. */
+  cta?: Link;
 }
 
 /** achievements/{id} — Cloudinary: nisha-krishnan/achievements. Not rendered yet. */
