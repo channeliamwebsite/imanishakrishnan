@@ -92,6 +92,11 @@ export const siteSettings: SiteSettings = {
     // Publication names supplied by the client (not in the workbook) — text only, no links or logos.
     media: { label: "Featured In", heading: "In the Media", tagline: "Stories that spark conversations." },
     awards: { label: "Recognition", heading: "Awards & Honours" },
+    testimonials: {
+      label: "Voices of Trust",
+      heading: "Words from the Journey",
+      intro: "Reflections from the entrepreneurs, partners and colleagues who have been part of the journey.",
+    },
     insights: {
       label: "Thoughts & Perspectives",
       heading: "Latest Insights",

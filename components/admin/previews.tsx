@@ -9,6 +9,7 @@ import type {
   PhilosophyContent,
   SiteSettings,
   SocialLink,
+  Testimonial,
   TimelineEntry,
   WorkItem,
 } from "@/types/content";
@@ -23,6 +24,8 @@ import { WorkSection } from "@/components/home/WorkSection";
 import { MediaSection } from "@/components/home/MediaSection";
 import { PhilosophySection } from "@/components/home/PhilosophySection";
 import { InsightsSection } from "@/components/home/InsightsSection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
+import { siteSettings as builtInSettings } from "@/lib/content/placeholder";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ProfileView } from "@/components/about/ProfileView";
@@ -160,12 +163,39 @@ export function PhilosophyPreview({ data }: { data: unknown }) {
   );
 }
 
+const testimonialsCopy = (settings: SiteSettings) => settings.sections.testimonials ?? builtInSettings.sections.testimonials!;
+
+export function TestimonialsPreview({ data }: { data: unknown }) {
+  const settings = useLive<SiteSettings>("siteSettings");
+  if (!settings) return <Spinner />;
+  return (
+    <Checked<Testimonial[]> section="testimonials" data={data}>
+      {(items) =>
+        visible(items).length > 0 ? (
+          <TestimonialsSection items={visible(items)} copy={testimonialsCopy(settings)} />
+        ) : (
+          <div className="p-4">
+            <Notice tone="info">No visible testimonials — the section is hidden on the website.</Notice>
+          </div>
+        )
+      }
+    </Checked>
+  );
+}
+
 /** Settings drive the header, footer and section headings — preview the ones edited on each page. */
-export function SettingsPreview({ data, part }: { data: unknown; part: "chrome" | "work" | "media" | "insights" }) {
+export function SettingsPreview({
+  data,
+  part,
+}: {
+  data: unknown;
+  part: "chrome" | "work" | "media" | "insights" | "testimonials";
+}) {
   const work = useLive<WorkItem[]>("work");
   const media = useLive<MediaFeature[]>("mediaFeatures");
   const social = useLive<SocialLink[]>("socialLinks");
-  if (!work || !media || !social) return <Spinner />;
+  const testimonials = useLive<Testimonial[]>("testimonials");
+  if (!work || !media || !social || !testimonials) return <Spinner />;
   return (
     <Checked<SiteSettings> section="siteSettings" data={data}>
       {(settings) => {
@@ -176,6 +206,8 @@ export function SettingsPreview({ data, part }: { data: unknown; part: "chrome" 
             return <MediaSection items={visible(media)} copy={settings.sections.media} />;
           case "insights":
             return <InsightsSection items={[]} copy={settings.sections.insights} />;
+          case "testimonials":
+            return <TestimonialsSection items={visible(testimonials)} copy={testimonialsCopy(settings)} />;
           default:
             return (
               <>
@@ -216,10 +248,12 @@ export type PreviewKind =
   | "work"
   | "media"
   | "philosophy"
+  | "testimonials"
   | "settings-chrome"
   | "settings-work"
   | "settings-media"
   | "settings-insights"
+  | "settings-testimonials"
   | "social"
   | "article";
 
@@ -242,6 +276,8 @@ export function PreviewRenderer({ kind, data }: { kind: PreviewKind; data: unkno
       return <MediaPreview data={data} />;
     case "philosophy":
       return <PhilosophyPreview data={data} />;
+    case "testimonials":
+      return <TestimonialsPreview data={data} />;
     case "settings-chrome":
       return <SettingsPreview data={data} part="chrome" />;
     case "settings-work":
@@ -250,6 +286,8 @@ export function PreviewRenderer({ kind, data }: { kind: PreviewKind; data: unkno
       return <SettingsPreview data={data} part="media" />;
     case "settings-insights":
       return <SettingsPreview data={data} part="insights" />;
+    case "settings-testimonials":
+      return <SettingsPreview data={data} part="testimonials" />;
     case "social":
       return <SocialPreview data={data} />;
     case "article":

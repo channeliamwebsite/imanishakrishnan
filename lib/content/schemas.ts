@@ -253,6 +253,10 @@ const sectionsSchema: z.ZodType<SectionCopy> = z.object({
     .object({ label: optional, heading: required("Awards heading"), tagline: optional })
     .nullish()
     .transform((v) => v ?? undefined),
+  testimonials: z
+    .object({ label: optional, heading: required("Testimonials heading"), intro: optional })
+    .nullish()
+    .transform((v) => v ?? undefined),
   insights: z.object({
     label: optional,
     heading: required("Insights heading"),
@@ -371,6 +375,7 @@ export const testimonialSchema: z.ZodType<Testimonial> = z.object({
   role: text,
   organisation: optional,
   avatar: optionalMedia,
+  logo: optionalMedia,
 });
 
 export const insightSchema: z.ZodType<Insight> = z.object({

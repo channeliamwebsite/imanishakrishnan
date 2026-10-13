@@ -10,6 +10,7 @@ export const SECTION_IDS = {
   media: "media",
   awards: "awards",
   speaking: "speaking",
+  testimonials: "testimonials",
   insights: "insights",
   contact: "contact",
 } as const;

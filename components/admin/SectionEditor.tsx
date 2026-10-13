@@ -50,6 +50,7 @@ export function SectionEditor({
   summary,
   preview,
   sharedNote,
+  initial,
 }: {
   section: SectionKey;
   /** Edit only this part of a singleton section (e.g. ["profile", "achievements"]). */
@@ -64,6 +65,8 @@ export function SectionEditor({
   preview?: PreviewKind;
   /** Shown when other admin pages edit other parts of the same section. */
   sharedNote?: string;
+  /** Starting value for `path` when the section has never stored it (e.g. a newly added heading). */
+  initial?: unknown;
 }) {
   const def = SECTIONS[section];
   const prefix = pathProp?.join(".") ?? "";
@@ -79,12 +82,16 @@ export function SectionEditor({
   const [previewing, setPreviewing] = useState(false);
 
   const apply = useCallback(
-    (next: SectionState) => {
+    (loaded: SectionState) => {
+      const next =
+        path && initial !== undefined && getAt(loaded.data, path) === undefined
+          ? { ...loaded, data: setAt(loaded.data, path, initial) }
+          : loaded;
       setState(next);
       setData(next.data);
       setSavedJson(JSON.stringify(getAt(next.data, path)));
     },
-    [path],
+    [path, initial],
   );
 
   useEffect(() => {

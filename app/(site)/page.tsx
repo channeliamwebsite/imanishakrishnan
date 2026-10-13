@@ -5,7 +5,9 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { WorkSection } from "@/components/home/WorkSection";
 import { MediaSection } from "@/components/home/MediaSection";
 import { PhilosophySection } from "@/components/home/PhilosophySection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { InsightsSection } from "@/components/home/InsightsSection";
+import { siteSettings as fallbackSettings } from "@/lib/content/placeholder";
 
 export default async function HomePage() {
   const [content, { sections }] = await Promise.all([getHomeContent(), getSiteSettings()]);
@@ -18,6 +20,10 @@ export default async function HomePage() {
       <WorkSection items={content.work} copy={sections.work} />
       <MediaSection items={content.mediaFeatures} copy={sections.media} />
       <PhilosophySection content={content.philosophy} />
+      <TestimonialsSection
+        items={content.testimonials}
+        copy={sections.testimonials ?? fallbackSettings.sections.testimonials!}
+      />
       <InsightsSection items={content.insights} copy={sections.insights} />
     </>
   );

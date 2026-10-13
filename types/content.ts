@@ -192,6 +192,8 @@ export interface SectionCopy {
   media: { label?: string; heading: string; tagline?: string };
   /** Awards & Honours strip (achievements collection). */
   awards?: { label?: string; heading: string; tagline?: string };
+  /** Testimonials section. Optional so settings published before it existed stay valid. */
+  testimonials?: { label?: string; heading: string; intro?: string };
   insights: {
     label?: string;
     heading: string;
@@ -331,9 +333,10 @@ export interface SpeakingEvent extends ListItemBase {
 export interface Testimonial extends ListItemBase {
   quote: string;
   name: string;
-  role: string;
-  organisation?: string;
-  avatar?: MediaAsset;
+  role: string; // designation
+  organisation?: string; // company
+  avatar?: MediaAsset; // portrait
+  logo?: MediaAsset; // optional company logo
 }
 
 /** socialLinks/{id} */
@@ -355,5 +358,6 @@ export interface HomeContent {
   work: WorkItem[];
   mediaFeatures: MediaFeature[];
   philosophy: PhilosophyContent;
+  testimonials: Testimonial[];
   insights: Insight[];
 }

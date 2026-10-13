@@ -2,23 +2,32 @@
 
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { SectionEditor } from "@/components/admin/SectionEditor";
-import { Notice } from "@/components/admin/ui";
-import { TESTIMONIAL_FIELDS } from "@/lib/cms/forms";
+import { TESTIMONIAL_FIELDS, TESTIMONIALS_COPY_FIELDS } from "@/lib/cms/forms";
+import { siteSettings as builtInSettings } from "@/lib/content/placeholder";
 
 export default function TestimonialsAdminPage() {
   return (
-    <div className="space-y-4">
-      <AdminPageHeader title="Testimonials" description="Quotes from people who have worked with Nisha." />
-      <Notice tone="info">
-        Testimonials can be stored and published here, but the public website has no testimonials section yet. Adding
-        one is a design decision; until then, published testimonials are not shown to visitors.
-      </Notice>
+    <div className="space-y-10">
+      <AdminPageHeader
+        title="Testimonials"
+        description="Quotes shown in the homepage Testimonials section. The section is hidden until at least one testimonial is published and visible."
+      />
       <SectionEditor
         section="testimonials"
         title="Testimonials"
         fields={TESTIMONIAL_FIELDS}
         itemLabel="Testimonial"
         summary={(item) => [item.name, item.organisation].filter(Boolean).join(" · ")}
+        preview="testimonials"
+      />
+      <SectionEditor
+        section="siteSettings"
+        path={["sections", "testimonials"]}
+        initial={builtInSettings.sections.testimonials}
+        title="Section heading"
+        fields={TESTIMONIALS_COPY_FIELDS}
+        preview="settings-testimonials"
+        sharedNote="Section headings are part of Site settings: this also publishes saved changes made on the Settings, Work, Media and Insights pages."
       />
     </div>
   );

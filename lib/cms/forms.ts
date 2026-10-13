@@ -312,10 +312,23 @@ export const EVENT_FIELDS: FieldDef[] = [
 
 export const TESTIMONIAL_FIELDS: FieldDef[] = [
   { kind: "textarea", key: "quote", label: "Quote", required: true, rows: 4 },
-  { kind: "text", key: "name", label: "Name", required: true },
-  { kind: "text", key: "role", label: "Role" },
-  { kind: "text", key: "organisation", label: "Organisation" },
-  { kind: "image", key: "avatar", label: "Photo", folder: CLOUDINARY_FOLDERS.testimonials },
+  { kind: "text", key: "name", label: "Full name", required: true },
+  { kind: "text", key: "role", label: "Designation" },
+  { kind: "text", key: "organisation", label: "Company" },
+  { kind: "image", key: "avatar", label: "Portrait", folder: CLOUDINARY_FOLDERS.testimonials, help: "Square crop works best." },
+  {
+    kind: "image",
+    key: "logo",
+    label: "Company logo",
+    folder: CLOUDINARY_FOLDERS.logos,
+    help: "Optional. A transparent PNG or SVG.",
+  },
+];
+
+export const TESTIMONIALS_COPY_FIELDS: FieldDef[] = [
+  { kind: "text", key: "label", label: "Section label" },
+  { kind: "text", key: "heading", label: "Heading", required: true },
+  { kind: "textarea", key: "intro", label: "Introduction", rows: 2 },
 ];
 
 /* ------------------------------------------------------------------ */
