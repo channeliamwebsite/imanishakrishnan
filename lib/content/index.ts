@@ -12,11 +12,13 @@ import type {
   ListItemBase,
   MediaFeature,
   PhilosophyContent,
+  ProfileItem,
   SiteSettings,
   SocialLink,
   SpeakingEvent,
   Testimonial,
   TimelineEntry,
+  WorkDetailCopy,
   WorkItem,
 } from "@/types/content";
 import { parseHero, parseStatistic, selectActiveStatistics, type Parsed } from "./normalize";
@@ -34,6 +36,7 @@ import {
   workItemSchema,
 } from "./schemas";
 import * as fallback from "./placeholder";
+import { profile as fallbackProfile } from "./profile";
 
 /**
  * Content repository. Pages only ever call these functions — they never touch Firestore
@@ -205,6 +208,40 @@ export async function getWork(): Promise<WorkItem[]> {
   "use cache";
   cacheTag(COLLECTIONS.work);
   return settle(await loadList(COLLECTIONS.work, item(workItemSchema)), fallback.work);
+}
+
+/** Everything a work detail page (/work/{slug}) shows, resolved from its references. */
+export interface WorkDetailContent {
+  item: WorkItem;
+  /** The referenced area of expertise (about/main → profile.expertise). */
+  expertise?: ProfileItem;
+  milestones: TimelineEntry[];
+  copy: WorkDetailCopy;
+}
+
+/** Slugs of the published work items that have a detail page. */
+export async function getWorkDetailSlugs(): Promise<string[]> {
+  return (await getWork()).flatMap((w) => (w.slug ? [w.slug] : []));
+}
+
+/**
+ * A work item's detail page content, or null when no published item has that slug. Cached per
+ * slug (like getInsightBySlug), so the page's params never stall rendering.
+ */
+export async function getWorkDetail(slug: string): Promise<WorkDetailContent | null> {
+  "use cache";
+  cacheTag(COLLECTIONS.work, COLLECTIONS.about, COLLECTIONS.timeline, COLLECTIONS.siteSettings);
+  const [work, about, timeline, settings] = await Promise.all([getWork(), getAbout(), getTimeline(), getSiteSettings()]);
+  const workItem = work.find((w) => w.slug === slug);
+  if (!workItem) return null;
+  const { detail } = workItem;
+  const expertiseItems = (about.profile ?? fallbackProfile).expertise.items;
+  return {
+    item: workItem,
+    expertise: detail?.expertiseAnchor ? expertiseItems.find((x) => x.anchor === detail.expertiseAnchor) : undefined,
+    milestones: (detail?.milestoneIds ?? []).flatMap((id) => timeline.filter((entry) => entry.id === id)),
+    copy: settings.sections.work.detail ?? fallback.workDetailCopy,
+  };
 }
 
 export async function getMediaFeatures(): Promise<MediaFeature[]> {

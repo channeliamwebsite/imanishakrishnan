@@ -175,9 +175,20 @@ export interface SeoContent {
   ogImage?: MediaAsset;
 }
 
+/** Fixed labels of the work detail pages (/work/{slug}). */
+export interface WorkDetailCopy {
+  backLabel: string; // link back to the homepage section
+  aboutLabel: string; // label above the detail paragraphs
+  highlightsLabel: string;
+  workLabel: string; // label above the area-of-expertise text
+  strengthsLabel: string;
+  milestonesLabel: string;
+  galleryLabel: string;
+}
+
 /** Headings / intro copy for list sections, so nothing on the page is hard-coded. */
 export interface SectionCopy {
-  work: { label?: string; heading: string; cta?: Link };
+  work: { label?: string; heading: string; cta?: Link; detail?: WorkDetailCopy };
   media: { label?: string; heading: string; tagline?: string };
   /** Awards & Honours strip (achievements collection). */
   awards?: { label?: string; heading: string; tagline?: string };
@@ -228,12 +239,39 @@ export interface WorkItem extends ListItemBase {
   logo?: MediaAsset;
   icon?: IconName;
   tagline?: string;
-  coverImage?: MediaAsset; // card image, displayed 7:3
-  gallery?: MediaAsset[]; // for a future detail page
+  coverImage?: MediaAsset; // card image, displayed 7:3; also the detail page's featured image
+  gallery?: MediaAsset[]; // the detail page's image gallery
   category: string;
   title: string;
+  /** Short description — the card text and the detail page's introduction. */
   description: string;
+  /** Card link. When `slug` is set the card always opens the detail page; `cta.href` is the fallback. */
   cta: Link;
+  /** URL segment of the detail page (/work/{slug}), e.g. "channeliam". Without it there is no detail page. */
+  slug?: string;
+  detail?: WorkDetail;
+}
+
+/**
+ * Long-form content of a work item's detail page (/work/{slug}). Besides its own paragraphs, the
+ * page can show an area of expertise (about/main → profile.expertise) and timeline entries by
+ * reference, so those facts live in one place and /about and the detail page always agree.
+ */
+export interface WorkDetail {
+  /** Page heading when it should differ from the card title, e.g. "Channeliam". */
+  title?: string;
+  /** Heading of the "About" block, e.g. "About Channeliam". */
+  aboutHeading?: string;
+  /** Detailed paragraphs about the initiative. */
+  paragraphs?: string[];
+  /** Area of expertise (by its `anchor`) whose description, paragraphs and core strengths are shown. */
+  expertiseAnchor?: string;
+  /** Timeline entry ids shown as milestones, in this order. */
+  milestoneIds?: string[];
+  /** Key figures, e.g. { value: "15,000+", label: "Business stories" }. */
+  highlights?: { value: string; label: string }[];
+  /** Main call to action. Only verified destinations: internal routes or official sites. */
+  cta?: Link;
 }
 
 /** achievements/{id} — Cloudinary: nisha-krishnan/achievements. Not rendered yet. */

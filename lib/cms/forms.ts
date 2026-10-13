@@ -201,13 +201,72 @@ export const WORK_FIELDS: FieldDef[] = [
   { kind: "link", key: "cta", label: "Button", help: linkHelp },
   { kind: "image", key: "logo", label: "Logo", folder: CLOUDINARY_FOLDERS.logos },
   { kind: "select", key: "icon", label: "Icon (when there is no logo)", options: iconOptions, emptyLabel: "None" },
-  { kind: "image", key: "coverImage", label: "Cover image", folder: CLOUDINARY_FOLDERS.work.covers },
+  { kind: "image", key: "coverImage", label: "Cover image", folder: CLOUDINARY_FOLDERS.work.covers, help: "Also the detail page's featured image." },
+  {
+    kind: "text",
+    key: "slug",
+    label: "Detail page address",
+    placeholder: "channeliam",
+    help: "Lowercase letters, numbers and hyphens. When set, the card opens /work/<address> instead of the button link above.",
+  },
+  {
+    kind: "group",
+    key: "detail",
+    label: "Detail page",
+    help: "Shown at /work/<address>. Blocks left empty are hidden.",
+    fields: [
+      { kind: "text", key: "title", label: "Page heading", help: "Leave empty to use the title above." },
+      { kind: "text", key: "aboutHeading", label: "About heading", placeholder: "About Channeliam" },
+      { kind: "strings", key: "paragraphs", label: "About paragraphs", itemLabel: "Paragraph", multiline: true },
+      {
+        kind: "list",
+        key: "highlights",
+        label: "Key figures",
+        itemLabel: "Figure",
+        summary: (item) => [str(item.value), str(item.label)].filter(Boolean).join(" · "),
+        newItem: () => ({ value: "", label: "" }),
+        fields: [
+          { kind: "text", key: "value", label: "Figure", placeholder: "15,000+" },
+          { kind: "text", key: "label", label: "Label", placeholder: "Business stories" },
+        ],
+      },
+      {
+        kind: "text",
+        key: "expertiseAnchor",
+        label: "Area of expertise (anchor id)",
+        help: "Shows that area from the About page's profile, e.g. media-entrepreneurship.",
+      },
+      {
+        kind: "strings",
+        key: "milestoneIds",
+        label: "Journey milestones (timeline ids)",
+        itemLabel: "Timeline id",
+        help: "Timeline entries shown on the page, in this order, e.g. t03.",
+      },
+      { kind: "link", key: "cta", label: "Call to action", optional: true, help: "e.g. Visit Channeliam → https://channeliam.com. External sites open in a new tab." },
+    ],
+  },
+  { kind: "images", key: "gallery", label: "Detail page gallery", folder: CLOUDINARY_FOLDERS.work.covers },
 ];
 
 export const WORK_COPY_FIELDS: FieldDef[] = [
   { kind: "text", key: "label", label: "Section label" },
   { kind: "text", key: "heading", label: "Heading", required: true },
   { kind: "link", key: "cta", label: "Section link (optional)", optional: true, help: linkHelp },
+  {
+    kind: "group",
+    key: "detail",
+    label: "Detail page labels",
+    fields: [
+      { kind: "text", key: "backLabel", label: "Back link", required: true },
+      { kind: "text", key: "aboutLabel", label: "About label", required: true },
+      { kind: "text", key: "highlightsLabel", label: "Key figures heading", required: true },
+      { kind: "text", key: "workLabel", label: "Area of expertise label", required: true },
+      { kind: "text", key: "strengthsLabel", label: "Core strengths label", required: true },
+      { kind: "text", key: "milestonesLabel", label: "Milestones heading", required: true },
+      { kind: "text", key: "galleryLabel", label: "Gallery heading", required: true },
+    ],
+  },
 ];
 
 export const MEDIA_FIELDS: FieldDef[] = [

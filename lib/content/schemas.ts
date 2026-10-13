@@ -17,6 +17,7 @@ import type {
   SpeakingEvent,
   Testimonial,
   TimelineEntry,
+  WorkDetail,
   WorkItem,
 } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
@@ -54,6 +55,8 @@ const stringList = z
   .array(z.string().nullish())
   .nullish()
   .transform((list) => (list ?? []).map((v) => (v ?? "").trim()).filter(Boolean));
+
+export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const SAFE_HREF = /^(\/|#|https?:\/\/|mailto:|tel:)/i;
 const href = (label: string) =>
@@ -230,8 +233,21 @@ const seoSchema: z.ZodType<SeoContent> = z.object({
   ogImage: optionalMedia,
 });
 
+const workDetailCopySchema = z
+  .object({
+    backLabel: required("Back link text"),
+    aboutLabel: required("About label"),
+    highlightsLabel: required("Key figures label"),
+    workLabel: required("Expertise label"),
+    strengthsLabel: required("Core strengths label"),
+    milestonesLabel: required("Milestones label"),
+    galleryLabel: required("Gallery label"),
+  })
+  .nullish()
+  .transform((v) => v ?? undefined);
+
 const sectionsSchema: z.ZodType<SectionCopy> = z.object({
-  work: z.object({ label: optional, heading: required("Work heading"), cta: optionalLink }),
+  work: z.object({ label: optional, heading: required("Work heading"), cta: optionalLink, detail: workDetailCopySchema }),
   media: z.object({ label: optional, heading: required("Media heading"), tagline: optional }),
   awards: z
     .object({ label: optional, heading: required("Awards heading"), tagline: optional })
@@ -284,6 +300,36 @@ export const workItemSchema: z.ZodType<WorkItem> = z.object({
   title: required("Title"),
   description: required("Description"),
   cta: linkSchema,
+  slug: optional.refine((v) => v === undefined || SLUG_PATTERN.test(v), {
+    message: "Slug may contain only lowercase letters, numbers and hyphens",
+  }),
+  detail: z
+    .object({
+      title: optional,
+      aboutHeading: optional,
+      paragraphs: stringList,
+      expertiseAnchor: optional,
+      milestoneIds: stringList,
+      highlights: z
+        .array(z.object({ value: text, label: text }))
+        .nullish()
+        .transform((list) => (list ?? []).filter((h) => h.value && h.label)),
+      cta: optionalLink,
+    })
+    .nullish()
+    .transform((d): WorkDetail | undefined => {
+      if (!d) return undefined;
+      const detail: WorkDetail = {
+        title: d.title,
+        aboutHeading: d.aboutHeading,
+        paragraphs: d.paragraphs.length ? d.paragraphs : undefined,
+        expertiseAnchor: d.expertiseAnchor,
+        milestoneIds: d.milestoneIds.length ? d.milestoneIds : undefined,
+        highlights: d.highlights.length ? d.highlights : undefined,
+        cta: d.cta,
+      };
+      return Object.values(detail).some((v) => v !== undefined) ? detail : undefined;
+    }),
 });
 
 export const mediaFeatureSchema: z.ZodType<MediaFeature> = z.object({
@@ -326,8 +372,6 @@ export const testimonialSchema: z.ZodType<Testimonial> = z.object({
   organisation: optional,
   avatar: optionalMedia,
 });
-
-export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const insightSchema: z.ZodType<Insight> = z.object({
   ...listItem,
