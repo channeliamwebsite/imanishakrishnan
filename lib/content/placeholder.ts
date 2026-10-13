@@ -42,8 +42,6 @@ const item = (id: string, order: number) => ({ id, order, published: true });
 
 /** The long-form profile page. */
 export const PROFILE_PATH = "/about";
-/** Detail page of a Selected Work item. */
-export const workPath = (slug: string) => `/work/${slug}`;
 
 /** Labels of the work detail pages; also the fallback when site settings don't define them. */
 export const workDetailCopy: WorkDetailCopy = {
