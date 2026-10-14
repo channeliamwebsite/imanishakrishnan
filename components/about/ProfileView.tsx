@@ -10,6 +10,21 @@ import { NewsGallery } from "./NewsGallery";
 /** Small numbered marker used for achievements. */
 const num = (n: number) => String(n).padStart(2, "0");
 
+/**
+ * Soft fade of the /about portrait into the background: an opaque centre, a longer fade over the
+ * last ~22% at the bottom and a short one at the left/right edges (the two masks intersect).
+ */
+const FADE_MASK = [
+  "linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%)",
+  "linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%)",
+].join(", ");
+const PORTRAIT_FADE = {
+  maskImage: FADE_MASK,
+  WebkitMaskImage: FADE_MASK,
+  maskComposite: "intersect",
+  WebkitMaskComposite: "source-in",
+} as const;
+
 /** Biography paragraphs shown before "Read the full story". */
 const STORY_VISIBLE = 4;
 
@@ -112,9 +127,9 @@ export function ProfileView({
           </Reveal>
           {portrait && (
             <Reveal delay={0.1} className="lg:col-span-5">
-              <figure className="relative mx-auto w-fit lg:mr-0">
-                {/* Thin offset rule — an editorial detail, not a frame around the photo. */}
-                <span aria-hidden className="absolute -bottom-4 -right-4 left-4 top-4 border border-burgundy/30" />
+              {/* No frame: the portrait fades softly into the cream page — mostly at the bottom, gently at
+                  the sides — via a CSS mask, so the subject itself stays fully opaque and sharp. */}
+              <figure className="relative mx-auto w-fit lg:mr-0" style={PORTRAIT_FADE}>
                 <Photo
                   media={portrait}
                   alt={page.title}
