@@ -116,7 +116,7 @@ export const hero: HeroContent = {
   roles: ["Journalist", "Media Entrepreneur"],
   description:
     "Award-winning journalist and founder of channeliam.com, a digital media platform for entrepreneurship, innovation and business growth.",
-  primaryCta: { label: "EXPLORE MY JOURNEY", link: PROFILE_PATH },
+  primaryCta: { label: "EXPLORE HER JOURNEY", link: PROFILE_PATH },
   secondaryCta: { label: "WATCH VIDEO", url: "" },
   location: "INDIA / UAE",
   // Fills the right ~55% of the hero, bleeding to the viewport edge. Subject should sit right of centre.
