@@ -161,6 +161,8 @@ export const about: AboutContent = {
 export const timeline: TimelineEntry[] = [
   {
     ...item("t01", 1),
+    // Nisha at the Jeevan TV news desk ("JEEVAN NEWS" on screen) — the milestone's own subject.
+    image: { url: "https://res.cloudinary.com/a6fctgvh/image/upload/v1791950393/nisha-krishnan/profile/fgn7lh9rlmug9mly45by.jpg", publicId: "nisha-krishnan/profile/fgn7lh9rlmug9mly45by", width: 760, height: 566, alt: "Nisha Krishnan presenting the news on Jeevan TV" },
     year: "2002",
     title: "The Beginning of a Journalism Career",
     description:

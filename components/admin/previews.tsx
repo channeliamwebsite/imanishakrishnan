@@ -20,6 +20,8 @@ import { Hero } from "@/components/home/Hero";
 import { ImpactStats } from "@/components/home/ImpactStats";
 import { AboutSection } from "@/components/home/AboutSection";
 import { WorkSection } from "@/components/home/WorkSection";
+import { WorkDetailView } from "@/components/work/WorkDetailView";
+import { workDetailCopy as builtInWorkDetailCopy } from "@/lib/content/placeholder";
 import { MediaSection } from "@/components/home/MediaSection";
 import { PhilosophySection } from "@/components/home/PhilosophySection";
 import { InsightsSection } from "@/components/home/InsightsSection";
@@ -134,12 +136,34 @@ export function TimelinePreview({ data }: { data: unknown }) {
   );
 }
 
+/** The Work cards, then each initiative's detail page (/work/{slug}) exactly as the public page renders it. */
 export function WorkPreview({ data }: { data: unknown }) {
   const settings = useLive<SiteSettings>("siteSettings");
-  if (!settings) return <Spinner />;
+  const about = useLive<AboutContent>("about");
+  const timeline = useLive<TimelineEntry[]>("timeline");
+  if (!settings || !about || !timeline) return <Spinner />;
+  const expertiseItems = (about.profile ?? builtInProfile).expertise.items;
+  const copy = settings.sections.work.detail ?? builtInWorkDetailCopy;
   return (
     <Checked<WorkItem[]> section="work" data={data}>
-      {(items) => <WorkSection items={visible(items)} copy={settings.sections.work} />}
+      {(items) => (
+        <>
+          <WorkSection items={visible(items)} copy={settings.sections.work} />
+          {visible(items)
+            .filter((item) => item.slug)
+            .map((item) => (
+              <div key={item.id} className="border-t-4 border-dashed border-border">
+                <p className="bg-surface px-4 py-2 font-sans text-xs text-muted">Detail page · /work/{item.slug}</p>
+                <WorkDetailView
+                  item={item}
+                  expertise={item.detail?.expertiseAnchor ? expertiseItems.find((x) => x.anchor === item.detail?.expertiseAnchor) : undefined}
+                  milestones={(item.detail?.milestoneIds ?? []).flatMap((id) => visible(timeline).filter((e) => e.id === id))}
+                  copy={copy}
+                />
+              </div>
+            ))}
+        </>
+      )}
     </Checked>
   );
 }

@@ -254,7 +254,12 @@ export const profile: ProfileContent = {
     },
   },
 
+  // Starting values: photographs uploaded to Cloudinary (nisha-krishnan/profile). Replace or
+  // remove them in Admin → About page; the published about/main document always wins.
+  intro: { image: { url: "https://res.cloudinary.com/a6fctgvh/image/upload/v1791950466/nisha-krishnan/profile/chu08vsmfr6xkeunqmgt.png", publicId: "nisha-krishnan/profile/chu08vsmfr6xkeunqmgt", width: 1080, height: 1920, alt: "Portrait of Nisha Krishnan" } },
+  storyImage: { url: "https://res.cloudinary.com/a6fctgvh/image/upload/v1791950425/nisha-krishnan/profile/cpm9t8qsgd0ly85dlwxo.png", publicId: "nisha-krishnan/profile/cpm9t8qsgd0ly85dlwxo", width: 4096, height: 4096, alt: "Nisha Krishnan speaking at a U.S. Department of State podium" },
   philosophy: {
+    image: { url: "https://res.cloudinary.com/a6fctgvh/image/upload/v1791950333/nisha-krishnan/profile/uht827iyrfo53egjejkd.png", publicId: "nisha-krishnan/profile/uht827iyrfo53egjejkd", width: 1890, height: 1417, alt: "Nisha Krishnan" },
     heading: "My Leadership Philosophy",
     subtitle: "Lead with Purpose. Inspire with Conviction. Deliver with Action.",
     paragraphs: [
