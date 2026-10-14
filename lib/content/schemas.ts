@@ -172,6 +172,17 @@ const recognitionItem = z.object({
     .transform((v) => v ?? true),
 });
 
+const newsClipping = z.object({
+  image: mediaSchema,
+  publication: optional,
+  headline: optional,
+  date: optional,
+  published: z
+    .boolean()
+    .nullish()
+    .transform((v) => v ?? true),
+});
+
 export const profileSchema: z.ZodType<ProfileContent> = z.object({
   tagline: text,
   detailedBio: stringList,
@@ -206,6 +217,22 @@ export const profileSchema: z.ZodType<ProfileContent> = z.object({
     .nullish()
     .transform((v) => (v && (v.image || v.quote) ? v : undefined)),
   storyImage: uploadedMedia,
+  news: z
+    .object({
+      label: optional,
+      heading: required("News heading"),
+      intro: optional,
+      items: z
+        .array(newsClipping)
+        .nullish()
+        // Empty upload slots are dropped; every kept clipping has an uploaded image.
+        .transform((list) => {
+          const uploaded = (list ?? []).filter((n) => n.image.url);
+          return uploaded.length ? uploaded : undefined;
+        }),
+    })
+    .nullish()
+    .transform((v) => v ?? undefined),
   page: z
     .object({
       eyebrow: text,

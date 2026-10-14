@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { NewsGallery } from "./NewsGallery";
 
 /** Small numbered marker used for achievements. */
 const num = (n: number) => String(n).padStart(2, "0");
@@ -86,6 +87,8 @@ export function ProfileView({
   const besideFeatured = restGallery.slice(0, 2);
   const moreGallery = restGallery.slice(2);
   const panelQuote = profile.philosophy.quote || profile.philosophy.subtitle;
+  const news = profile.news;
+  const clippings = (news?.items ?? []).filter((n) => n.published !== false && uploaded(n.image));
 
   return (
     <>
@@ -178,6 +181,20 @@ export function ProfileView({
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── News & Media Recognition: newspaper clippings and press coverage uploaded in the CMS ── */}
+      {news && clippings.length > 0 && (
+        <section id="news" className="pb-section">
+          <div className="container-site">
+            <div className="section-rule">
+              <Reveal>
+                <SectionHeading label={news.label} title={news.heading} intro={news.intro} />
+              </Reveal>
+              <NewsGallery items={clippings} />
             </div>
           </div>
         </section>

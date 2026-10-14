@@ -114,6 +114,19 @@ export interface ProfileItem {
   icon?: IconName;
 }
 
+/** One newspaper clipping or press-coverage image in the /about "News & Media Recognition" gallery. */
+export interface NewsClipping {
+  image: MediaAsset;
+  /** Newspaper or publication name. */
+  publication?: string;
+  /** Optional headline or short description. */
+  headline?: string;
+  /** Optional publication date, as entered (e.g. "12 March 2019"). */
+  date?: string;
+  /** Hidden from the site when false. */
+  published?: boolean;
+}
+
 /**
  * One image in the /about Recognition gallery — a newspaper cutting, award photo, plaque or
  * certificate. Shown whole (object-contain); captions only from what the editor enters.
@@ -158,6 +171,8 @@ export interface ProfileContent {
   intro?: { image?: MediaAsset; quote?: string };
   /** /about "My Story": photograph beside the biography. */
   storyImage?: MediaAsset;
+  /** /about "News & Media Recognition": newspaper clippings and press coverage, in display order. */
+  news?: { label?: string; heading: string; intro?: string; items?: NewsClipping[] };
   /** Fixed labels and headings of the /about page. Defaults in lib/content/profile.ts. */
   page?: ProfilePageCopy;
 }

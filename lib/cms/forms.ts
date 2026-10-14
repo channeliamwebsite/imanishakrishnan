@@ -112,6 +112,32 @@ export const ABOUT_FIELDS: FieldDef[] = [
       { kind: "image", key: "storyImage", label: "My Story photograph", folder: CLOUDINARY_FOLDERS.profile },
       {
         kind: "group",
+        key: "news",
+        label: "News & Media Recognition",
+        help: "Newspaper clippings and press coverage, shown on /about after My Story. Images are shown whole — never cropped.",
+        fields: [
+          { kind: "text", key: "label", label: "Section label", placeholder: "In the News" },
+          { kind: "text", key: "heading", label: "Heading", required: true },
+          { kind: "textarea", key: "intro", label: "Introduction (optional)", rows: 2 },
+          {
+            kind: "list",
+            key: "items",
+            label: "Clippings",
+            itemLabel: "Clipping",
+            visibleField: "published",
+            summary: (item) => [str(item.publication), str(item.date)].filter(Boolean).join(" · ") || "Untitled clipping",
+            newItem: () => ({ image: { url: "", publicId: "" }, published: true }),
+            fields: [
+              { kind: "image", key: "image", label: "Clipping image", folder: CLOUDINARY_FOLDERS.media, help: "Add alt text describing the article." },
+              { kind: "text", key: "publication", label: "Publication / newspaper" },
+              { kind: "textarea", key: "headline", label: "Headline or short description (optional)", rows: 2 },
+              { kind: "text", key: "date", label: "Publication date (optional)", placeholder: "12 March 2019" },
+            ],
+          },
+        ],
+      },
+      {
+        kind: "group",
         key: "expertise",
         label: "Areas of expertise",
         fields: [

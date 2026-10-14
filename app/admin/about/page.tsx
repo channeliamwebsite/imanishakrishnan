@@ -21,14 +21,18 @@ export default function AboutAdminPage() {
             quotation): below, under “Profile page (/about)”. Section labels and headings: “Page labels &amp; SEO”.
           </li>
           <li>
-            <strong>Recognition</strong> (heading, description, awards, newspaper cuttings and certificates):{" "}
+            <strong>News &amp; Media Recognition</strong> (newspaper clippings and press coverage — image, publication,
+            headline, date, alt text, order, show/hide): below, under “Profile page (/about)” → “News &amp; Media Recognition”.
+          </li>
+          <li>
+            <strong>Recognition</strong> (awards archive, award and certificate images):{" "}
             <Link href="/admin/awards" className="underline">
               Awards
             </Link>
             .
           </li>
           <li>
-            <strong>Growth Through Time</strong> (milestones and their photographs):{" "}
+            <strong>Growth Through Time</strong> (milestones, and a photograph with alt text for each):{" "}
             <Link href="/admin/timeline" className="underline">
               Timeline
             </Link>
