@@ -14,8 +14,15 @@ export type FieldDef =
   | (Base & { kind: "date" })
   | (Base & { kind: "toggle" })
   | (Base & { kind: "select"; options: { value: string; label: string }[]; emptyLabel?: string })
-  | (Base & { kind: "image"; folder: CloudinaryFolder })
-  | (Base & { kind: "images"; folder: CloudinaryFolder })
+  | (Base & {
+      kind: "image";
+      folder: CloudinaryFolder;
+      /** Offer the optional crop (default true). */
+      crop?: boolean;
+      /** Show a caption input (stored on the image). */
+      caption?: boolean;
+    })
+  | (Base & { kind: "images"; folder: CloudinaryFolder; crop?: boolean; caption?: boolean })
   | (Base & { kind: "link"; optional?: boolean })
   | (Base & { kind: "strings"; itemLabel: string; multiline?: boolean })
   | (Base & { kind: "group"; fields: FieldDef[] })

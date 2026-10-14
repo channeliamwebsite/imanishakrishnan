@@ -21,14 +21,15 @@ export async function generateMetadata({ params }: PageProps<"/work/[slug]">): P
   if (!content) return {};
   const { item } = content;
   const image = item.coverImage?.url ? item.coverImage : undefined;
-  const title = item.detail?.title ?? item.title;
+  const title = item.detail?.seo?.title ?? item.detail?.title ?? item.title;
+  const description = item.detail?.seo?.description ?? item.detail?.intro ?? item.description;
   return {
     title,
-    description: item.description,
+    description,
     alternates: { canonical: workPath(item.slug!) },
     openGraph: {
       title,
-      description: item.description,
+      description,
       images: image ? [{ url: image.url, alt: image.alt }] : undefined,
     },
   };

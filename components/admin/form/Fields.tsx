@@ -137,6 +137,8 @@ function Field({
           value={value as MediaAsset | undefined}
           onChange={onChange}
           error={error ?? errors[join(path, "url")]}
+          allowCrop={field.crop !== false}
+          withCaption={field.caption}
         />
       );
     case "images":
@@ -297,6 +299,8 @@ function ImagesField({
               value={asset}
               error={errors[join(path, i)] ?? errors[join(join(path, i), "url")]}
               onChange={(next) => onChange(value.map((a, j) => (j === i ? (next ?? { url: "", publicId: "" }) : a)))}
+              allowCrop={field.crop !== false}
+              withCaption={field.caption}
             />
           </div>
           <ItemControls

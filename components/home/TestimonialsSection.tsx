@@ -7,6 +7,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TestimonialCarousel } from "@/components/testimonials/TestimonialCarousel";
 
+/** Testimonials on the homepage carousel (two per view); the rest are on /testimonials. */
+const HOME_LIMIT = 6;
+
 /**
  * Homepage testimonials — the uploaded testimonial images (each already contains its text) in a
  * horizontal carousel: two per view from tablet up, one on phones. Left-aligned section heading like
@@ -14,7 +17,8 @@ import { TestimonialCarousel } from "@/components/testimonials/TestimonialCarous
  * image is published.
  */
 export function TestimonialsSection({ copy }: { copy: TestimonialsCopy }) {
-  const images = (copy.images ?? []).filter((m) => isCloudinaryUrl(m.url));
+  // A small selection only - the full collection lives on /testimonials.
+  const images = (copy.images ?? []).filter((m) => isCloudinaryUrl(m.url)).slice(0, HOME_LIMIT);
   if (images.length === 0) return null;
   return (
     <section id={SECTION_IDS.testimonials} className="pb-section">

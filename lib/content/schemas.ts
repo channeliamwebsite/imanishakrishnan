@@ -93,6 +93,11 @@ export const mediaSchema: z.ZodType<MediaAsset> = z
       .enum(["image", "video"])
       .nullish()
       .transform((v) => v ?? undefined),
+    caption: optional,
+    original: z
+      .object({ url: text, width: dimension, height: dimension })
+      .nullish()
+      .transform((v) => (v?.url && isCloudinaryUrl(v.url) ? v : undefined)),
   })
   .refine((m) => !m.url || isCloudinaryUrl(m.url), {
     message: "Images must be uploaded to this site's Cloudinary account",
@@ -150,6 +155,21 @@ const profileItem = z.object({
   details: stringList.transform((v) => (v.length ? v : undefined)),
   strengths: optional,
   anchor: optional,
+  icon: optionalIcon,
+});
+
+/** An image the editor uploaded; empty upload slots are dropped. */
+const uploadedMedia = optionalMedia.transform((m) => (m?.url ? m : undefined));
+
+const recognitionItem = z.object({
+  image: mediaSchema,
+  title: optional,
+  organisation: optional,
+  year: optional,
+  published: z
+    .boolean()
+    .nullish()
+    .transform((v) => v ?? true),
 });
 
 export const profileSchema: z.ZodType<ProfileContent> = z.object({
@@ -159,6 +179,13 @@ export const profileSchema: z.ZodType<ProfileContent> = z.object({
     heading: required("Achievements heading"),
     tagline: optional,
     groups: z.array(z.object({ heading: required("Group heading"), items: z.array(profileItem) })),
+    gallery: z
+      .array(recognitionItem)
+      .nullish()
+      .transform((list) => {
+        const uploaded = (list ?? []).filter((r) => r.image.url);
+        return uploaded.length ? uploaded : undefined;
+      }),
   }),
   expertise: z.object({
     heading: required("Expertise heading"),
@@ -167,7 +194,18 @@ export const profileSchema: z.ZodType<ProfileContent> = z.object({
     items: z.array(profileItem),
     distinctiveStrength: z.object({ heading: text, paragraphs: stringList }),
   }),
-  philosophy: z.object({ heading: required("Philosophy heading"), subtitle: text, paragraphs: stringList }),
+  philosophy: z.object({
+    heading: required("Philosophy heading"),
+    subtitle: text,
+    paragraphs: stringList,
+    image: uploadedMedia,
+    quote: optional,
+  }),
+  intro: z
+    .object({ image: uploadedMedia, quote: optional })
+    .nullish()
+    .transform((v) => (v && (v.image || v.quote) ? v : undefined)),
+  storyImage: uploadedMedia,
   page: z
     .object({
       eyebrow: text,
@@ -320,6 +358,13 @@ export const workItemSchema: z.ZodType<WorkItem> = z.object({
   detail: z
     .object({
       title: optional,
+      intro: optional,
+      organisation: optional,
+      period: optional,
+      seo: z
+        .object({ title: optional, description: optional })
+        .nullish()
+        .transform((v) => (v && (v.title || v.description) ? v : undefined)),
       aboutHeading: optional,
       paragraphs: stringList,
       expertiseAnchor: optional,
@@ -335,6 +380,10 @@ export const workItemSchema: z.ZodType<WorkItem> = z.object({
       if (!d) return undefined;
       const detail: WorkDetail = {
         title: d.title,
+        intro: d.intro,
+        organisation: d.organisation,
+        period: d.period,
+        seo: d.seo,
         aboutHeading: d.aboutHeading,
         paragraphs: d.paragraphs.length ? d.paragraphs : undefined,
         expertiseAnchor: d.expertiseAnchor,

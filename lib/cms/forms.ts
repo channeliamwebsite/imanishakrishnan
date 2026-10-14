@@ -54,6 +54,7 @@ export const STATISTIC_FIELDS: FieldDef[] = [
     label: "Custom icon",
     folder: CLOUDINARY_FOLDERS.statistics,
     help: "Optional. Replaces the icon above — use a square, transparent PNG.",
+    crop: false,
   },
 ];
 
@@ -65,6 +66,13 @@ const profileItemFields = (withDetails: boolean): FieldDef[] => [
         { kind: "strings", key: "details", label: "More paragraphs", itemLabel: "Paragraph", multiline: true },
         { kind: "textarea", key: "strengths", label: "Core strengths", rows: 2 },
         { kind: "text", key: "anchor", label: "Anchor id", help: "Lets other pages link here, e.g. /about#business-growth." },
+        {
+          kind: "select",
+          key: "icon",
+          label: "Icon",
+          options: ICON_NAMES.map((name) => ({ value: name, label: name })),
+          emptyLabel: "None",
+        },
       ] satisfies FieldDef[])
     : []),
 ];
@@ -89,8 +97,19 @@ export const ABOUT_FIELDS: FieldDef[] = [
     key: "profile",
     label: "Profile page (/about)",
     fields: [
-      { kind: "textarea", key: "tagline", label: "Tagline", rows: 2 },
-      { kind: "strings", key: "detailedBio", label: "Biography", itemLabel: "Paragraph", multiline: true },
+      {
+        kind: "group",
+        key: "intro",
+        label: "Introduction",
+        help: "The top of /about: name, tagline and the first biography paragraph beside this portrait.",
+        fields: [
+          { kind: "image", key: "image", label: "Portrait", folder: CLOUDINARY_FOLDERS.profile },
+          { kind: "textarea", key: "quote", label: "Quotation (optional)", rows: 2, help: "Only an approved quotation. Leave empty to hide the panel." },
+        ],
+      },
+      { kind: "textarea", key: "tagline", label: "Tagline", rows: 2, help: "Also shown as the role highlights beside My Story (separate with ·)." },
+      { kind: "strings", key: "detailedBio", label: "Biography (My Story)", itemLabel: "Paragraph", multiline: true },
+      { kind: "image", key: "storyImage", label: "My Story photograph", folder: CLOUDINARY_FOLDERS.profile },
       {
         kind: "group",
         key: "expertise",
@@ -127,6 +146,8 @@ export const ABOUT_FIELDS: FieldDef[] = [
           { kind: "text", key: "heading", label: "Heading", required: true },
           { kind: "textarea", key: "subtitle", label: "Highlighted line", rows: 2 },
           { kind: "strings", key: "paragraphs", label: "Paragraphs", itemLabel: "Paragraph", multiline: true },
+          { kind: "image", key: "image", label: "Photograph", folder: CLOUDINARY_FOLDERS.profile },
+          { kind: "textarea", key: "quote", label: "Panel quotation (optional)", rows: 2, help: "Approved quotation for the burgundy panel; the highlighted line is used when empty." },
         ],
       },
       {
@@ -173,12 +194,35 @@ export const AWARDS_FIELDS: FieldDef[] = [
       },
     ],
   },
+  {
+    kind: "list",
+    key: "gallery",
+    label: "Recognition gallery",
+    help: "Newspaper cuttings, award photos, plaques and certificates. The first visible image is featured large. Images are shown whole — never cropped.",
+    itemLabel: "Image",
+    visibleField: "published",
+    summary: (item) => [str(item.title), str(item.organisation), str(item.year)].filter(Boolean).join(" · ") || "Untitled",
+    newItem: () => ({ image: { url: "", publicId: "" }, published: true }),
+    fields: [
+      { kind: "image", key: "image", label: "Image", folder: CLOUDINARY_FOLDERS.achievements, help: "Add alt text describing the cutting or award." },
+      { kind: "text", key: "title", label: "Publication or award" },
+      { kind: "text", key: "organisation", label: "Organisation" },
+      { kind: "text", key: "year", label: "Date / year" },
+    ],
+  },
 ];
 
 export const TIMELINE_FIELDS: FieldDef[] = [
   { kind: "text", key: "year", label: "Year / marker", required: true, placeholder: "2016, 15,000+ or Next" },
   { kind: "text", key: "title", label: "Title", required: true },
   { kind: "textarea", key: "description", label: "Description", rows: 3, help: "Shown on the /about page." },
+  {
+    kind: "image",
+    key: "image",
+    label: "Photograph",
+    folder: CLOUDINARY_FOLDERS.timeline,
+    help: "Optional — only a photo that belongs to this milestone. Shown on /about (Growth Through Time).",
+  },
   {
     kind: "select",
     key: "kind",
@@ -199,9 +243,16 @@ export const WORK_FIELDS: FieldDef[] = [
   { kind: "text", key: "tagline", label: "Tagline", help: "Shown when there is no logo." },
   { kind: "textarea", key: "description", label: "Description", required: true, rows: 3 },
   { kind: "link", key: "cta", label: "Button", help: linkHelp },
-  { kind: "image", key: "logo", label: "Logo", folder: CLOUDINARY_FOLDERS.logos },
+  { kind: "image", key: "logo", label: "Logo", folder: CLOUDINARY_FOLDERS.logos, crop: false },
   { kind: "select", key: "icon", label: "Icon (when there is no logo)", options: iconOptions, emptyLabel: "None" },
-  { kind: "image", key: "coverImage", label: "Cover image", folder: CLOUDINARY_FOLDERS.work.covers, help: "Also the detail page's featured image." },
+  {
+    kind: "image",
+    key: "coverImage",
+    label: "Featured image",
+    folder: CLOUDINARY_FOLDERS.work.covers,
+    caption: true,
+    help: "The card image (shown 7:3) and the detail page's featured image (shown whole).",
+  },
   {
     kind: "text",
     key: "slug",
@@ -216,6 +267,9 @@ export const WORK_FIELDS: FieldDef[] = [
     help: "Shown at /work/<address>. Blocks left empty are hidden.",
     fields: [
       { kind: "text", key: "title", label: "Page heading", help: "Leave empty to use the title above." },
+      { kind: "textarea", key: "intro", label: "Introduction", rows: 3, help: "Under the heading. Leave empty to use the description above." },
+      { kind: "text", key: "organisation", label: "Client / organisation (optional)" },
+      { kind: "text", key: "period", label: "Date or period (optional)", placeholder: "2020–2021" },
       { kind: "text", key: "aboutHeading", label: "About heading", placeholder: "About Channeliam" },
       { kind: "strings", key: "paragraphs", label: "About paragraphs", itemLabel: "Paragraph", multiline: true },
       {
@@ -244,9 +298,25 @@ export const WORK_FIELDS: FieldDef[] = [
         help: "Timeline entries shown on the page, in this order, e.g. t03.",
       },
       { kind: "link", key: "cta", label: "Call to action", optional: true, help: "e.g. Visit Channeliam → https://channeliam.com. External sites open in a new tab." },
+      {
+        kind: "group",
+        key: "seo",
+        label: "Search & sharing (optional)",
+        fields: [
+          { kind: "text", key: "title", label: "SEO title" },
+          { kind: "textarea", key: "description", label: "SEO description", rows: 2 },
+        ],
+      },
     ],
   },
-  { kind: "images", key: "gallery", label: "Detail page gallery", folder: CLOUDINARY_FOLDERS.work.covers },
+  {
+    kind: "images",
+    key: "gallery",
+    label: "Detail page gallery",
+    folder: CLOUDINARY_FOLDERS.work.covers,
+    caption: true,
+    help: "Supporting images, in this order. Shown whole; click opens a larger view.",
+  },
 ];
 
 export const WORK_COPY_FIELDS: FieldDef[] = [
@@ -272,7 +342,7 @@ export const WORK_COPY_FIELDS: FieldDef[] = [
 export const MEDIA_FIELDS: FieldDef[] = [
   { kind: "text", key: "publication", label: "Publication", required: true },
   { kind: "text", key: "articleUrl", label: "Article link", placeholder: "https://…" },
-  { kind: "image", key: "logo", label: "Logo", folder: CLOUDINARY_FOLDERS.logos, help: "Optional. Without a logo the name is shown." },
+  { kind: "image", key: "logo", label: "Logo", folder: CLOUDINARY_FOLDERS.logos, help: "Optional. Without a logo the name is shown.", crop: false },
 ];
 
 export const MEDIA_COPY_FIELDS: FieldDef[] = [
@@ -322,6 +392,7 @@ export const TESTIMONIAL_FIELDS: FieldDef[] = [
     label: "Company logo",
     folder: CLOUDINARY_FOLDERS.logos,
     help: "Optional. A transparent PNG or SVG.",
+    crop: false,
   },
 ];
 

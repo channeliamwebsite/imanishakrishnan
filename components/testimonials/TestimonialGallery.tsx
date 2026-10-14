@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import NextImage from "next/image";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import type { MediaAsset } from "@/types/content";
@@ -8,42 +8,83 @@ import { cn } from "@/lib/cn";
 
 const altText = (image: MediaAsset, index: number) => image.alt?.trim() || `Testimonial ${index + 1}`;
 
+/** Gallery columns: 1 on small phones, 2 from 480px, 3 from 1024px. */
+const COLUMN_QUERIES = ["(min-width: 1024px)", "(min-width: 480px)"] as const;
+function useColumns(): number {
+  return useSyncExternalStore(
+    (notify) => {
+      const lists = COLUMN_QUERIES.map((q) => window.matchMedia(q));
+      lists.forEach((l) => l.addEventListener("change", notify));
+      return () => lists.forEach((l) => l.removeEventListener("change", notify));
+    },
+    () => (window.matchMedia(COLUMN_QUERIES[0]).matches ? 3 : window.matchMedia(COLUMN_QUERIES[1]).matches ? 2 : 1),
+    () => 3,
+  );
+}
+
 /**
- * One testimonial image in a square frame (the images are 1:1), shown whole — object-contain, so
- * nothing is cropped or stretched even if an upload isn't square. Soft placeholder until loaded.
+ * One testimonial at its natural proportions — the image already contains its wooden frame, so
+ * there is no card, border or fill around it. Fades in once loaded; a missing file becomes a
+ * neutral note instead of a broken icon.
  */
-function GalleryImage({ image, index, sizes, priority }: { image: MediaAsset; index: number; sizes: string; priority?: boolean }) {
+function TestimonialImage({
+  image,
+  index,
+  sizes,
+  priority,
+  onOpen,
+  capped,
+}: {
+  image: MediaAsset;
+  index: number;
+  sizes: string;
+  priority?: boolean;
+  /** Desktop: cap the height (tall images narrow instead of growing), never cropping. */
+  capped?: boolean;
+  onOpen: (button: HTMLButtonElement, index: number) => void;
+}) {
   const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
-  if (status === "error") {
-    // The file is missing from Cloudinary (e.g. deleted after publishing): a neutral square, not a broken icon.
-    return (
-      <div role="img" aria-label={altText(image, index)} className="flex aspect-square w-full items-center justify-center bg-surface">
-        <span className="type-meta text-subtle">Image unavailable</span>
-      </div>
-    );
-  }
-  const loaded = status === "loaded";
+  const width = image.width ?? 1080;
+  const height = image.height ?? 1080;
   return (
-    <div className={cn("relative aspect-square w-full overflow-hidden bg-surface", !loaded && "animate-pulse bg-border/60")}>
-      <NextImage
-        src={image.url}
-        alt={altText(image, index)}
-        fill
-        sizes={sizes}
-        preload={priority}
-        onLoad={() => setStatus("loaded")}
-        onError={() => setStatus("error")}
-        className={cn(
-          "object-contain transition-[opacity,transform] duration-500 ease-editorial motion-safe:group-hover:scale-[1.02]",
-          loaded ? "opacity-100" : "opacity-0",
-        )}
-      />
-    </div>
+    <button
+      type="button"
+      onClick={(e) => onOpen(e.currentTarget, index)}
+      aria-label={`Open ${altText(image, index)}`}
+      className="group block w-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy"
+    >
+      {status === "error" ? (
+        <span
+          role="img"
+          aria-label={altText(image, index)}
+          className="type-meta flex items-center justify-center text-subtle"
+          style={{ aspectRatio: `${width}/${height}` }}
+        >
+          Image unavailable
+        </span>
+      ) : (
+        <NextImage
+          src={image.url}
+          alt={altText(image, index)}
+          width={width}
+          height={height}
+          sizes={sizes}
+          preload={priority}
+          onLoad={() => setStatus("loaded")}
+          onError={() => setStatus("error")}
+          className={cn(
+            capped ? "mx-auto h-auto max-h-none w-full lg:max-h-[22rem] lg:w-auto lg:max-w-full" : "h-auto w-full",
+            "transition-[opacity,transform] duration-500 ease-editorial motion-safe:group-hover:scale-[1.015]",
+            status === "loaded" ? "opacity-100" : "opacity-0",
+          )}
+        />
+      )}
+    </button>
   );
 }
 
 /** Full-screen view of one image. Escape closes; arrow keys and buttons move; focus stays inside. */
-function Lightbox({
+export function Lightbox({
   images,
   index,
   onIndex,
@@ -144,89 +185,126 @@ function Lightbox({
 }
 
 /**
- * Testimonial images in a grid — 1 column on phones, 2 on tablets, 4 on desktop — revealed
- * `pageSize` at a time, each opening the lightbox. Images below the fold load lazily.
+ * /testimonials: an editorial collage (one large testimonial, two beside it, with previous/next to
+ * bring others forward) above a masonry-style gallery of the rest at their natural proportions.
+ * Columns are filled in reading order, so "Load more" only appends — nothing reshuffles.
+ * Every image opens the lightbox; images below the fold load lazily.
  */
-export function TestimonialGallery({
-  images,
-  pageSize = 20,
-  moreLabel = "Load more",
-  showCount = true,
-  emptyText = "Testimonials will be added here soon.",
-  footer,
-}: {
-  images: MediaAsset[];
-  pageSize?: number;
-  moreLabel?: string;
-  /** "Showing x of y" under the grid. */
-  showCount?: boolean;
-  emptyText?: string | null;
-  /** Extra actions beside the "more" button (e.g. a link to the full page). */
-  footer?: React.ReactNode;
-}) {
+export function TestimonialGallery({ images, pageSize = 12 }: { images: MediaAsset[]; pageSize?: number }) {
+  const [start, setStart] = useState(0);
   const [shown, setShown] = useState(pageSize);
   const [open, setOpen] = useState<number | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
+  const columns = useColumns();
 
   const close = useCallback(() => {
     setOpen(null);
     opener.current?.focus();
   }, []);
+  const openAt = useCallback((button: HTMLButtonElement, index: number) => {
+    opener.current = button;
+    setOpen(index);
+  }, []);
 
-  if (images.length === 0) {
-    return emptyText ? <p className="type-body text-muted">{emptyText}</p> : null;
-  }
+  if (images.length === 0) return <p className="type-body text-muted">Testimonials will be added here soon.</p>;
 
-  const visible = images.slice(0, shown);
-  const hasMore = shown < images.length;
+  const count = images.length;
+  const featuredCount = Math.min(3, count);
+  const featured = Array.from({ length: featuredCount }, (_, i) => (start + i) % count);
+  const rest = images.map((_, i) => i).slice(featuredCount);
+  const visibleRest = rest.slice(0, shown);
+  const columnLists = Array.from({ length: columns }, (_, c) => visibleRest.filter((_, i) => i % columns === c));
+  const canRotate = count > featuredCount;
+  const control =
+    "grid size-11 place-items-center rounded-full border border-rose/50 text-burgundy transition-colors hover:border-burgundy hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy";
+
   return (
     <>
-      <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-        {visible.map((image, i) => (
-          <li key={image.publicId || i}>
-            <button
-              type="button"
-              onClick={(e) => {
-                opener.current = e.currentTarget;
-                setOpen(i);
-              }}
-              aria-label={`Open ${altText(image, i)}`}
-              className="group block w-full border hairline transition-shadow duration-300 hover:shadow-[0_8px_24px_rgba(28,26,26,0.08)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
-            >
-              <GalleryImage
-                image={image}
+      {/* Featured collage */}
+      <div className="grid items-start gap-5 lg:grid-cols-12 lg:gap-8" aria-live="polite">
+        <div className="lg:col-span-7">
+          <TestimonialImage
+            key={`f0-${featured[0]}`}
+            image={images[featured[0]]}
+            index={featured[0]}
+            priority
+            sizes="(min-width: 1024px) 56vw, 100vw"
+            onOpen={openAt}
+          />
+        </div>
+        {featured.length > 1 && (
+          <div className="grid grid-cols-2 gap-5 lg:col-span-5 lg:grid-cols-1 lg:gap-8">
+            {featured.slice(1).map((i, n) => (
+              <TestimonialImage
+                key={`f${n + 1}-${i}`}
+                image={images[i]}
                 index={i}
-                priority={i < 4}
-                sizes="(min-width: 1024px) 23vw, (min-width: 480px) 46vw, 100vw"
+                priority
+                sizes="(min-width: 1024px) 38vw, 50vw"
+                capped
+                onOpen={openAt}
               />
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {(hasMore || showCount || footer) && (
-        <div className="mt-8 flex flex-col items-center gap-4 lg:mt-10">
-          {showCount && (
-            <p className="type-meta text-muted" aria-live="polite">
-              Showing {visible.length} of {images.length}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
-            {hasMore && (
-              <button
-                type="button"
-                onClick={() => setShown((n) => n + pageSize)}
-                className="type-button inline-flex h-12 items-center border border-foreground/80 px-6 text-foreground transition-colors hover:bg-foreground hover:text-background"
-              >
-                {moreLabel}
-              </button>
-            )}
-            {footer}
+            ))}
           </div>
+        )}
+      </div>
+      {canRotate && (
+        <div className="mt-6 flex items-center gap-4">
+          <button type="button" onClick={() => setStart((s) => (s - 1 + count) % count)} aria-label="Previous featured testimonial" className={control}>
+            <ArrowLeft className="size-4" aria-hidden />
+          </button>
+          <button type="button" onClick={() => setStart((s) => (s + 1) % count)} aria-label="Next featured testimonial" className={control}>
+            <ArrowRight className="size-4" aria-hidden />
+          </button>
+          <span aria-hidden className="h-px w-16 bg-rose/40" />
+          <span className="type-meta tabular-nums text-muted">
+            {String(start + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
+          </span>
         </div>
       )}
 
-      {open !== null && <Lightbox images={visible} index={open} onIndex={setOpen} onClose={close} />}
+      {/* Gallery of the remaining testimonials */}
+      {rest.length > 0 && (
+        <>
+          <div className="mt-16 flex items-center gap-4 lg:mt-20">
+            <span className="type-label text-rose">More voices</span>
+            <span aria-hidden className="h-px flex-1 bg-rose/25" />
+          </div>
+          <div className="mt-8 flex items-start gap-5 lg:gap-8">
+            {columnLists.map((list, c) => (
+              <ul key={c} className="flex min-w-0 flex-1 flex-col gap-5 lg:gap-8">
+                {list.map((i) => (
+                  <li key={images[i].publicId || i}>
+                    <TestimonialImage
+                      image={images[i]}
+                      index={i}
+                      sizes="(min-width: 1024px) 30vw, (min-width: 480px) 48vw, 100vw"
+                      onOpen={openAt}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+          <div className="mt-10 flex flex-col items-center gap-4">
+            <p className="type-meta text-muted" aria-live="polite">
+              Showing {featuredCount + visibleRest.length} of {count}
+            </p>
+            {shown < rest.length && (
+              <button
+                type="button"
+                onClick={() => setShown((n) => n + pageSize)}
+                className="type-button group inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+              >
+                Load more testimonials
+                <ArrowRight className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1" aria-hidden />
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      {open !== null && <Lightbox images={images} index={open} onIndex={setOpen} onClose={close} />}
     </>
   );
 }

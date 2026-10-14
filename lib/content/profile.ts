@@ -27,7 +27,7 @@ export const profile: ProfileContent = {
 
   achievements: {
     heading: "Professional Achievements & Global Recognition",
-    tagline: "Award-Winning Journalist · Media Entrepreneur · Innovation Advocate · Business Growth Enabler",
+    tagline: "Where Media, Entrepreneurship, Strategy & Innovation Converge",
     groups: [
       {
         heading: "Excellence in Journalism & Media",
@@ -112,6 +112,7 @@ export const profile: ProfileContent = {
     items: [
       {
         anchor: "media-entrepreneurship",
+        icon: "newspaper",
         title: "Media Entrepreneurship & Strategic Leadership",
         description:
           "Building and leading media ventures that combine editorial credibility, innovative business models, emerging technologies, and commercial sustainability.",
@@ -123,6 +124,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "startup-ecosystem",
+        icon: "lightbulb",
         title: "Entrepreneurship & Startup Ecosystem Development",
         description:
           "Understanding entrepreneurial journeys, identifying emerging business opportunities, and building platforms that connect founders with investors, institutions, markets, and industry stakeholders.",
@@ -134,6 +136,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "business-growth",
+        icon: "trending",
         title: "Strategic Business Growth & Acceleration",
         description:
           "Translating entrepreneurial insights into practical business-growth initiatives through strategic collaboration and execution-focused support.",
@@ -145,6 +148,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "constructive-journalism",
+        icon: "megaphone",
         title: "Constructive Journalism & Impactful Storytelling",
         description:
           "Using credible journalism and compelling storytelling to influence perceptions, create awareness, build trust, and highlight opportunities for economic and social progress.",
@@ -156,6 +160,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "editorial-insights",
+        icon: "message",
         title: "Editorial Insights, Public Affairs & Thought Leadership",
         description:
           "Bringing independent perspectives, incisive analysis, and thought-provoking commentary to contemporary issues affecting society, governance, business, public policy, and economic development.",
@@ -168,6 +173,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "corporate-communications",
+        icon: "building",
         title: "Corporate Communications & Brand Positioning",
         description:
           "Helping organisations communicate their purpose, achievements, innovations, and competitive strengths through strategic media content and business storytelling.",
@@ -179,6 +185,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "ai-media",
+        icon: "sparkles",
         title: "AI-Powered Media & Digital Transformation",
         description:
           "Exploring how artificial intelligence and emerging technologies can transform media production, content distribution, and organisational efficiency.",
@@ -190,6 +197,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "womens-entrepreneurship",
+        icon: "users",
         title: "Women's Entrepreneurship & Leadership Development",
         description:
           "Creating platforms and initiatives that strengthen women's entrepreneurial participation, confidence, visibility, and access to opportunities.",
@@ -201,6 +209,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "collaboration",
+        icon: "globe",
         title: "Government, Institutional & International Collaboration",
         description:
           "Developing meaningful collaborations between media organisations, entrepreneurial ecosystems, educational institutions, government departments, and international stakeholders.",
@@ -212,6 +221,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "campus-entrepreneurship",
+        icon: "award",
         title: "Innovation, Campus Entrepreneurship & Talent Development",
         description:
           "Identifying promising ideas and creating opportunities for young innovators to gain visibility, recognition, and connections beyond academic environments.",
@@ -223,6 +233,7 @@ export const profile: ProfileContent = {
       },
       {
         anchor: "speaking",
+        icon: "mic",
         title: "Public Speaking, Media Presentation & Thought Leadership",
         description: "Communicating complex ideas with clarity, confidence, credibility, and audience engagement.",
         details: [
@@ -262,14 +273,14 @@ export const profile: ProfileContent = {
   },
 
   page: {
-    eyebrow: "Profile",
+    eyebrow: "About",
     title: "Nisha Krishnan",
     metaDescription:
       "Biography, career milestones, professional achievements, areas of expertise and leadership philosophy of Nisha Krishnan — journalist, media entrepreneur and founder of channeliam.com.",
-    biographyLabel: "Biography",
-    biographyHeading: "From broadcast journalism to business growth.",
-    milestonesLabel: "Career Journey",
-    milestonesHeading: "Key milestones",
+    biographyLabel: "My Story",
+    biographyHeading: "From Broadcast Journalism to Business Growth",
+    milestonesLabel: "The Journey",
+    milestonesHeading: "Growth Through Time",
     milestonesIntro: "From broadcast journalism to media entrepreneurship.",
     recognitionLabel: "Recognition",
     leadershipLabel: "Leadership",

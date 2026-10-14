@@ -23,6 +23,14 @@ export interface MediaAsset {
   height?: number;
   alt?: string;
   resourceType?: "image" | "video";
+  /**
+   * Set when the image was cropped in the CMS: the uncropped source, so the crop can be changed
+   * or reset. `url`, `width` and `height` then describe the cropped result (a Cloudinary c_crop
+   * transformation of the same publicId — the uploaded file itself is never changed).
+   */
+  original?: { url: string; width?: number; height?: number };
+  /** Optional caption shown under the image where the design has one (e.g. work galleries). */
+  caption?: string;
 }
 
 export interface Link {
@@ -102,13 +110,35 @@ export interface ProfileItem {
   strengths?: string;
   /** In-page anchor id. */
   anchor?: string;
+  /** Small line icon (areas of expertise). */
+  icon?: IconName;
+}
+
+/**
+ * One image in the /about Recognition gallery — a newspaper cutting, award photo, plaque or
+ * certificate. Shown whole (object-contain); captions only from what the editor enters.
+ */
+export interface RecognitionItem {
+  image: MediaAsset;
+  /** Publication or award name, e.g. "The Hindu" or "Kerala State Media Award". */
+  title?: string;
+  organisation?: string;
+  year?: string;
+  /** Hidden from the site when false. */
+  published?: boolean;
 }
 
 export interface ProfileContent {
   /** "Award-Winning Journalist | Media Entrepreneur | …" */
   tagline: string;
   detailedBio: string[];
-  achievements: { heading: string; tagline?: string; groups: { heading: string; items: ProfileItem[] }[] };
+  achievements: {
+    heading: string;
+    tagline?: string;
+    groups: { heading: string; items: ProfileItem[] }[];
+    /** Newspaper cuttings, award photos and certificates, in display order (first = featured). */
+    gallery?: RecognitionItem[];
+  };
   expertise: {
     heading: string;
     subtitle: string;
@@ -116,7 +146,18 @@ export interface ProfileContent {
     items: ProfileItem[];
     distinctiveStrength: { heading: string; paragraphs: string[] };
   };
-  philosophy: { heading: string; subtitle: string; paragraphs: string[] };
+  philosophy: {
+    heading: string;
+    subtitle: string;
+    paragraphs: string[];
+    image?: MediaAsset;
+    /** Approved quotation for the burgundy panel; the highlighted line is used when empty. */
+    quote?: string;
+  };
+  /** /about introduction: portrait beside the name and opening biography. */
+  intro?: { image?: MediaAsset; quote?: string };
+  /** /about "My Story": photograph beside the biography. */
+  storyImage?: MediaAsset;
   /** Fixed labels and headings of the /about page. Defaults in lib/content/profile.ts. */
   page?: ProfilePageCopy;
 }
@@ -275,6 +316,14 @@ export interface WorkItem extends ListItemBase {
 export interface WorkDetail {
   /** Page heading when it should differ from the card title, e.g. "Channeliam". */
   title?: string;
+  /** Introduction under the heading (the card description is used when empty). */
+  intro?: string;
+  /** Client or organisation, e.g. "U.S. Department of State". */
+  organisation?: string;
+  /** Date or period, e.g. "2020–2021". */
+  period?: string;
+  /** Search and social sharing; falls back to the title and introduction. */
+  seo?: { title?: string; description?: string };
   /** Heading of the "About" block, e.g. "About Channeliam". */
   aboutHeading?: string;
   /** Detailed paragraphs about the initiative. */

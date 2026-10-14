@@ -16,7 +16,7 @@ const NAV: { heading: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: "/admin/homepage", label: "Hero" },
       { href: "/admin/statistics", label: "Statistics" },
-      { href: "/admin/about", label: "About & profile" },
+      { href: "/admin/about", label: "About page" },
       { href: "/admin/timeline", label: "Timeline" },
       { href: "/admin/work", label: "Work" },
       { href: "/admin/awards", label: "Awards" },

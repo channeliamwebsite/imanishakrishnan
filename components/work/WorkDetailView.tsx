@@ -1,12 +1,15 @@
 import Link from "next/link";
+import NextImage from "next/image";
 import { ArrowLeft } from "lucide-react";
 import type { WorkDetailContent } from "@/lib/content";
 import { SECTION_IDS, sectionHref } from "@/lib/sections";
+import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
 import { MediaImage } from "@/components/ui/Image";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { WorkGallery } from "./WorkGallery";
 
 /** External destinations open in a new tab, safely. */
 const linkProps = (href: string) =>
@@ -21,7 +24,9 @@ export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetail
   const { detail } = item;
   const title = detail?.title ?? item.title;
   const eyebrow = [item.category, item.tagline].filter(Boolean).join(" · ");
-  const gallery = item.gallery ?? [];
+  const gallery = (item.gallery ?? []).filter((m) => isCloudinaryUrl(m.url));
+  const cover = item.coverImage && isCloudinaryUrl(item.coverImage.url) ? item.coverImage : undefined;
+  const meta = [detail?.organisation, detail?.period].filter(Boolean).join(" · ");
   const backHref = sectionHref(SECTION_IDS.impact);
 
   return (
@@ -39,16 +44,32 @@ export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetail
             {eyebrow && <p className="type-label mt-8 text-rose">{eyebrow}</p>}
             <h1 className="type-h1 mt-4 text-foreground">{title}</h1>
             <span aria-hidden className="mt-6 block h-0.5 w-16 bg-burgundy" />
-            <p className="type-lead mt-6 max-w-[48rem] text-foreground/85">{item.description}</p>
+            <p className="type-lead mt-6 max-w-[48rem] text-foreground/85">{detail?.intro ?? item.description}</p>
+            {meta && <p className="type-meta mt-4 text-muted">{meta}</p>}
           </Reveal>
         </div>
       </section>
 
-      {/* Featured image — the card's cover at the same 7:3 proportion (placeholder frame until uploaded). */}
+      {/* Featured image — shown whole at its own proportions; an editorial placeholder frame until uploaded. */}
       <section className="section-y">
         <div className="container-site">
           <Reveal>
-            <MediaImage media={item.coverImage} ratio="7/3" sizes="(min-width: 1360px) 1280px, 100vw" preload />
+            {cover ? (
+              <figure>
+                <NextImage
+                  src={cover.url}
+                  alt={cover.alt ?? title}
+                  width={cover.width ?? 1400}
+                  height={cover.height ?? 600}
+                  sizes="(min-width: 1360px) 1280px, 100vw"
+                  preload
+                  className="mx-auto h-auto max-h-[42rem] w-auto max-w-full"
+                />
+                {cover.caption && <figcaption className="type-small mt-3 text-muted">{cover.caption}</figcaption>}
+              </figure>
+            ) : (
+              <MediaImage media={item.coverImage} ratio="7/3" sizes="(min-width: 1360px) 1280px, 100vw" />
+            )}
           </Reveal>
         </div>
       </section>
@@ -189,15 +210,7 @@ export function WorkDetailView({ item, expertise, milestones, copy }: WorkDetail
               <Reveal>
                 <SectionHeading title={copy.galleryLabel} />
               </Reveal>
-              <ul className="grid gap-card sm:grid-cols-2 lg:grid-cols-3">
-                {gallery.map((media, i) => (
-                  <li key={media.publicId || i}>
-                    <Reveal delay={Math.min(i, 3) * 0.06}>
-                      <MediaImage media={media} ratio="intrinsic" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" />
-                    </Reveal>
-                  </li>
-                ))}
-              </ul>
+              <WorkGallery images={gallery} label={title} />
             </div>
           </div>
         </section>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { ImageIcon, Images, Trash2, Upload, X } from "lucide-react";
+import { Crop, ImageIcon, Images, Trash2, Upload, X } from "lucide-react";
 import type { MediaAsset } from "@/types/content";
 import { transformCloudinaryUrl } from "@/lib/cloudinary/url";
 import { ACCEPT_ATTRIBUTE, listLibrary, toAsset, uploadImage, type LibraryEntry } from "@/lib/cms/media";
 import { useAdminAuth } from "../AdminAuth";
 import { AdminButton, Notice, Spinner, TextInput } from "../ui";
+import { ImageCrop } from "./ImageCrop";
 
 /** Small preview through Cloudinary (non-Cloudinary URLs are shown as-is). */
 export const thumbnail = (url: string, width = 480) => transformCloudinaryUrl(url, { width, crop: "limit" });
@@ -71,6 +72,8 @@ export function ImageField({
   value,
   onChange,
   error,
+  allowCrop = true,
+  withCaption = false,
 }: {
   label: string;
   help?: string;
@@ -78,6 +81,10 @@ export function ImageField({
   value: MediaAsset | undefined;
   onChange: (value: MediaAsset | undefined) => void;
   error?: string;
+  /** Offer the optional crop. Never applied automatically; off for logos and icons. */
+  allowCrop?: boolean;
+  /** Show a caption input. */
+  withCaption?: boolean;
 }) {
   const { getIdToken, identity } = useAdminAuth();
   const inputId = useId();
@@ -85,7 +92,11 @@ export function ImageField({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+  const [cropping, setCropping] = useState(false);
   const hasImage = !!value?.url;
+  // Cropping needs the source's pixel size, which every CMS upload records.
+  const source = value?.original ?? value;
+  const canCrop = allowCrop && hasImage && !!source?.width && !!source?.height;
 
   async function onFile(file: File | undefined) {
     if (!file) return;
@@ -133,6 +144,11 @@ export function ImageField({
             <AdminButton size="sm" onClick={() => setPicking(true)}>
               <Images className="size-3.5" aria-hidden /> Choose from library
             </AdminButton>
+            {canCrop && (
+              <AdminButton size="sm" onClick={() => setCropping(true)}>
+                <Crop className="size-3.5" aria-hidden /> {value?.original ? "Edit crop" : "Crop"}
+              </AdminButton>
+            )}
             {hasImage && (
               <AdminButton size="sm" variant="danger" onClick={() => onChange(value?.alt ? { url: "", publicId: "", alt: value.alt } : undefined)}>
                 <Trash2 className="size-3.5" aria-hidden /> Remove
@@ -145,11 +161,33 @@ export function ImageField({
             value={value?.alt ?? ""}
             onChange={(alt) => onChange({ url: "", publicId: "", ...value, alt: alt || undefined })}
           />
+          {withCaption && (
+            <TextInput
+              label="Caption (optional)"
+              value={value?.caption ?? ""}
+              onChange={(caption) => onChange({ url: "", publicId: "", ...value, caption: caption || undefined })}
+            />
+          )}
+          {value?.original && (
+            <p className="font-sans text-xs text-muted">
+              Cropped to {value.width} × {value.height} px from the original {value.original.width} × {value.original.height} px — the uploaded file is unchanged.
+            </p>
+          )}
           {help && <p className="font-sans text-xs text-muted">{help}</p>}
           {uploadError && <Notice tone="error">{uploadError}</Notice>}
           {error && <p className="font-sans text-xs font-semibold text-red-700">{error}</p>}
         </div>
       </div>
+      {cropping && value && (
+        <ImageCrop
+          asset={value}
+          onCancel={() => setCropping(false)}
+          onApply={(next) => {
+            onChange(next);
+            setCropping(false);
+          }}
+        />
+      )}
       {picking && (
         <MediaPicker
           onClose={() => setPicking(false)}

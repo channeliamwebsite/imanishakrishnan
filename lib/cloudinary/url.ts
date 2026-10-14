@@ -85,13 +85,23 @@ export function withCloudinaryTransformation(value: string, component: string): 
 
 /**
  * Add delivery transformations to a stored secure_url (e.g. from Firestore), keeping the
- * original asset and any transformations already in the URL. Non-Cloudinary URLs are
- * returned unchanged.
+ * original asset and any transformations already in the URL. Stored transformations (e.g. a
+ * CMS crop) run first and the new sizing/format after them, so a crop in source pixels is
+ * applied before resizing. Non-Cloudinary URLs are returned unchanged.
  */
 export function transformCloudinaryUrl(value: string, transform: CloudinaryTransform): string {
   if (!isCloudinaryUrl(value)) return value;
   const url = new URL(value);
   const [, cloud, resourceType, rest] = url.pathname.match(DELIVERY_PATH)!;
-  url.pathname = `/${cloud}/${resourceType}/upload/${transformation(transform)}/${rest}`;
+  const segments = rest.split("/");
+  // Stored transformation components sit before the version ("v123") segment.
+  const versionIndex = segments.findIndex((s) => /^v\d+$/.test(s));
+  const at = versionIndex === -1 ? 0 : versionIndex;
+  segments.splice(at, 0, transformation(transform));
+  url.pathname = `/${cloud}/${resourceType}/upload/${segments.join("/")}`;
   return url.toString();
 }
+
+/** A crop in pixels of the original image, as a Cloudinary transformation component. */
+export const cropComponent = ({ x, y, width, height }: { x: number; y: number; width: number; height: number }) =>
+  `c_crop,x_${Math.round(x)},y_${Math.round(y)},w_${Math.round(width)},h_${Math.round(height)}`;
