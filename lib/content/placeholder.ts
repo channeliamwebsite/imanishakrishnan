@@ -75,7 +75,8 @@ export const siteSettings: SiteSettings = {
     quickLinksTitle: "Quick Links",
     connectTitle: "Contact",
     connectText: "Contact details for collaborations, speaking and media enquiries will be published here.",
-    // Contact email, newsletter endpoint and legal pages are not yet supplied — omitted, not invented.
+    // Contact email and newsletter endpoint are not yet supplied — omitted, not invented.
+    // /privacy and /terms are always added by the footer (lib/content/legal.ts); list any other legal pages here.
     copyright: "© 2026 Nisha Krishnan. All rights reserved.",
     legalLinks: [],
   },

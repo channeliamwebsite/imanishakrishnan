@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import type { SiteSettings, SocialLink } from "@/types/content";
 import { SECTION_IDS } from "@/lib/sections";
 import { SocialIcon } from "@/components/ui/SocialIcon";
+import { LEGAL_LINKS } from "@/lib/content/legal";
 
 type FooterProps = {
   settings: SiteSettings;
@@ -12,6 +13,10 @@ type FooterProps = {
 
 export function Footer({ settings, socialLinks }: FooterProps) {
   const { footer, siteName, roles, navigation } = settings;
+  const legalLinks = [
+    ...footer.legalLinks,
+    ...LEGAL_LINKS.filter((page) => !footer.legalLinks.some((link) => link.href === page.href)),
+  ];
 
   return (
     <footer id={SECTION_IDS.contact} className="bg-burgundy-deep text-white">
@@ -87,9 +92,9 @@ export function Footer({ settings, socialLinks }: FooterProps) {
 
         <div className="mt-[clamp(2.5rem,4vw,3.25rem)] flex flex-col gap-3 border-t border-white/20 py-5 md:flex-row md:items-center md:justify-between">
           <p className="type-small text-[0.875rem] text-white/70">{footer.copyright}</p>
-          {footer.legalLinks.length > 0 && (
+          {legalLinks.length > 0 && (
           <ul className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {footer.legalLinks.map((link, i) => (
+            {legalLinks.map((link, i) => (
               <li key={link.href} className="flex items-center gap-3">
                 {i > 0 && (
                   <span aria-hidden className="text-white/40">
