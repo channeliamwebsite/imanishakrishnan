@@ -213,7 +213,7 @@ export interface FooterContent {
   description: string;
   quickLinksTitle: string;
   connectTitle: string;
-  connectText: string;
+  // connectText: string;
   /** Optional — rendered only when supplied. */
   contactEmail?: string;
   /** Newsletter field placeholder — the form is shown only when a submission endpoint exists. */

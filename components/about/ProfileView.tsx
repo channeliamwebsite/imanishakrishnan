@@ -1,4 +1,6 @@
+import Link from "next/link";
 import NextImage from "next/image";
+import { ArrowRight } from "lucide-react";
 import type { MediaAsset, ProfileContent, ProfilePageCopy, RecognitionItem, TimelineEntry } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { cn } from "@/lib/cn";
@@ -292,6 +294,19 @@ export function ProfileView({
                 </div>
               );
             })}
+
+            <div className="mt-12 flex">
+              <Link
+                href="/awards"
+                className="type-button group inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+              >
+                View More Award Gallery
+                <ArrowRight
+                  className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1"
+                  aria-hidden
+                />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

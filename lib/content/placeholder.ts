@@ -74,7 +74,7 @@ export const siteSettings: SiteSettings = {
       "Nisha Krishnan — journalist, media entrepreneur and founder of channeliam.com. Business journalism, entrepreneurship and enterprise growth.",
     quickLinksTitle: "Quick Links",
     connectTitle: "Contact",
-    connectText: "Contact details for collaborations, speaking and media enquiries will be published here.",
+    // connectText: "Contact details for collaborations, speaking and media enquiries will be published here.",
     // Contact email and newsletter endpoint are not yet supplied — omitted, not invented.
     // /privacy and /terms are always added by the footer (lib/content/legal.ts); list any other legal pages here.
     copyright: "© 2026 Nisha Krishnan. All rights reserved.",

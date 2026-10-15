@@ -55,7 +55,7 @@ export function Footer({ settings, socialLinks }: FooterProps) {
           {/* Connect */}
           <div>
             <p className="type-caps mb-4 text-[0.75rem] text-white/75">{footer.connectTitle}</p>
-            <p className="type-small max-w-[21rem] text-white/75">{footer.connectText}</p>
+            {/* <p className="type-small max-w-[21rem] text-white/75">{footer.connectText}</p> */}
 
             {/* Rendered only with real details — no non-functional newsletter form or invented contacts. */}
             {footer.contactEmail && (
