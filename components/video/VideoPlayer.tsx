@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import NextImage from "next/image";
 import { Play, X } from "lucide-react";
 import type { VideoItem } from "@/types/content";
@@ -22,45 +23,73 @@ export const videoCategoryLabel = (c: VideoItem["category"]) => VIDEO_CATEGORY_L
 export type PlayableSource = { title: string; youtubeId?: string; fileUrl?: string; poster?: string };
 
 /**
- * Full-screen video player. The YouTube iframe (privacy-enhanced domain) or HTML5 video is created
- * only when the modal opens, after the visitor clicked play — and removed on close, which stops
- * playback. Escape closes; focus moves to the close button and returns to the opener.
+ * Full-screen video player, shared by the Video Gallery, Ecosystem Enabler and Meet My Avatar.
+ *
+ * Rendered through a portal on <body>: a transformed ancestor (e.g. the hero's rise animation)
+ * would otherwise turn `position: fixed` into "relative to that ancestor", misplacing the overlay
+ * and its close button. The YouTube iframe (privacy-enhanced domain) or HTML5 video exists only
+ * while the modal is open — unmounting it on close stops playback. While open, the page behind is
+ * inert and cannot scroll; on close its scroll position, interaction and focus are restored.
  */
 export function VideoModal({ source, onClose }: { source: PlayableSource; onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const el = dialogRef.current;
     const opener = document.activeElement as HTMLElement | null;
-    const { overflow } = document.body.style;
-    document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const { documentElement: html, body } = document;
+    const scrollY = window.scrollY;
+    const prev = { html: html.style.overflow, body: body.style.overflow };
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    // Everything except the modal is inert: no clicks, focus or screen-reader access behind it.
+    const background = [...body.children].filter((c): c is HTMLElement => c !== el && c instanceof HTMLElement && !c.inert);
+    background.forEach((c) => (c.inert = true));
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
       window.removeEventListener("keydown", onKey);
-      opener?.focus();
+      background.forEach((c) => (c.inert = false));
+      html.style.overflow = prev.html;
+      body.style.overflow = prev.body;
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+      opener?.focus({ preventScroll: true });
     };
   }, [onClose]);
 
-  return (
+  useEffect(() => closeRef.current?.focus({ preventScroll: true }), []);
+
+  // Mounted only after a click, so document is always available here.
+  return createPortal(
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={source.title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/95 p-4 sm:p-8"
+      className="fixed inset-0 z-[100] flex items-center justify-center overscroll-contain bg-foreground/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(4rem,env(safe-area-inset-top))] sm:px-8"
       onClick={onClose}
     >
       <button
         ref={closeRef}
         type="button"
-        onClick={onClose}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
         aria-label="Close video"
-        className="absolute right-3 top-3 grid size-11 place-items-center text-white/85 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-white sm:right-6 sm:top-6"
+        className="fixed right-[max(0.75rem,env(safe-area-inset-right))] top-[max(0.75rem,env(safe-area-inset-top))] z-[110] grid size-11 place-items-center rounded-full bg-black/40 text-white/90 transition-colors hover:bg-black/70 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:right-6 sm:top-6"
       >
         <X className="size-6" aria-hidden />
       </button>
-      <div className="w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+      {/* Width fits both the screen width and its height (16:9), so the player is never cut off. */}
+      <div className="w-[min(100%,64rem,calc((100dvh-9rem)*16/9))]" onClick={(e) => e.stopPropagation()}>
         <div className="relative aspect-video w-full bg-black">
           {source.youtubeId ? (
             <iframe
@@ -77,9 +106,10 @@ export function VideoModal({ source, onClose }: { source: PlayableSource; onClos
             </video>
           ) : null}
         </div>
-        <p className="type-h4 mt-4 text-white">{source.title}</p>
+        <p className="type-h4 mt-4 line-clamp-2 text-white">{source.title}</p>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
