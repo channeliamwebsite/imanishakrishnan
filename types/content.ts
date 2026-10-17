@@ -437,3 +437,72 @@ export interface HomeContent {
   philosophy: PhilosophyContent;
   insights: Insight[];
 }
+
+/* ------------------------------------------------------------------ */
+/* Media & Press, Video Gallery, Ecosystem Enabler, Avatar video        */
+/* ------------------------------------------------------------------ */
+
+export type PressCategory = "newspaper" | "magazine" | "online" | "interview" | "feature" | "other";
+
+/** press/{id} — a newspaper clipping or press feature. Cloudinary: nisha-krishnan/media */
+export interface PressArticle extends ListItemBase {
+  headline: string;
+  publication: string;
+  date?: string; // ISO date
+  category: PressCategory;
+  description?: string;
+  /** Clipping images, first = cover. At least one. */
+  images: MediaAsset[];
+  url?: string;
+  featured: boolean;
+}
+
+export type VideoCategory = "talk" | "interview" | "panel" | "event" | "short";
+
+/** videos/{id} and ecosystemVideos/{id} — a YouTube video (never uploaded; only the URL and id are stored). */
+export interface VideoItem extends ListItemBase {
+  youtubeUrl: string;
+  /** Validated 11-character YouTube id, extracted from youtubeUrl when published. */
+  videoId: string;
+  title: string;
+  description?: string;
+  category: VideoCategory;
+  date?: string; // ISO date
+  duration?: string;
+  /** Optional uploaded thumbnail; otherwise the YouTube thumbnail is used. */
+  thumbnail?: MediaAsset;
+  featured: boolean;
+}
+
+/** ecosystemEvents/{id} — a summit, conference or gathering. Cloudinary: nisha-krishnan/speaking */
+export interface EcosystemEvent extends ListItemBase {
+  name: string;
+  summit?: string;
+  date?: string; // ISO date
+  location?: string;
+  role?: string;
+  description?: string;
+  category: string;
+  images: MediaAsset[];
+  url?: string;
+  featured: boolean;
+}
+
+/** ecosystem/main — page copy for /ecosystem-enabler. */
+export interface EcosystemPage {
+  /** "Ecosystem Enabler" (default) or "Ecosystem Builder". */
+  title: string;
+  intro?: string;
+  heroImage?: MediaAsset;
+  impact?: { heading?: string; paragraphs: string[]; image?: MediaAsset };
+}
+
+/** avatar/main — the homepage "Meet Her Avatar" video. */
+export interface AvatarVideo {
+  enabled: boolean;
+  label: string;
+  title?: string;
+  /** A YouTube URL or a direct https video file URL. */
+  url?: string;
+  poster?: MediaAsset;
+}

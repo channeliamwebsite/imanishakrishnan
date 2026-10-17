@@ -514,3 +514,110 @@ export const SOCIAL_FIELDS: FieldDef[] = [
   { kind: "text", key: "label", label: "Label", required: true },
   { kind: "text", key: "url", label: "Address", required: true, placeholder: "https://… or mailto:…" },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Media & Press, Video Gallery, Ecosystem Enabler, Avatar video        */
+/* ------------------------------------------------------------------ */
+
+export const PRESS_CATEGORY_OPTIONS = [
+  { value: "newspaper", label: "Newspaper" },
+  { value: "magazine", label: "Magazine" },
+  { value: "online", label: "Online" },
+  { value: "interview", label: "Interviews" },
+  { value: "feature", label: "Features" },
+  { value: "other", label: "Others" },
+];
+
+export const VIDEO_CATEGORY_OPTIONS = [
+  { value: "talk", label: "Talks" },
+  { value: "interview", label: "Interviews" },
+  { value: "panel", label: "Panel Discussions" },
+  { value: "event", label: "Event Highlights" },
+  { value: "short", label: "Shorts" },
+];
+
+export const PRESS_FIELDS: FieldDef[] = [
+  { kind: "text", key: "headline", label: "Headline", required: true },
+  { kind: "text", key: "publication", label: "Publication", required: true },
+  { kind: "date", key: "date", label: "Publication date" },
+  { kind: "select", key: "category", label: "Category", options: PRESS_CATEGORY_OPTIONS },
+  { kind: "textarea", key: "description", label: "Description", rows: 3 },
+  {
+    kind: "images",
+    key: "images",
+    label: "Clipping images",
+    folder: CLOUDINARY_FOLDERS.media,
+    crop: false,
+    help: "Upload the newspaper cutting(s) from your computer. The first image is the cover. Add alt text describing each cutting.",
+  },
+  { kind: "text", key: "url", label: "Original article link (optional)", placeholder: "https://…" },
+  { kind: "toggle", key: "featured", label: "Featured article", help: "The first featured article is shown large at the top of /media." },
+];
+
+export const VIDEO_FIELDS: FieldDef[] = [
+  { kind: "youtube", key: "youtubeUrl", label: "YouTube URL", required: true },
+  { kind: "text", key: "title", label: "Title", required: true },
+  { kind: "select", key: "category", label: "Category", options: VIDEO_CATEGORY_OPTIONS },
+  { kind: "date", key: "date", label: "Date" },
+  { kind: "text", key: "duration", label: "Duration (optional)", placeholder: "12:45" },
+  { kind: "textarea", key: "description", label: "Description", rows: 3 },
+  {
+    kind: "image",
+    key: "thumbnail",
+    label: "Custom thumbnail (optional)",
+    folder: CLOUDINARY_FOLDERS.media,
+    help: "Leave empty to use the YouTube thumbnail.",
+  },
+  { kind: "toggle", key: "featured", label: "Featured video" },
+];
+
+export const ECOSYSTEM_PAGE_FIELDS: FieldDef[] = [
+  {
+    kind: "select",
+    key: "title",
+    label: "Page title",
+    options: [
+      { value: "Ecosystem Enabler", label: "Ecosystem Enabler" },
+      { value: "Ecosystem Builder", label: "Ecosystem Builder" },
+    ],
+  },
+  { kind: "textarea", key: "intro", label: "Introduction", rows: 4 },
+  { kind: "image", key: "heroImage", label: "Hero photograph", folder: CLOUDINARY_FOLDERS.speaking, help: "An event or speaking photograph." },
+  {
+    kind: "group",
+    key: "impact",
+    label: "Impact & Connections",
+    fields: [
+      { kind: "text", key: "heading", label: "Heading" },
+      { kind: "strings", key: "paragraphs", label: "Paragraphs", itemLabel: "Paragraph", multiline: true },
+      { kind: "image", key: "image", label: "Image", folder: CLOUDINARY_FOLDERS.speaking },
+    ],
+  },
+];
+
+export const ECOSYSTEM_EVENT_FIELDS: FieldDef[] = [
+  { kind: "text", key: "name", label: "Event name", required: true },
+  { kind: "text", key: "summit", label: "Summit or conference" },
+  { kind: "date", key: "date", label: "Date" },
+  { kind: "text", key: "location", label: "Location" },
+  { kind: "text", key: "role", label: "Role / participation", placeholder: "Speaker, Panelist, Moderator…" },
+  { kind: "text", key: "category", label: "Category", placeholder: "Summit, Conference, Panel…" },
+  { kind: "textarea", key: "description", label: "Description", rows: 3 },
+  { kind: "images", key: "images", label: "Photographs", folder: CLOUDINARY_FOLDERS.speaking, help: "The first photograph is the cover." },
+  { kind: "text", key: "url", label: "Event link (optional)", placeholder: "https://…" },
+  { kind: "toggle", key: "featured", label: "Featured event" },
+];
+
+export const AVATAR_FIELDS: FieldDef[] = [
+  { kind: "toggle", key: "enabled", label: "Show the button on the homepage" },
+  { kind: "text", key: "label", label: "Button label", placeholder: "Meet My Avatar" },
+  { kind: "text", key: "title", label: "Video title" },
+  {
+    kind: "text",
+    key: "url",
+    label: "Video URL",
+    placeholder: "https://…",
+    help: "A YouTube link, or a direct video file link (e.g. a Cloudinary .mp4).",
+  },
+  { kind: "image", key: "poster", label: "Poster image (optional)", folder: CLOUDINARY_FOLDERS.site },
+];

@@ -42,11 +42,13 @@ service cloud.firestore {
     match /{collection}/{docId} {
       allow read: if collection in [
         'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
-        'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks'
+        'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks',
+        'press', 'videos', 'ecosystem', 'ecosystemEvents', 'ecosystemVideos', 'avatar'
       ];
       allow write: if isAdmin() && collection in [
         'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
-        'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks'
+        'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks',
+        'press', 'videos', 'ecosystem', 'ecosystemEvents', 'ecosystemVideos', 'avatar'
       ];
     }
   }

@@ -4,6 +4,11 @@ import { COLLECTIONS, LIST_META_DOC_ID, type CollectionName } from "@/lib/fireba
 import { getAllDocuments, getPublishedDocuments, getPublishedDocumentsWhere, getSingleton } from "@/lib/firebase/firestore";
 import type {
   AboutContent,
+  AvatarVideo,
+  EcosystemEvent,
+  EcosystemPage,
+  PressArticle,
+  VideoItem,
   Achievement,
   HeroContent,
   HomeContent,
@@ -24,6 +29,11 @@ import type {
 import { parseHero, parseStatistic, selectActiveStatistics, type Parsed } from "./normalize";
 import {
   aboutSchema,
+  avatarVideoSchema,
+  ecosystemEventSchema,
+  ecosystemPageSchema,
+  pressArticleSchema,
+  videoItemSchema,
   insightSchema,
   mediaFeatureSchema,
   parseWith,
@@ -279,6 +289,51 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   "use cache";
   cacheTag(COLLECTIONS.testimonials);
   return settle(await loadList(COLLECTIONS.testimonials, item(testimonialSchema)), []);
+}
+
+/* ------------------------------------------------------------------ */
+/* Media & Press, Video Gallery, Ecosystem Enabler, Avatar video        */
+/* ------------------------------------------------------------------ */
+// Published CMS records only — no placeholder content: an empty list shows the page's empty state.
+
+export async function getPressArticles(): Promise<PressArticle[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.press);
+  return settle(await loadList(COLLECTIONS.press, item(pressArticleSchema)), []);
+}
+
+export async function getVideos(): Promise<VideoItem[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.videos);
+  return settle(await loadList(COLLECTIONS.videos, item(videoItemSchema)), []);
+}
+
+export const DEFAULT_ECOSYSTEM_PAGE: EcosystemPage = { title: "Ecosystem Enabler" };
+
+export async function getEcosystemPage(): Promise<EcosystemPage> {
+  "use cache";
+  cacheTag(COLLECTIONS.ecosystem);
+  return settle(await loadSingleton(COLLECTIONS.ecosystem, (raw) => parseWith(ecosystemPageSchema, raw)), DEFAULT_ECOSYSTEM_PAGE);
+}
+
+export async function getEcosystemEvents(): Promise<EcosystemEvent[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.ecosystemEvents);
+  return settle(await loadList(COLLECTIONS.ecosystemEvents, item(ecosystemEventSchema)), []);
+}
+
+export async function getEcosystemVideos(): Promise<VideoItem[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.ecosystemVideos);
+  return settle(await loadList(COLLECTIONS.ecosystemVideos, item(videoItemSchema)), []);
+}
+
+/** The homepage "Meet My Avatar" video; null unless enabled with a URL. */
+export async function getAvatarVideo(): Promise<AvatarVideo | null> {
+  "use cache";
+  cacheTag(COLLECTIONS.avatar);
+  const avatar = settle(await loadSingleton(COLLECTIONS.avatar, (raw) => parseWith(avatarVideoSchema, raw)), null);
+  return avatar?.enabled && avatar.url ? avatar : null;
 }
 
 /* ------------------------------------------------------------------ */

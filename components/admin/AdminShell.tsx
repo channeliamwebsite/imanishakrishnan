@@ -26,6 +26,15 @@ const NAV: { heading: string; links: { href: string; label: string }[] }[] = [
     ],
   },
   {
+    heading: "Pages",
+    links: [
+      { href: "/admin/press", label: "Media & Press" },
+      { href: "/admin/videos", label: "Video Gallery" },
+      { href: "/admin/ecosystem", label: "Ecosystem Enabler" },
+      { href: "/admin/avatar", label: "Avatar Video" },
+    ],
+  },
+  {
     heading: "More content",
     links: [
       { href: "/admin/events", label: "Events" },

@@ -13,6 +13,12 @@ export const COLLECTIONS = {
   testimonials: "testimonials",
   siteSettings: "siteSettings",
   socialLinks: "socialLinks",
+  press: "press",
+  videos: "videos",
+  ecosystem: "ecosystem",
+  ecosystemEvents: "ecosystemEvents",
+  ecosystemVideos: "ecosystemVideos",
+  avatar: "avatar",
 } as const;
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];

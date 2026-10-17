@@ -1,4 +1,5 @@
-import type { HeroContent } from "@/types/content";
+import type { AvatarVideo, HeroContent } from "@/types/content";
+import { AvatarButton } from "./AvatarButton";
 import { Button } from "@/components/ui/Button";
 import { MediaImage } from "@/components/ui/Image";
 import { withCloudinaryTransformation } from "@/lib/cloudinary/url";
@@ -38,7 +39,7 @@ function secondaryLinkProps(url: string) {
  * Reference composition (1440px): copy column ~45% inside the container,
  * portrait fills the remaining ~55% and bleeds to the right viewport edge.
  */
-export function Hero({ content }: { content: HeroContent }) {
+export function Hero({ content, avatar }: { content: HeroContent; avatar?: AvatarVideo | null }) {
   const { eyebrow, name, designation, roles, description, primaryCta, secondaryCta, image, location } = content;
   const { greeting, lines } = splitName(name);
   const eyebrowWords = splitOn(eyebrow, "|");
@@ -108,6 +109,8 @@ export function Hero({ content }: { content: HeroContent }) {
 
           <div className="animate-rise mt-9 flex flex-wrap items-center gap-x-10 gap-y-5 [animation-delay:460ms]">
             <Button href={primaryCta.link}>{primaryCta.label}</Button>
+            {/* CMS: Avatar Video — only when enabled with a video URL. */}
+            {avatar && <AvatarButton avatar={avatar} />}
             {/* Only with a real video URL — no placeholder link. */}
             {secondaryCta?.url && (
               <Button {...secondaryLinkProps(secondaryCta.url)} variant="ghost" icon="play">

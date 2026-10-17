@@ -1,4 +1,4 @@
-import { getHomeContent, getSiteSettings } from "@/lib/content";
+import { getAvatarVideo, getHomeContent, getSiteSettings } from "@/lib/content";
 import { Hero } from "@/components/home/Hero";
 import { ImpactStats } from "@/components/home/ImpactStats";
 import { AboutSection } from "@/components/home/AboutSection";
@@ -10,11 +10,11 @@ import { InsightsSection } from "@/components/home/InsightsSection";
 import { siteSettings as fallbackSettings } from "@/lib/content/placeholder";
 
 export default async function HomePage() {
-  const [content, { sections }] = await Promise.all([getHomeContent(), getSiteSettings()]);
+  const [content, { sections }, avatar] = await Promise.all([getHomeContent(), getSiteSettings(), getAvatarVideo()]);
 
   return (
     <>
-      <Hero content={content.hero} />
+      <Hero content={content.hero} avatar={avatar} />
       <ImpactStats items={content.statistics} />
       <AboutSection content={content.about} timeline={content.timeline} />
       <WorkSection items={content.work} copy={sections.work} />

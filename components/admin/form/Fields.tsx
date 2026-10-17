@@ -9,6 +9,7 @@ import { ACCEPT_ATTRIBUTE, uploadImage } from "@/lib/cms/media";
 import { useAdminAuth } from "../AdminAuth";
 import { AdminButton, Notice, SelectInput, TextArea, TextInput, Toggle } from "../ui";
 import { ImageField } from "./ImageField";
+import { parseYouTubeId, youTubeThumbnail } from "@/lib/youtube";
 
 /**
  * Renders a list of FieldDefs for one object. `path` is the object's position in the section
@@ -81,6 +82,32 @@ function Field({
           onChange={onChange}
         />
       );
+    case "youtube": {
+      const url = asText(value);
+      const id = parseYouTubeId(url);
+      return (
+        <div className="space-y-2">
+          <TextInput
+            label={field.label}
+            help={field.help ?? "Paste a YouTube link (watch, youtu.be, Shorts or embed). The video itself is not uploaded."}
+            required={field.required}
+            placeholder="https://www.youtube.com/watch?v=…"
+            error={error ?? (url && !id ? "Not a valid YouTube video URL" : undefined)}
+            value={url}
+            onChange={onChange}
+          />
+          {id && (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element -- YouTube's own thumbnail, admin preview */}
+              <img src={youTubeThumbnail(id)} alt="" className="aspect-video w-40 rounded bg-background object-cover" />
+              <p className="font-sans text-xs text-muted">
+                Video ID: <code className="font-mono text-foreground">{id}</code>
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    }
     case "textarea":
       return (
         <TextArea

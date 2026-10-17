@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type {
   AboutContent,
+  AvatarVideo,
+  EcosystemEvent,
+  EcosystemPage,
+  PressArticle,
+  VideoItem,
   FooterContent,
   IconName,
   Insight,
@@ -21,6 +26,7 @@ import type {
   WorkItem,
 } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
+import { parseYouTubeId } from "@/lib/youtube";
 import type { Parsed } from "./normalize";
 
 /**
@@ -513,3 +519,91 @@ export function parseWith<T>(schema: z.ZodType<T>, raw: unknown): Parsed<T> {
   const result = schema.safeParse(raw);
   return result.success ? { value: result.data, warnings: [] } : { value: null, error: describeIssue(result.error) };
 }
+
+/* ------------------------------------------------------------------ */
+/* Media & Press, Video Gallery, Ecosystem Enabler, Avatar video        */
+/* ------------------------------------------------------------------ */
+
+const optionalDate = (label: string) =>
+  optional.refine((v) => v === undefined || !Number.isNaN(Date.parse(v)), { message: `${label} is not a valid date` });
+const flag = z
+  .boolean()
+  .nullish()
+  .transform((v) => v === true);
+const uploadedImages = (label: string) =>
+  mediaList.transform((list) => list.filter((m) => m.url)).refine((list) => list.length > 0, { message: `${label}: upload at least one image` });
+
+export const PRESS_CATEGORIES = ["newspaper", "magazine", "online", "interview", "feature", "other"] as const;
+export const VIDEO_CATEGORIES = ["talk", "interview", "panel", "event", "short"] as const;
+
+export const pressArticleSchema: z.ZodType<PressArticle> = z.object({
+  ...listItem,
+  headline: required("Headline"),
+  publication: required("Publication"),
+  date: optionalDate("Date"),
+  category: z.enum(PRESS_CATEGORIES, { error: "Choose a category" }),
+  description: optional,
+  images: uploadedImages("Clipping images"),
+  url: optionalUrl("Article link"),
+  featured: flag,
+});
+
+/** A YouTube video: the URL must contain a valid video id, which is stored alongside it. */
+export const videoItemSchema: z.ZodType<VideoItem> = z
+  .object({
+    ...listItem,
+    youtubeUrl: required("YouTube URL"),
+    title: required("Title"),
+    description: optional,
+    category: z.enum(VIDEO_CATEGORIES, { error: "Choose a category" }),
+    date: optionalDate("Date"),
+    duration: optional,
+    thumbnail: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+    featured: flag,
+  })
+  .transform((v, ctx) => {
+    const videoId = parseYouTubeId(v.youtubeUrl);
+    if (!videoId) {
+      ctx.addIssue({ code: "custom", message: "Not a valid YouTube video URL", path: ["youtubeUrl"] });
+      return z.NEVER;
+    }
+    return { ...v, videoId };
+  });
+
+export const ecosystemEventSchema: z.ZodType<EcosystemEvent> = z.object({
+  ...listItem,
+  name: required("Event name"),
+  summit: optional,
+  date: optionalDate("Date"),
+  location: optional,
+  role: optional,
+  description: optional,
+  category: text,
+  images: uploadedImages("Photographs"),
+  url: optionalUrl("Event link"),
+  featured: flag,
+});
+
+export const ecosystemPageSchema: z.ZodType<EcosystemPage> = z.object({
+  title: text.transform((v) => v || "Ecosystem Enabler"),
+  intro: optional,
+  heroImage: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+  impact: z
+    .object({
+      heading: optional,
+      paragraphs: stringList,
+      image: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+    })
+    .nullish()
+    .transform((v) => v ?? undefined),
+});
+
+export const avatarVideoSchema: z.ZodType<AvatarVideo> = z
+  .object({
+    enabled: flag,
+    label: text.transform((v) => v || "Meet My Avatar"),
+    title: optional,
+    url: optionalUrl("Video URL"),
+    poster: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+  })
+  .refine((v) => !v.enabled || !!v.url, { message: "Add the video URL before enabling the button", path: ["url"] });

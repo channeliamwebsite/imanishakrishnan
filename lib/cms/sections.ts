@@ -3,6 +3,11 @@ import { COLLECTIONS, type CollectionName } from "@/lib/firebase/collections";
 import { parseHero, parseStatistic } from "@/lib/content/normalize";
 import {
   aboutSchema,
+  avatarVideoSchema,
+  ecosystemEventSchema,
+  ecosystemPageSchema,
+  pressArticleSchema,
+  videoItemSchema,
   listIssues,
   mediaFeatureSchema,
   philosophySchema,
@@ -32,7 +37,13 @@ export type SectionKey =
   | "siteSettings"
   | "socialLinks"
   | "speaking"
-  | "testimonials";
+  | "testimonials"
+  | "press"
+  | "videos"
+  | "ecosystem"
+  | "ecosystemEvents"
+  | "ecosystemVideos"
+  | "avatar";
 
 export type Issue = { path: string; message: string };
 /** Validation result: the normalised value to publish, or the problems to show. */
@@ -202,5 +213,61 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     validate: listOf(fromSchema(testimonialSchema)),
     visibleField: "published",
     newItem: () => ({ id: newId("quote"), order: 0, published: true, quote: "", name: "", role: "" }),
+  },
+  press: {
+    key: "press",
+    label: "Media & Press",
+    collection: COLLECTIONS.press,
+    kind: "list",
+    builtIn: () => [],
+    validate: listOf(fromSchema(pressArticleSchema)),
+    visibleField: "published",
+    newItem: () => ({ id: newId("press"), order: 0, published: false, featured: false, headline: "", publication: "", category: "newspaper", images: [] }),
+  },
+  videos: {
+    key: "videos",
+    label: "Video Gallery",
+    collection: COLLECTIONS.videos,
+    kind: "list",
+    builtIn: () => [],
+    validate: listOf(fromSchema(videoItemSchema)),
+    visibleField: "published",
+    newItem: () => ({ id: newId("video"), order: 0, published: false, featured: false, youtubeUrl: "", title: "", category: "talk" }),
+  },
+  ecosystem: {
+    key: "ecosystem",
+    label: "Ecosystem Enabler page",
+    collection: COLLECTIONS.ecosystem,
+    kind: "singleton",
+    builtIn: () => ({ title: "Ecosystem Enabler", intro: "", impact: { heading: "", paragraphs: [] } }),
+    validate: fromSchema(ecosystemPageSchema),
+  },
+  ecosystemEvents: {
+    key: "ecosystemEvents",
+    label: "Ecosystem events",
+    collection: COLLECTIONS.ecosystemEvents,
+    kind: "list",
+    builtIn: () => [],
+    validate: listOf(fromSchema(ecosystemEventSchema)),
+    visibleField: "published",
+    newItem: () => ({ id: newId("eco-event"), order: 0, published: false, featured: false, name: "", category: "", images: [] }),
+  },
+  ecosystemVideos: {
+    key: "ecosystemVideos",
+    label: "Ecosystem conversations",
+    collection: COLLECTIONS.ecosystemVideos,
+    kind: "list",
+    builtIn: () => [],
+    validate: listOf(fromSchema(videoItemSchema)),
+    visibleField: "published",
+    newItem: () => ({ id: newId("eco-video"), order: 0, published: false, featured: false, youtubeUrl: "", title: "", category: "talk" }),
+  },
+  avatar: {
+    key: "avatar",
+    label: "Avatar video",
+    collection: COLLECTIONS.avatar,
+    kind: "singleton",
+    builtIn: () => ({ enabled: false, label: "Meet My Avatar", title: "", url: "" }),
+    validate: fromSchema(avatarVideoSchema),
   },
 };

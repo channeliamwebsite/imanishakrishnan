@@ -59,9 +59,10 @@ export const siteSettings: SiteSettings = {
   roles: ["FOUNDER & CEO", "JOURNALIST", "MEDIA ENTREPRENEUR"],
   navigation: [
     { label: "About", href: sectionHref(SECTION_IDS.about) },
-    { label: "Leadership", href: sectionHref(SECTION_IDS.leadership) },
+    { label: "Ecosystem Enabler", href: "/ecosystem-enabler" },
     { label: "Impact", href: sectionHref(SECTION_IDS.impact) },
-    { label: "Media", href: sectionHref(SECTION_IDS.media) },
+    { label: "Media", href: "/media" },
+    { label: "Videos", href: "/videos" },
     // No homepage speaking section: public speaking is documented on the profile page.
     // Awards live on the profile page (the homepage awards strip was removed).
     { label: "Awards", href: `${PROFILE_PATH}#awards` },

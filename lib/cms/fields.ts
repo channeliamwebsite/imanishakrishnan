@@ -11,6 +11,8 @@ export type FieldDef =
   | (Base & { kind: "text"; required?: boolean; placeholder?: string })
   | (Base & { kind: "textarea"; required?: boolean; rows?: number })
   | (Base & { kind: "number" })
+  /** A YouTube URL: shows the extracted video id and the thumbnail as the editor types. */
+  | (Base & { kind: "youtube"; required?: boolean })
   | (Base & { kind: "date" })
   | (Base & { kind: "toggle" })
   | (Base & { kind: "select"; options: { value: string; label: string }[]; emptyLabel?: string })
