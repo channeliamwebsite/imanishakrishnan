@@ -222,7 +222,7 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     builtIn: () => [],
     validate: listOf(fromSchema(pressArticleSchema)),
     visibleField: "published",
-    newItem: () => ({ id: newId("press"), order: 0, published: false, featured: false, headline: "", publication: "", category: "newspaper", images: [] }),
+    newItem: () => ({ id: newId("press"), order: 0, published: true, featured: false, headline: "", publication: "", category: "newspaper", images: [] }),
   },
   videos: {
     key: "videos",
@@ -232,7 +232,7 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     builtIn: () => [],
     validate: listOf(fromSchema(videoItemSchema)),
     visibleField: "published",
-    newItem: () => ({ id: newId("video"), order: 0, published: false, featured: false, youtubeUrl: "", title: "", category: "talk" }),
+    newItem: () => ({ id: newId("video"), order: 0, published: true, featured: false, youtubeUrl: "", title: "", category: "talk" }),
   },
   ecosystem: {
     key: "ecosystem",
@@ -250,7 +250,7 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     builtIn: () => [],
     validate: listOf(fromSchema(ecosystemEventSchema)),
     visibleField: "published",
-    newItem: () => ({ id: newId("eco-event"), order: 0, published: false, featured: false, name: "", category: "", images: [] }),
+    newItem: () => ({ id: newId("eco-event"), order: 0, published: true, featured: false, name: "", category: "", images: [] }),
   },
   ecosystemVideos: {
     key: "ecosystemVideos",
@@ -260,7 +260,7 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     builtIn: () => [],
     validate: listOf(fromSchema(videoItemSchema)),
     visibleField: "published",
-    newItem: () => ({ id: newId("eco-video"), order: 0, published: false, featured: false, youtubeUrl: "", title: "", category: "talk" }),
+    newItem: () => ({ id: newId("eco-video"), order: 0, published: true, featured: false, youtubeUrl: "", title: "", category: "talk" }),
   },
   avatar: {
     key: "avatar",

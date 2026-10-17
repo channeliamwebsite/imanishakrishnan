@@ -9,7 +9,7 @@ export default function VideosAdminPage() {
     <div className="space-y-4">
       <AdminPageHeader
         title="Video Gallery"
-        description="YouTube videos shown on /videos. Paste the YouTube link — videos are never uploaded. New videos start hidden — switch them on, then publish."
+        description="YouTube videos shown on /videos. Paste the YouTube link — videos are never uploaded."
       />
       <SectionEditor
         section="videos"

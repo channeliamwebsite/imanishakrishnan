@@ -9,7 +9,7 @@ export default function PressAdminPage() {
     <div className="space-y-4">
       <AdminPageHeader
         title="Media & Press"
-        description="Newspaper clippings and press coverage shown on /media. New articles start hidden — switch them on, then publish."
+        description="Newspaper clippings and press coverage shown on /media."
       />
       <SectionEditor
         section="press"
