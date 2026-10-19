@@ -200,10 +200,12 @@ function LinkField({
   errors: FieldErrors;
   path: string;
 }) {
+  const key = field.hrefKey ?? "href";
   const label = asText(value?.label);
-  const href = asText(value?.href);
+  // Falls back to `href` for drafts saved before `hrefKey` existed.
+  const href = asText(value?.[key] ?? value?.href);
   const update = (next: { label: string; href: string }) =>
-    onChange(field.optional && !next.label && !next.href ? undefined : next);
+    onChange(field.optional && !next.label && !next.href ? undefined : { label: next.label, [key]: next.href });
   return (
     <fieldset className="min-w-0 space-y-2">
       <legend className="font-sans text-sm font-semibold text-foreground">{field.label}</legend>
@@ -214,7 +216,7 @@ function LinkField({
           label="Link"
           placeholder="/about, /#media or https://…"
           value={href}
-          error={errors[join(path, "href")]}
+          error={errors[join(path, key)]}
           onChange={(v) => update({ label, href: v })}
         />
       </div>

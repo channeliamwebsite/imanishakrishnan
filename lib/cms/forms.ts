@@ -22,7 +22,7 @@ export const HERO_FIELDS: FieldDef[] = [
   { kind: "strings", key: "roles", label: "Roles", itemLabel: "Role", help: "Shown after the designation." },
   { kind: "textarea", key: "description", label: "Introduction", required: true, rows: 3 },
   { kind: "text", key: "location", label: "Location", help: "Separate lines with / (e.g. INDIA / UAE)." },
-  { kind: "link", key: "primaryCta", label: "Main button", help: linkHelp },
+  { kind: "link", key: "primaryCta", label: "Main button", help: linkHelp, hrefKey: "link" },
   {
     kind: "group",
     key: "secondaryCta",

@@ -25,7 +25,11 @@ export type FieldDef =
       caption?: boolean;
     })
   | (Base & { kind: "images"; folder: CloudinaryFolder; crop?: boolean; caption?: boolean })
-  | (Base & { kind: "link"; optional?: boolean })
+  /**
+   * A button/link: { label, href } by default. `hrefKey` names the address property for data
+   * stored under another key (the hero's main button is { label, link }).
+   */
+  | (Base & { kind: "link"; optional?: boolean; hrefKey?: string })
   | (Base & { kind: "strings"; itemLabel: string; multiline?: boolean })
   | (Base & { kind: "group"; fields: FieldDef[] })
   | (Base & {

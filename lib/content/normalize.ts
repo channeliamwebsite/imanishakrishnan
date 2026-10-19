@@ -76,9 +76,10 @@ export function parseHero(
 
   // The primary CTA is navigation, not content: when absent or incomplete, use the site default.
   let primaryCta = defaults.primaryCta;
-  if (raw.primaryCta !== undefined) {
+  if (raw.primaryCta != null) {
     const label = isRecord(raw.primaryCta) ? str(raw.primaryCta.label) : undefined;
-    const link = isRecord(raw.primaryCta) ? str(raw.primaryCta.link) : undefined;
+    // `href`: drafts saved by the admin before the main-button field used the `link` key.
+    const link = isRecord(raw.primaryCta) ? (str(raw.primaryCta.link) ?? str(raw.primaryCta.href)) : undefined;
     if (label && link) primaryCta = { label, link };
     else warnings.push("primaryCta needs label and link; using the default");
   }
