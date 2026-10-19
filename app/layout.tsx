@@ -2,12 +2,13 @@ import type { Metadata, Viewport } from "next";
 
 import { cormorant, crimson, montserrat, oswald } from "./fonts";
 import { getSiteSettings } from "@/lib/content";
+import { resolveSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { seo } = await getSiteSettings();
   return {
-    metadataBase: new URL(seo.siteUrl),
+    metadataBase: new URL(resolveSiteUrl(seo.siteUrl)),
     title: { default: seo.title, template: seo.titleTemplate },
     description: seo.description,
     keywords: seo.keywords,

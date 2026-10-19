@@ -19,12 +19,22 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-export function InsightsSection({ items, copy }: { items: Insight[]; copy: SectionCopy["insights"] }) {
+export function InsightsSection({
+  items,
+  copy,
+  headingAs = "h2",
+}: {
+  items: Insight[];
+  copy: SectionCopy["insights"];
+  /** "h1" when the section is the page itself (/insights). */
+  headingAs?: "h1" | "h2";
+}) {
   const hasArticles = items.length > 0;
   return (
     <section id={SECTION_IDS.insights} className="section-y">
       <div className="container-site">
         <SectionHeading
+          as={headingAs}
           label={copy.label}
           title={copy.heading}
           intro={copy.intro}

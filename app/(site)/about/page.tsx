@@ -8,7 +8,7 @@ const fallbackPage = fallbackProfile.page!;
 export async function generateMetadata(): Promise<Metadata> {
   const about = await getAbout();
   const page = about.profile?.page ?? fallbackPage;
-  return { title: "About", description: page.metaDescription || undefined };
+  return { title: "About", description: page.metaDescription || undefined, alternates: { canonical: "/about" } };
 }
 
 /**
