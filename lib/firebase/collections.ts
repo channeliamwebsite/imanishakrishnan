@@ -19,6 +19,7 @@ export const COLLECTIONS = {
   ecosystemEvents: "ecosystemEvents",
   ecosystemVideos: "ecosystemVideos",
   avatar: "avatar",
+  editorialVideos: "editorialVideos",
 } as const;
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];

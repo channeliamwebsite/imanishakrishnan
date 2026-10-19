@@ -112,6 +112,8 @@ export interface ProfileItem {
   anchor?: string;
   /** Small line icon (areas of expertise). */
   icon?: IconName;
+  /** Hidden from the site when false (default shown). */
+  published?: boolean;
 }
 
 /** One newspaper clipping or press-coverage image in the /about "News & Media Recognition" gallery. */
@@ -137,6 +139,8 @@ export interface RecognitionItem {
   title?: string;
   organisation?: string;
   year?: string;
+  category?: string;
+  description?: string;
   /** Hidden from the site when false. */
   published?: boolean;
 }
@@ -458,6 +462,7 @@ export interface PressArticle extends ListItemBase {
 }
 
 export type VideoCategory = "talk" | "interview" | "panel" | "event" | "short";
+export type EditorialCategory = "editorial" | "business" | "entrepreneurship" | "leadership" | "innovation" | "interview";
 
 /** videos/{id} and ecosystemVideos/{id} — a YouTube video (never uploaded; only the URL and id are stored). */
 export interface VideoItem extends ListItemBase {
@@ -466,7 +471,8 @@ export interface VideoItem extends ListItemBase {
   videoId: string;
   title: string;
   description?: string;
-  category: VideoCategory;
+  /** VideoCategory (Video Gallery, Ecosystem) or EditorialCategory (Editorial Insights). */
+  category: VideoCategory | EditorialCategory;
   date?: string; // ISO date
   duration?: string;
   /** Optional uploaded thumbnail; otherwise the YouTube thumbnail is used. */
@@ -486,6 +492,8 @@ export interface EcosystemEvent extends ListItemBase {
   images: MediaAsset[];
   url?: string;
   featured: boolean;
+  /** Shown as a highlight in the /about Ecosystem Builder section. */
+  aboutHighlight?: boolean;
 }
 
 /** ecosystem/main — page copy for /ecosystem-enabler. */
@@ -495,6 +503,17 @@ export interface EcosystemPage {
   intro?: string;
   heroImage?: MediaAsset;
   impact?: { heading?: string; paragraphs: string[]; image?: MediaAsset };
+  /** The /about "Ecosystem Builder" section (shown only when enabled). */
+  about?: EcosystemAbout;
+}
+
+export interface EcosystemAbout {
+  enabled: boolean;
+  heading: string;
+  intro: string[];
+  featuredImage?: MediaAsset;
+  /** Supporting images; captions are stored on each image. */
+  images: MediaAsset[];
 }
 
 /** avatar/main — the homepage "Meet Her Avatar" video. */

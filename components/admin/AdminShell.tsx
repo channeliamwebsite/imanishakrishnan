@@ -32,6 +32,8 @@ const NAV: { heading: string; links: { href: string; label: string }[] }[] = [
       { href: "/admin/videos", label: "Video Gallery" },
       { href: "/admin/ecosystem", label: "Ecosystem Enabler" },
       { href: "/admin/avatar", label: "Avatar Video" },
+      { href: "/admin/editorial-insights", label: "Editorial Insights" },
+      { href: "/admin/ecosystem-builder", label: "Ecosystem Builder (About)" },
     ],
   },
   {

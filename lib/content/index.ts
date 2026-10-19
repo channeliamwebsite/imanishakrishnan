@@ -32,6 +32,7 @@ import {
   avatarVideoSchema,
   ecosystemEventSchema,
   ecosystemPageSchema,
+  editorialVideoSchema,
   pressArticleSchema,
   videoItemSchema,
   insightSchema,
@@ -326,6 +327,12 @@ export async function getEcosystemVideos(): Promise<VideoItem[]> {
   "use cache";
   cacheTag(COLLECTIONS.ecosystemVideos);
   return settle(await loadList(COLLECTIONS.ecosystemVideos, item(videoItemSchema)), []);
+}
+
+export async function getEditorialVideos(): Promise<VideoItem[]> {
+  "use cache";
+  cacheTag(COLLECTIONS.editorialVideos);
+  return settle(await loadList(COLLECTIONS.editorialVideos, item(editorialVideoSchema)), []);
 }
 
 /** The homepage "Meet My Avatar" video; null unless enabled with a URL. */

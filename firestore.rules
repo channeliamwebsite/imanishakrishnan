@@ -43,12 +43,14 @@ service cloud.firestore {
       allow read: if collection in [
         'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
         'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks',
-        'press', 'videos', 'ecosystem', 'ecosystemEvents', 'ecosystemVideos', 'avatar'
+        'press', 'videos', 'ecosystem', 'ecosystemEvents', 'ecosystemVideos', 'avatar',
+        'editorialVideos'
       ];
       allow write: if isAdmin() && collection in [
         'hero', 'statistics', 'about', 'timeline', 'work', 'mediaFeatures',
         'philosophy', 'speaking', 'achievements', 'testimonials', 'siteSettings', 'socialLinks',
-        'press', 'videos', 'ecosystem', 'ecosystemEvents', 'ecosystemVideos', 'avatar'
+        'press', 'videos', 'ecosystem', 'ecosystemEvents', 'ecosystemVideos', 'avatar',
+        'editorialVideos'
       ];
     }
   }

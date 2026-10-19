@@ -162,6 +162,10 @@ const profileItem = z.object({
   strengths: optional,
   anchor: optional,
   icon: optionalIcon,
+  published: z
+    .boolean()
+    .nullish()
+    .transform((v) => (v === false ? false : undefined)),
 });
 
 /** An image the editor uploaded; empty upload slots are dropped. */
@@ -172,6 +176,8 @@ const recognitionItem = z.object({
   title: optional,
   organisation: optional,
   year: optional,
+  category: optional,
+  description: optional,
   published: z
     .boolean()
     .nullish()
@@ -535,6 +541,7 @@ const uploadedImages = (label: string) =>
 
 export const PRESS_CATEGORIES = ["newspaper", "magazine", "online", "interview", "feature", "other"] as const;
 export const VIDEO_CATEGORIES = ["talk", "interview", "panel", "event", "short"] as const;
+export const EDITORIAL_CATEGORIES = ["editorial", "business", "entrepreneurship", "leadership", "innovation", "interview"] as const;
 
 export const pressArticleSchema: z.ZodType<PressArticle> = z.object({
   ...listItem,
@@ -549,13 +556,14 @@ export const pressArticleSchema: z.ZodType<PressArticle> = z.object({
 });
 
 /** A YouTube video: the URL must contain a valid video id, which is stored alongside it. */
-export const videoItemSchema: z.ZodType<VideoItem> = z
+const youTubeVideoSchema = (categories: readonly [string, ...string[]]): z.ZodType<VideoItem> =>
+  z
   .object({
     ...listItem,
     youtubeUrl: required("YouTube URL"),
     title: required("Title"),
     description: optional,
-    category: z.enum(VIDEO_CATEGORIES, { error: "Choose a category" }),
+    category: z.enum(categories, { error: "Choose a category" }),
     date: optionalDate("Date"),
     duration: optional,
     thumbnail: optionalMedia.transform((m) => (m?.url ? m : undefined)),
@@ -567,8 +575,11 @@ export const videoItemSchema: z.ZodType<VideoItem> = z
       ctx.addIssue({ code: "custom", message: "Not a valid YouTube video URL", path: ["youtubeUrl"] });
       return z.NEVER;
     }
-    return { ...v, videoId };
+    return { ...v, category: v.category as VideoItem["category"], videoId };
   });
+
+export const videoItemSchema = youTubeVideoSchema(VIDEO_CATEGORIES);
+export const editorialVideoSchema = youTubeVideoSchema(EDITORIAL_CATEGORIES);
 
 export const ecosystemEventSchema: z.ZodType<EcosystemEvent> = z.object({
   ...listItem,
@@ -582,6 +593,7 @@ export const ecosystemEventSchema: z.ZodType<EcosystemEvent> = z.object({
   images: uploadedImages("Photographs"),
   url: optionalUrl("Event link"),
   featured: flag,
+  aboutHighlight: flag,
 });
 
 export const ecosystemPageSchema: z.ZodType<EcosystemPage> = z.object({
@@ -593,6 +605,16 @@ export const ecosystemPageSchema: z.ZodType<EcosystemPage> = z.object({
       heading: optional,
       paragraphs: stringList,
       image: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+    })
+    .nullish()
+    .transform((v) => v ?? undefined),
+  about: z
+    .object({
+      enabled: flag,
+      heading: text.transform((v) => v || "Ecosystem Builder"),
+      intro: stringList,
+      featuredImage: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+      images: mediaList.transform((list) => list.filter((m) => m.url)),
     })
     .nullish()
     .transform((v) => v ?? undefined),

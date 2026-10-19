@@ -1,13 +1,14 @@
 import Link from "next/link";
 import NextImage from "next/image";
 import { ArrowRight } from "lucide-react";
-import type { MediaAsset, ProfileContent, ProfilePageCopy, RecognitionItem, TimelineEntry } from "@/types/content";
+import type { EcosystemAbout, EcosystemEvent, MediaAsset, ProfileContent, ProfilePageCopy, TimelineEntry } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { AwardsGallery } from "@/components/awards/AwardsGallery";
 import { NewsGallery } from "./NewsGallery";
+import { EcosystemHighlights, type Highlight } from "./EcosystemHighlights";
 
 /** Small numbered marker used for achievements. */
 const num = (n: number) => String(n).padStart(2, "0");
@@ -28,7 +29,7 @@ const PORTRAIT_FADE = {
 } as const;
 
 /** Biography paragraphs shown before "Read the full story". */
-const STORY_VISIBLE = 4;
+const STORY_VISIBLE = 3;
 
 const uploaded = (m?: MediaAsset): m is MediaAsset => !!m && isCloudinaryUrl(m.url);
 
@@ -63,81 +64,109 @@ function Photo({
   );
 }
 
-/** Caption under a recognition image — only the fields the editor filled in. */
-function RecognitionCaption({ item, large }: { item: RecognitionItem; large?: boolean }) {
-  const meta = [item.organisation, item.year].filter(Boolean).join(" · ");
-  if (!item.title && !meta) return null;
+/** Ecosystem Builder data for /about: ecosystem/main → about, plus events marked as About highlights. */
+export type AboutEcosystem = { about?: EcosystemAbout; events: EcosystemEvent[] };
+
+/** Text after the first `visible` paragraphs is folded into a "Read more" disclosure. */
+function Paragraphs({ items, visible, className, more = "Read more" }: { items: string[]; visible: number; className?: string; more?: string }) {
+  if (items.length === 0) return null;
   return (
-    <figcaption className="mt-4 border-t hairline pt-3">
-      {item.title && <p className={cn("text-foreground", large ? "type-h3" : "type-h4")}>{item.title}</p>}
-      {meta && <p className="type-meta mt-1 text-muted">{meta}</p>}
-    </figcaption>
+    <div className={cn("prose-editorial type-body text-foreground/80", className)}>
+      {items.slice(0, visible).map((p, i) => (
+        <p key={i}>{p}</p>
+      ))}
+      {items.length > visible && (
+        <details className="group">
+          <summary className="type-button inline-flex cursor-pointer list-none items-center gap-3 text-burgundy transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">{more}</span>
+            <span className="hidden group-open:inline">Show less</span>
+            <span aria-hidden className="block h-px w-8 bg-current" />
+          </summary>
+          {items.slice(visible).map((p, i) => (
+            <p key={i} className="mt-5">
+              {p}
+            </p>
+          ))}
+        </details>
+      )}
+    </div>
   );
 }
 
 /**
- * The /about page: editorial introduction, My Story, Recognition (cuttings & awards gallery plus the
- * text archive), Growth Through Time (image-led timeline), Areas of Expertise and the Leadership
- * Philosophy. Everything comes from about/main → profile and the timeline collection (or the
- * built-in content); sections without content are omitted. Rendered by app/(site)/about/page.tsx
- * and by the admin preview, from the same props.
+ * The /about page, in six compact sections: 1 About / My Story, 2 Awards & Recognition (gallery,
+ * archive and news clippings), 3 Timeline, 4 Ecosystem Builder, 5 Expertise In, 6 My Leadership
+ * Philosophy. Everything comes from the CMS (about/main → profile, the timeline collection,
+ * ecosystem/main → about and the ecosystem events) or the built-in content; sections and fields
+ * without content are omitted. Rendered by app/(site)/about/page.tsx and by the admin preview.
  */
 export function ProfileView({
   profile,
   page,
   timeline,
+  ecosystem,
 }: {
   profile: ProfileContent;
   page: ProfilePageCopy;
   timeline: TimelineEntry[];
+  ecosystem?: AboutEcosystem;
 }) {
   const [opening, ...story] = profile.detailedBio;
-  const highlights = profile.tagline
-    .split(/[·|]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const portrait = uploaded(profile.intro?.image) ? profile.intro!.image : undefined;
-  const storyImage = uploaded(profile.storyImage) ? profile.storyImage : undefined;
+  const portrait = uploaded(profile.intro?.image) ? profile.intro!.image : uploaded(profile.storyImage) ? profile.storyImage : undefined;
   const philosophyImage = uploaded(profile.philosophy.image) ? profile.philosophy.image : undefined;
   const gallery = (profile.achievements.gallery ?? []).filter((g) => g.published !== false && uploaded(g.image));
-  const [featured, ...restGallery] = gallery;
-  const besideFeatured = restGallery.slice(0, 2);
-  const moreGallery = restGallery.slice(2);
-  const panelQuote = profile.philosophy.quote || profile.philosophy.subtitle;
   const news = profile.news;
   const clippings = (news?.items ?? []).filter((n) => n.published !== false && uploaded(n.image));
+  const expertise = profile.expertise.items.filter((x) => x.published !== false);
+  const panelQuote = profile.philosophy.quote;
+
+  const eco = ecosystem?.about?.enabled ? ecosystem.about : undefined;
+  const ecoFeatured = eco && uploaded(eco.featuredImage) ? eco.featuredImage : undefined;
+  const ecoHighlights: Highlight[] = eco
+    ? [
+        ...eco.images.filter(uploaded).map((m, i) => ({ key: `img-${m.publicId || i}`, image: m, title: m.caption })),
+        ...ecosystem!.events
+          .filter((e) => e.aboutHighlight && e.images[0])
+          .map((e) => ({
+            key: `event-${e.id}`,
+            image: e.images[0],
+            title: e.name,
+            meta: [e.role, e.location, e.date && new Date(e.date).getUTCFullYear()].filter(Boolean).join(" · "),
+          })),
+      ]
+    : [];
 
   return (
     <>
-      {/* ── Introduction: name and opening biography beside the portrait ── */}
-      <section className="section-y">
-        <div className="container-site grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+      {/* ── 1 · About / My Story: introduction and biography beside the portrait ── */}
+      <section id="biography" className="section-y">
+        <div className="container-site grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
           <Reveal className={cn(portrait ? "lg:col-span-7" : "lg:col-span-10")}>
             <p className="type-label flex items-center gap-4 text-rose">
               {page.eyebrow}
               <span aria-hidden className="block h-px w-12 bg-rose/50" />
             </p>
-            <h1 className="type-h1 mt-5 text-foreground">{page.title}</h1>
-            <span aria-hidden className="mt-6 block h-0.5 w-16 bg-burgundy" />
-            {profile.tagline && <p className="type-lead mt-6 max-w-[40rem] text-foreground/85">{profile.tagline}</p>}
-            {opening && <p className="type-body mt-6 max-w-[40rem] text-foreground/75">{opening}</p>}
+            <h1 className="type-h1 mt-4 text-foreground">{page.title}</h1>
+            <span aria-hidden className="mt-5 block h-0.5 w-16 bg-burgundy" />
+            {profile.tagline && <p className="type-lead mt-5 max-w-[42rem] text-foreground/85">{profile.tagline}</p>}
+            {page.biographyHeading && <h2 className="type-h3 mt-8 text-foreground">{page.biographyHeading}</h2>}
+            <Paragraphs items={[opening, ...story].filter(Boolean)} visible={STORY_VISIBLE} more="Read the full story" className="mt-4 max-w-[42rem]" />
             {profile.intro?.quote && (
-              <blockquote className="mt-8 max-w-[34rem] border-l-2 border-burgundy pl-6">
-                <p className="type-quote text-[clamp(1.25rem,1.6vw,1.5rem)] text-foreground">{profile.intro.quote}</p>
+              <blockquote className="mt-7 max-w-[34rem] border-l-2 border-burgundy pl-6">
+                <p className="type-quote text-[clamp(1.125rem,1.5vw,1.375rem)] text-foreground">{profile.intro.quote}</p>
               </blockquote>
             )}
           </Reveal>
           {portrait && (
-            <Reveal delay={0.1} className="lg:col-span-5">
-              {/* No frame: the portrait fades softly into the cream page — mostly at the bottom, gently at
-                  the sides — via a CSS mask, so the subject itself stays fully opaque and sharp. */}
+            <Reveal delay={0.1} className="lg:sticky lg:top-28 lg:col-span-5">
+              {/* No frame: the portrait fades softly into the cream page via a CSS mask. */}
               <figure className="relative mx-auto w-fit lg:mr-0" style={PORTRAIT_FADE}>
                 <Photo
                   media={portrait}
                   alt={page.title}
                   priority
                   sizes="(min-width: 1024px) 26rem, 22rem"
-                  className="relative h-[30rem] w-auto lg:h-[36rem]"
+                  className="relative h-[26rem] w-auto lg:h-[34rem]"
                 />
               </figure>
             </Reveal>
@@ -145,325 +174,216 @@ export function ProfileView({
         </div>
       </section>
 
-      {/* ── My Story ── */}
-      {story.length > 0 && (
-        <section id="biography" className="pb-section">
-          <div className="container-site">
-            <div className="section-rule">
-              <Reveal>
-                <SectionHeading label={page.biographyLabel} title={page.biographyHeading} />
-              </Reveal>
-              <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-                {(storyImage || highlights.length > 0) && (
-                  <aside className="lg:col-span-5">
-                    {storyImage && (
-                      <Reveal>
-                        <Photo media={storyImage} alt={page.title} sizes="(min-width: 1024px) 34vw, 100vw" className="h-auto w-full" />
-                      </Reveal>
-                    )}
-                    {highlights.length > 0 && (
-                      <Reveal delay={0.05}>
-                        <ul className={cn("border-l-2 border-burgundy pl-6", storyImage && "mt-8")}>
-                          {highlights.map((h) => (
-                            <li key={h} className="type-caps py-1.5 text-foreground/80">
-                              {h}
-                            </li>
-                          ))}
-                        </ul>
-                      </Reveal>
-                    )}
-                  </aside>
-                )}
-                <div className="prose-editorial type-body max-w-[42rem] text-foreground/80 lg:col-span-7">
-                  {story.slice(0, STORY_VISIBLE).map((p, i) => (
-                    <Reveal key={i} delay={Math.min(i, 3) * 0.05}>
-                      <p>{p}</p>
-                    </Reveal>
-                  ))}
-                  {story.length > STORY_VISIBLE && (
-                    <details className="group">
-                      <summary className="type-button inline-flex cursor-pointer list-none items-center gap-3 text-burgundy transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
-                        <span className="group-open:hidden">Read the full story</span>
-                        <span className="hidden group-open:inline">Show less</span>
-                        <span aria-hidden className="block h-px w-8 bg-current" />
-                      </summary>
-                      <div className="mt-6 space-y-[inherit]">
-                        {story.slice(STORY_VISIBLE).map((p, i) => (
-                          <p key={i} className="mt-5 first:mt-0">
-                            {p}
-                          </p>
-                        ))}
-                      </div>
-                    </details>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── News & Media Recognition: newspaper clippings and press coverage uploaded in the CMS ── */}
-      {news && clippings.length > 0 && (
-        <section id="news" className="pb-section">
-          <div className="container-site">
-            <div className="section-rule">
-              <Reveal>
-                <SectionHeading label={news.label} title={news.heading} intro={news.intro} />
-              </Reveal>
-              <NewsGallery items={clippings} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── Recognition: cuttings & awards gallery, then the full archive ── */}
+      {/* ── 2 · Awards & Recognition: gallery (natural proportions), archive, news clippings ── */}
       <section id="awards" className="pb-section">
-        <div className="container-site">
-          <div className="section-rule">
-            <Reveal>
-              <SectionHeading label={page.recognitionLabel} title={profile.achievements.heading} intro={profile.achievements.tagline} />
-            </Reveal>
+        <div className="container-site section-rule">
+          <Reveal>
+            <SectionHeading label={page.recognitionLabel} title={profile.achievements.heading} intro={profile.achievements.tagline} />
+          </Reveal>
+          {gallery.length > 0 && <AwardsGallery items={gallery} compact />}
 
-            {featured && (
-              <div className="mb-14 grid gap-10 lg:grid-cols-12 lg:gap-12">
-                <Reveal className={besideFeatured.length ? "lg:col-span-7" : "lg:col-span-8"}>
-                  <figure>
-                    <Photo media={featured.image} alt={featured.title ?? "Recognition"} sizes="(min-width: 1024px) 56vw, 100vw" className="h-auto w-full" />
-                    <RecognitionCaption item={featured} large />
-                  </figure>
-                </Reveal>
-                {besideFeatured.length > 0 && (
-                  <div className="grid content-start gap-10 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1">
-                    {besideFeatured.map((item, i) => (
-                      <Reveal key={item.image.publicId || i} delay={(i + 1) * 0.06}>
-                        <figure>
-                          <Photo media={item.image} alt={item.title ?? "Recognition"} sizes="(min-width: 1024px) 38vw, (min-width: 640px) 48vw, 100vw" className="h-auto w-full sm:h-[18rem] sm:w-auto lg:h-[16rem]" />
-                          <RecognitionCaption item={item} />
-                        </figure>
-                      </Reveal>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {moreGallery.length > 0 && (
-              <ul className="mb-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-                {moreGallery.map((item, i) => (
-                  <li key={item.image.publicId || i}>
-                    <Reveal delay={Math.min(i, 2) * 0.06}>
-                      <figure>
-                        <div className="flex aspect-[4/3] items-center justify-center">
-                          <Photo
-                            media={item.image}
-                            alt={item.title ?? "Recognition"}
-                            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 100vw"
-                            className="h-full w-auto"
-                          />
-                        </div>
-                        <RecognitionCaption item={item} />
-                      </figure>
-                    </Reveal>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {/* Text-led archive: every achievement, with or without an image. */}
+          {/* Text archive: every achievement, with or without an image. */}
+          <div className="mt-6 grid gap-x-grid gap-y-8 md:grid-cols-2">
             {profile.achievements.groups.map((group, g) => {
               const offset = profile.achievements.groups.slice(0, g).reduce((sum, prev) => sum + prev.items.length, 0);
               return (
-                <div key={g} className="mt-10 first:mt-0">
+                <div key={g}>
                   <h3 className="type-caps flex items-center gap-4 text-rose">
                     {group.heading}
                     <span aria-hidden className="block h-px flex-1 bg-rose/25" />
                   </h3>
-                  <ul className="mt-6 grid gap-x-grid gap-y-7 md:grid-cols-2">
+                  <ul className="mt-4 space-y-4">
                     {group.items.map((a, i) => (
-                      <li key={i}>
-                        <Reveal y={10} className="flex gap-5">
-                          <span className="type-figure text-xl leading-none text-burgundy/70">{num(offset + i + 1)}</span>
-                          <div>
-                            <h4 className="type-h4 text-foreground">{a.title}</h4>
-                            {a.description && <p className="type-small mt-1.5 text-muted">{a.description}</p>}
-                          </div>
-                        </Reveal>
+                      <li key={i} className="flex gap-4">
+                        <span className="type-figure text-lg leading-snug text-burgundy/70">{num(offset + i + 1)}</span>
+                        <div>
+                          <h4 className="type-h4 text-foreground">{a.title}</h4>
+                          {a.description && <p className="type-small mt-1 line-clamp-2 text-muted">{a.description}</p>}
+                        </div>
                       </li>
                     ))}
                   </ul>
                 </div>
               );
             })}
+          </div>
 
-            <div className="mt-12 flex">
-              <Link
-                href="/awards"
-                className="type-button group inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
-              >
-                View More Award Gallery
-                <ArrowRight
-                  className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1"
-                  aria-hidden
-                />
-              </Link>
+          {news && clippings.length > 0 && (
+            <div id="news" className="mt-12 border-t hairline pt-8">
+              <h3 className="type-h3 text-foreground">{news.heading}</h3>
+              {news.intro && <p className="type-small mt-2 max-w-[42rem] text-muted">{news.intro}</p>}
+              <div className="mt-6">
+                <NewsGallery items={clippings} />
+              </div>
             </div>
+          )}
+
+          <div className="mt-8 flex">
+            <Link
+              href="/awards"
+              className="type-button group inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+            >
+              View More Award Gallery
+              <ArrowRight className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1" aria-hidden />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Growth Through Time: image-led timeline. Desktop alternates around a centre line. ── */}
+      {/* ── 3 · Timeline: one left-aligned line; images keep their own proportions (never cropped) ── */}
       {timeline.length > 0 && (
         <section id="milestones" className="pb-section">
-          <div className="container-site">
-            <div className="section-rule">
-              <Reveal>
-                <SectionHeading label={page.milestonesLabel} title={page.milestonesHeading} intro={page.milestonesIntro} />
-              </Reveal>
-              <ol className="relative">
-                {/* The chronological line: left on phones, centred from tablet up. */}
-                <span aria-hidden className="absolute bottom-2 left-[3px] top-2 w-px bg-burgundy/30 md:left-1/2" />
-                {timeline.map((entry, i) => {
-                  const vision = entry.kind === "vision";
-                  const image = uploaded(entry.image) ? entry.image : undefined;
-                  const flip = i % 2 === 1;
-                  const text = (
-                    <div className={cn(!flip && "md:text-right")}>
-                      <p className={cn("type-figure text-[1.5rem] leading-none md:text-[1.75rem]", vision ? "text-rose" : "text-burgundy")}>
-                        {entry.year}
-                      </p>
-                      {vision && <p className="type-label mt-2 text-rose">Vision</p>}
-                      <h3 className="type-h4 mt-3 text-foreground">{entry.title}</h3>
-                      {entry.description && <p className="type-small mt-2 text-muted">{entry.description}</p>}
-                    </div>
-                  );
-                  return (
-                    <li key={entry.id} className="relative pb-12 pl-8 last:pb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0">
-                      <span
-                        aria-hidden
-                        className={cn(
-                          "absolute left-0 top-2 size-[7px] rounded-full md:left-1/2 md:-translate-x-[3px]",
-                          vision ? "border border-rose bg-background" : "bg-burgundy",
-                        )}
-                      />
-                      <Reveal y={12} className={cn("md:row-start-1", flip ? "md:col-start-2" : "md:col-start-1")}>
-                        {text}
-                      </Reveal>
+          <div className="container-site section-rule">
+            <Reveal>
+              <SectionHeading label={page.milestonesLabel} title={page.milestonesHeading} intro={page.milestonesIntro} />
+            </Reveal>
+            <ol className="relative ml-[3px] border-l border-burgundy/30">
+              {timeline.map((entry) => {
+                const vision = entry.kind === "vision";
+                const image = uploaded(entry.image) ? entry.image : undefined;
+                return (
+                  <li key={entry.id} className="relative pb-9 pl-7 last:pb-0 md:pl-10">
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "absolute -left-[4px] top-[0.55rem] size-[7px] rounded-full",
+                        vision ? "border border-rose bg-background" : "bg-burgundy",
+                      )}
+                    />
+                    <Reveal y={10} className="grid gap-x-8 gap-y-3 md:grid-cols-[6.5rem_minmax(0,1fr)] lg:grid-cols-[7rem_minmax(0,1fr)_20rem]">
+                      <div>
+                        <p className={cn("type-figure text-[1.375rem] leading-none md:text-[1.625rem]", vision ? "text-rose" : "text-burgundy")}>
+                          {entry.year}
+                        </p>
+                        {vision && <p className="type-label mt-2 text-rose">Vision</p>}
+                      </div>
+                      <div>
+                        <h3 className="type-h4 text-foreground">{entry.title}</h3>
+                        {entry.description && <p className="type-small mt-1.5 max-w-[40rem] text-muted">{entry.description}</p>}
+                      </div>
                       {image && (
-                        <Reveal
-                          y={12}
-                          delay={0.06}
-                          className={cn("mt-5 flex md:mt-0", flip ? "md:col-start-1 md:row-start-1 md:justify-end" : "md:col-start-2")}
-                        >
+                        <figure className="md:col-start-2 lg:col-start-3 lg:row-start-1">
+                          {/* Natural aspect ratio: bounded by width and height, never stretched or cropped;
+                              width/height attributes reserve the space before the image loads. */}
                           <Photo
                             media={image}
-                            alt={entry.title}
-                            sizes="(min-width: 768px) 40vw, 90vw"
-                            className="h-auto w-full md:h-[20rem] md:w-auto"
+                            alt={image.alt ?? entry.title}
+                            sizes="(min-width: 1024px) 20rem, (min-width: 768px) 24rem, 90vw"
+                            className="h-auto max-h-[15rem] w-auto"
                           />
-                        </Reveal>
+                          {image.caption && <figcaption className="type-meta mt-2 text-muted">{image.caption}</figcaption>}
+                        </figure>
                       )}
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
+                    </Reveal>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
         </section>
       )}
 
-      {/* ── Areas of expertise ── */}
-      <section id="expertise" className="pb-section">
-        <div className="container-site">
-          <div className="section-rule">
-            <Reveal>
-              <SectionHeading label={profile.expertise.subtitle} title={profile.expertise.heading} />
-            </Reveal>
-            {profile.expertise.intro.length > 0 && (
-              <div className="prose-editorial type-body max-w-[46rem] text-foreground/80">
-                {profile.expertise.intro.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
+      {/* ── 4 · Ecosystem Builder: introduction with a featured image, then selected highlights ── */}
+      {eco && (eco.intro.length > 0 || ecoFeatured || ecoHighlights.length > 0) && (
+        <section id="ecosystem" className="pb-section">
+          <div className="container-site section-rule">
+            <div className={cn("grid items-center gap-10", ecoFeatured && "lg:grid-cols-12 lg:gap-14")}>
+              <Reveal className={ecoFeatured ? "lg:col-span-6" : undefined}>
+                <SectionHeading label="Connecting People & Opportunities" title={eco.heading} />
+                <Paragraphs items={eco.intro} visible={2} className="max-w-[40rem]" />
+                <Link
+                  href="/ecosystem-enabler"
+                  className="type-button group mt-6 inline-flex items-center gap-3 text-burgundy transition-colors hover:text-foreground"
+                >
+                  Explore More
+                  <ArrowRight className="size-3.5 transition-transform duration-300 motion-safe:group-hover:translate-x-1" aria-hidden />
+                </Link>
+              </Reveal>
+              {ecoFeatured && (
+                <Reveal delay={0.06} className="lg:col-span-6">
+                  <Photo media={ecoFeatured} alt={ecoFeatured.alt ?? eco.heading} sizes="(min-width: 1024px) 46vw, 100vw" className="h-auto max-h-[26rem] w-full" />
+                </Reveal>
+              )}
+            </div>
+            {ecoHighlights.length > 0 && (
+              <div className="mt-10">
+                <EcosystemHighlights items={ecoHighlights} />
               </div>
             )}
-            <ul className="mt-12 grid gap-y-10 md:grid-cols-2 lg:grid-cols-3">
-              {profile.expertise.items.map((x, i) => (
-                <li key={i} id={x.anchor} className="scroll-mt-28 border-l hairline pl-6 md:pr-6 lg:pl-7">
-                  <Reveal y={10} delay={(i % 3) * 0.05}>
-                    {x.icon && <Icon name={x.icon} className="size-6 text-burgundy" aria-hidden />}
-                    <h3 className="type-h4 mt-4 text-foreground">{x.title}</h3>
-                    {x.description && <p className="type-small mt-2 text-foreground/75">{x.description}</p>}
-                    {(x.details?.length || x.strengths) && (
-                      <details className="group mt-3">
-                        <summary className="type-meta inline-flex cursor-pointer list-none items-center gap-2 text-burgundy hover:text-foreground [&::-webkit-details-marker]:hidden">
-                          <span className="group-open:hidden">More</span>
-                          <span className="hidden group-open:inline">Less</span>
-                        </summary>
-                        {x.details?.map((d, j) => (
-                          <p key={j} className="type-small mt-3 text-muted">
-                            {d}
-                          </p>
-                        ))}
-                        {x.strengths && (
-                          <p className="type-small mt-3 text-muted">
-                            <span className="type-label mr-2 text-rose">Core strengths</span>
-                            {x.strengths}
-                          </p>
-                        )}
-                      </details>
-                    )}
-                  </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* ── 5 · Expertise In: compact cards ── */}
+      {expertise.length > 0 && (
+        <section id="expertise" className="pb-section">
+          <div className="container-site section-rule">
+            <Reveal>
+              <SectionHeading label={profile.expertise.subtitle} title={profile.expertise.heading} intro={profile.expertise.intro[0]} />
+            </Reveal>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {expertise.map((x, i) => (
+                <li key={i} id={x.anchor} className="scroll-mt-28 border hairline bg-white/30 p-5">
+                  <h3 className="type-h4 text-foreground">{x.title}</h3>
+                  {x.description && <p className="type-small mt-2 text-foreground/75">{x.description}</p>}
+                  {(x.details?.length || x.strengths) && (
+                    <details className="group mt-2">
+                      <summary className="type-meta inline-flex cursor-pointer list-none items-center gap-2 text-burgundy hover:text-foreground [&::-webkit-details-marker]:hidden">
+                        <span className="group-open:hidden">More</span>
+                        <span className="hidden group-open:inline">Less</span>
+                      </summary>
+                      {x.details?.map((d, j) => (
+                        <p key={j} className="type-small mt-2 text-muted">
+                          {d}
+                        </p>
+                      ))}
+                      {x.strengths && (
+                        <p className="type-small mt-2 text-muted">
+                          <span className="type-label mr-2 text-rose">Core strengths</span>
+                          {x.strengths}
+                        </p>
+                      )}
+                    </details>
+                  )}
                 </li>
               ))}
             </ul>
             {profile.expertise.distinctiveStrength.heading && (
-              <Reveal className="mt-14 border-l-2 border-burgundy pl-6 md:pl-8">
-                <h3 className="type-h3 text-foreground">{profile.expertise.distinctiveStrength.heading}</h3>
-                <div className="prose-editorial type-body mt-4 max-w-[46rem] text-foreground/80">
-                  {profile.expertise.distinctiveStrength.paragraphs.map((p, i) => (
+              <details className="group mt-6 border-l-2 border-burgundy pl-6">
+                <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                  <span className="type-h4 text-foreground">{profile.expertise.distinctiveStrength.heading}</span>
+                  <span className="type-meta ml-3 text-burgundy group-open:hidden">Read more</span>
+                </summary>
+                <div className="prose-editorial type-body mt-3 max-w-[46rem] text-foreground/80">
+                  {[...profile.expertise.intro.slice(1), ...profile.expertise.distinctiveStrength.paragraphs].map((p, i) => (
                     <p key={i}>{p}</p>
                   ))}
                 </div>
-              </Reveal>
+              </details>
             )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* ── Leadership philosophy: photograph with a burgundy quotation panel, text alongside ── */}
+      {/* ── 6 · My Leadership Philosophy: image beside a short statement and the text ── */}
       <section id="philosophy" className="pb-section">
-        <div className="container-site">
-          <div className="section-rule grid items-start gap-14 lg:grid-cols-12 lg:gap-16">
-            {philosophyImage && (
-              <Reveal className="relative pb-24 lg:col-span-5 lg:pb-28">
-                <Photo media={philosophyImage} alt={page.title} sizes="(min-width: 1024px) 38vw, 100vw" className="h-auto w-full" />
-                {panelQuote && (
-                  <div className="absolute bottom-0 left-6 right-0 bg-burgundy px-7 py-7 text-white sm:left-12 lg:-right-10 lg:left-10">
-                    <p className="type-quote text-[clamp(1.125rem,1.5vw,1.375rem)] text-white">{panelQuote}</p>
-                    <p className="type-label mt-4 text-white/75">— {page.title}</p>
-                  </div>
-                )}
-              </Reveal>
+        <div className="container-site section-rule grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
+          {philosophyImage && (
+            <Reveal className="lg:col-span-5">
+              <Photo media={philosophyImage} alt={page.title} sizes="(min-width: 1024px) 38vw, 100vw" className="h-auto max-h-[32rem] w-full" />
+            </Reveal>
+          )}
+          <Reveal className={philosophyImage ? "lg:col-span-7" : "lg:col-span-10"}>
+            <SectionHeading label={page.leadershipLabel} title={profile.philosophy.heading} />
+            {profile.philosophy.subtitle && <p className="type-lead -mt-2 mb-6 max-w-[40rem] text-burgundy">{profile.philosophy.subtitle}</p>}
+            <Paragraphs items={profile.philosophy.paragraphs} visible={2} className="max-w-[40rem]" />
+            {panelQuote && (
+              <blockquote className="mt-7 max-w-[36rem] border-l-2 border-burgundy pl-6">
+                <p className="type-quote text-[clamp(1.125rem,1.5vw,1.375rem)] text-foreground">{panelQuote}</p>
+                <p className="type-label mt-3 text-rose">— {page.title}</p>
+              </blockquote>
             )}
-            <div className={cn(philosophyImage ? "lg:col-span-7 lg:pl-6" : "lg:col-span-9")}>
-              <Reveal>
-                <SectionHeading label={page.leadershipLabel} title={profile.philosophy.heading} />
-              </Reveal>
-              {!philosophyImage && profile.philosophy.subtitle && (
-                <p className="type-quote -mt-2 mb-8 text-foreground">{profile.philosophy.subtitle}</p>
-              )}
-              {philosophyImage && profile.philosophy.quote && profile.philosophy.subtitle && (
-                <p className="type-h4 -mt-2 mb-8 text-burgundy">{profile.philosophy.subtitle}</p>
-              )}
-              <div className="prose-editorial type-body max-w-[42rem] text-foreground/80">
-                {profile.philosophy.paragraphs.map((p, i) => (
-                  <Reveal key={i} delay={Math.min(i, 3) * 0.05}>
-                    <p>{p}</p>
-                  </Reveal>
-                ))}
-              </div>
-              <p className="type-label mt-8 text-rose">{page.title}</p>
-            </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     </>

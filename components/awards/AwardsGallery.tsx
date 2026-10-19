@@ -17,7 +17,7 @@ const altFor = (item: RecognitionItem, i: number, total: number) =>
  * column layout — 1 column on phones, 2 on tablets, 3 on desktop — like the news gallery. Captions
  * show only the fields the editor filled in. Clicking opens the shared lightbox.
  */
-export function AwardsGallery({ items }: { items: RecognitionItem[] }) {
+export function AwardsGallery({ items, compact }: { items: RecognitionItem[]; compact?: boolean }) {
   const [open, setOpen] = useState<number | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const close = useCallback(() => {
@@ -28,12 +28,12 @@ export function AwardsGallery({ items }: { items: RecognitionItem[] }) {
 
   return (
     <>
-      <ul className="gap-x-8 sm:columns-2 lg:columns-3">
+      <ul className={compact ? "columns-2 gap-x-6 md:columns-3 lg:columns-4" : "gap-x-8 sm:columns-2 lg:columns-3"}>
         {items.map((item, i) => {
           const alt = altFor(item, i, items.length);
           const meta = [item.organisation, item.year].filter(Boolean).join(" · ");
           return (
-            <li key={item.image.publicId || i} className="mb-10 break-inside-avoid">
+            <li key={item.image.publicId || i} className="mb-8 break-inside-avoid">
               <Reveal delay={Math.min(i % 3, 2) * 0.06}>
                 <figure>
                   <button
@@ -54,10 +54,12 @@ export function AwardsGallery({ items }: { items: RecognitionItem[] }) {
                       className="h-auto w-full transition-transform duration-500 ease-editorial motion-safe:group-hover:scale-[1.01]"
                     />
                   </button>
-                  {(item.title || meta) && (
-                    <figcaption className="mt-4 border-t hairline pt-3">
+                  {(item.title || meta || item.category || item.description) && (
+                    <figcaption className="mt-3 border-t hairline pt-3">
+                      {item.category && <p className="type-meta text-rose">{item.category}</p>}
                       {item.title && <p className="type-h4 text-foreground">{item.title}</p>}
                       {meta && <p className="type-meta mt-1 text-muted">{meta}</p>}
+                      {item.description && <p className="type-small mt-1.5 text-muted">{item.description}</p>}
                     </figcaption>
                   )}
                 </figure>

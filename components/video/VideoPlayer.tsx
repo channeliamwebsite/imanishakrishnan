@@ -17,6 +17,11 @@ const VIDEO_CATEGORY_LABELS: Record<VideoItem["category"], string> = {
   panel: "Panel Discussion",
   event: "Event Highlight",
   short: "Short",
+  editorial: "Editorial",
+  business: "Business",
+  entrepreneurship: "Entrepreneurship",
+  leadership: "Leadership",
+  innovation: "Innovation",
 };
 export const videoCategoryLabel = (c: VideoItem["category"]) => VIDEO_CATEGORY_LABELS[c] ?? c;
 
@@ -151,7 +156,17 @@ export function VideoThumb({ video, sizes, priority, className }: { video: Video
 }
 
 /** Thumbnail card; clicking calls onPlay (the page opens the modal). */
-export function VideoCard({ video, onPlay, className }: { video: VideoItem; onPlay: (v: VideoItem) => void; className?: string }) {
+export function VideoCard({
+  video,
+  onPlay,
+  className,
+  showDescription,
+}: {
+  video: VideoItem;
+  onPlay: (v: VideoItem) => void;
+  className?: string;
+  showDescription?: boolean;
+}) {
   const meta = [videoCategoryLabel(video.category), formatDate(video.date), video.duration].filter(Boolean).join(" · ");
   return (
     <button
@@ -163,6 +178,7 @@ export function VideoCard({ video, onPlay, className }: { video: VideoItem; onPl
       <VideoThumb video={video} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 100vw" />
       <p className="type-meta mt-4 text-rose">{meta}</p>
       <p className="type-h4 mt-1.5 text-foreground transition-colors group-hover:text-burgundy">{video.title}</p>
+      {showDescription && video.description && <p className="type-small mt-2 line-clamp-3 text-muted">{video.description}</p>}
     </button>
   );
 }

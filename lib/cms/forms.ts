@@ -149,6 +149,7 @@ export const ABOUT_FIELDS: FieldDef[] = [
             key: "items",
             label: "Areas",
             itemLabel: "Area",
+            visibleField: "published",
             fields: profileItemFields(true),
             summary: (item) => str(item.title),
             newItem: () => ({ title: "", description: "" }),
@@ -234,6 +235,8 @@ export const AWARDS_FIELDS: FieldDef[] = [
       { kind: "text", key: "title", label: "Publication or award" },
       { kind: "text", key: "organisation", label: "Organisation" },
       { kind: "text", key: "year", label: "Date / year" },
+      { kind: "text", key: "category", label: "Category (optional)", placeholder: "Journalism award, International recognition" },
+      { kind: "textarea", key: "description", label: "Short description (optional)", rows: 2 },
     ],
   },
 ];
@@ -247,7 +250,8 @@ export const TIMELINE_FIELDS: FieldDef[] = [
     key: "image",
     label: "Photograph",
     folder: CLOUDINARY_FOLDERS.timeline,
-    help: "Optional — only a photo that belongs to this milestone. Shown on /about (Growth Through Time).",
+    caption: true,
+    help: "Any shape (portrait, landscape, certificate) is shown whole at its own proportions. Optional — only a photo that belongs to this milestone. Shown on /about (Growth Through Time).",
   },
   {
     kind: "select",
@@ -606,6 +610,7 @@ export const ECOSYSTEM_EVENT_FIELDS: FieldDef[] = [
   { kind: "images", key: "images", label: "Photographs", folder: CLOUDINARY_FOLDERS.speaking, help: "The first photograph is the cover." },
   { kind: "text", key: "url", label: "Event link (optional)", placeholder: "https://…" },
   { kind: "toggle", key: "featured", label: "Featured event" },
+  { kind: "toggle", key: "aboutHighlight", label: "Highlight on the About page", help: "Shown in the Ecosystem Builder section of /about." },
 ];
 
 export const AVATAR_FIELDS: FieldDef[] = [
@@ -620,4 +625,41 @@ export const AVATAR_FIELDS: FieldDef[] = [
     help: "A YouTube link, or a direct video file link (e.g. a Cloudinary .mp4).",
   },
   { kind: "image", key: "poster", label: "Poster image (optional)", folder: CLOUDINARY_FOLDERS.site },
+];
+
+export const EDITORIAL_CATEGORY_OPTIONS = [
+  { value: "editorial", label: "Editorials" },
+  { value: "business", label: "Business" },
+  { value: "entrepreneurship", label: "Entrepreneurship" },
+  { value: "leadership", label: "Leadership" },
+  { value: "innovation", label: "Innovation" },
+  { value: "interview", label: "Interviews" },
+];
+
+/** Same fields as the Video Gallery, with the editorial categories. */
+export const EDITORIAL_VIDEO_FIELDS: FieldDef[] = VIDEO_FIELDS.map((f) =>
+  f.kind === "select" && f.key === "category" ? { ...f, options: EDITORIAL_CATEGORY_OPTIONS } : f,
+);
+
+/** /about "Ecosystem Builder" - stored in ecosystem/main -> about. */
+export const ECOSYSTEM_ABOUT_FIELDS: FieldDef[] = [
+  {
+    kind: "group",
+    key: "about",
+    label: "Ecosystem Builder (About page)",
+    fields: [
+      { kind: "toggle", key: "enabled", label: "Show this section on /about" },
+      { kind: "text", key: "heading", label: "Heading", placeholder: "Ecosystem Builder" },
+      { kind: "strings", key: "intro", label: "Introduction", itemLabel: "Paragraph", multiline: true },
+      { kind: "image", key: "featuredImage", label: "Featured image", folder: CLOUDINARY_FOLDERS.speaking },
+      {
+        kind: "images",
+        key: "images",
+        label: "Supporting images",
+        folder: CLOUDINARY_FOLDERS.speaking,
+        caption: true,
+        help: "Shown in this order. Add a caption to each (event, place, role). Use Choose from library to reuse images already uploaded.",
+      },
+    ],
+  },
 ];

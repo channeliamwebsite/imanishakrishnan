@@ -6,6 +6,7 @@ import {
   avatarVideoSchema,
   ecosystemEventSchema,
   ecosystemPageSchema,
+  editorialVideoSchema,
   pressArticleSchema,
   videoItemSchema,
   listIssues,
@@ -43,7 +44,8 @@ export type SectionKey =
   | "ecosystem"
   | "ecosystemEvents"
   | "ecosystemVideos"
-  | "avatar";
+  | "avatar"
+  | "editorialVideos";
 
 export type Issue = { path: string; message: string };
 /** Validation result: the normalised value to publish, or the problems to show. */
@@ -261,6 +263,16 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     validate: listOf(fromSchema(videoItemSchema)),
     visibleField: "published",
     newItem: () => ({ id: newId("eco-video"), order: 0, published: true, featured: false, youtubeUrl: "", title: "", category: "talk" }),
+  },
+  editorialVideos: {
+    key: "editorialVideos",
+    label: "Editorial Insights",
+    collection: COLLECTIONS.editorialVideos,
+    kind: "list",
+    builtIn: () => [],
+    validate: listOf(fromSchema(editorialVideoSchema)),
+    visibleField: "published",
+    newItem: () => ({ id: newId("editorial"), order: 0, published: true, featured: false, youtubeUrl: "", title: "", category: "editorial" }),
   },
   avatar: {
     key: "avatar",

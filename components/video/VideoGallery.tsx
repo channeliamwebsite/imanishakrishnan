@@ -2,12 +2,12 @@
 
 import { useId, useMemo, useState } from "react";
 import { Play } from "lucide-react";
-import type { VideoCategory, VideoItem } from "@/types/content";
+import type { EditorialCategory, VideoCategory, VideoItem } from "@/types/content";
 import { CarouselNav } from "@/components/ui/CarouselNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { FilterBar, VideoCard, VideoModal, VideoThumb, formatDate, usePlayer, videoCategoryLabel } from "./VideoPlayer";
 
-const CATEGORIES: { value: VideoCategory; label: string }[] = [
+export const VIDEO_GALLERY_CATEGORIES: { value: VideoCategory; label: string }[] = [
   { value: "talk", label: "Talks" },
   { value: "interview", label: "Interviews" },
   { value: "panel", label: "Panel Discussions" },
@@ -35,18 +35,35 @@ export function VideoCarousel({ videos, onPlay, title }: { videos: VideoItem[]; 
   );
 }
 
-/** /videos: featured video, featured carousel, filters and the full grid. */
-export function VideoGallery({ videos }: { videos: VideoItem[] }) {
+type Category = VideoCategory | EditorialCategory;
+
+/**
+ * /videos and /editorial-insights: featured video, featured carousel, filters and the full grid.
+ * Thumbnails only — the YouTube player is created when a video is played.
+ */
+export function VideoGallery({
+  videos,
+  categories = VIDEO_GALLERY_CATEGORIES,
+  allTitle = "All Videos",
+  emptyText = "Videos will appear here once they are published.",
+  showDescriptions = false,
+}: {
+  videos: VideoItem[];
+  categories?: { value: Category; label: string }[];
+  allTitle?: string;
+  emptyText?: string;
+  showDescriptions?: boolean;
+}) {
   const { playing, play, close } = usePlayer();
-  const [category, setCategory] = useState<VideoCategory | "all">("all");
+  const [category, setCategory] = useState<Category | "all">("all");
   const featuredList = videos.filter((v) => v.featured);
   const lead = featuredList[0] ?? videos[0];
   const carousel = featuredList.length > 1 ? featuredList.slice(1) : [];
   const shown = useMemo(() => (category === "all" ? videos : videos.filter((v) => v.category === category)), [videos, category]);
-  const available = CATEGORIES.filter((c) => videos.some((v) => v.category === c.value));
+  const available = categories.filter((c) => videos.some((v) => v.category === c.value));
 
   if (!lead) {
-    return <p className="type-body text-muted">Videos will appear here once they are published.</p>;
+    return <p className="type-body text-muted">{emptyText}</p>;
   }
 
   const leadMeta = [videoCategoryLabel(lead.category), formatDate(lead.date), lead.duration].filter(Boolean).join(" · ");
@@ -87,13 +104,13 @@ export function VideoGallery({ videos }: { videos: VideoItem[] }) {
 
       <div className="mt-section border-t hairline pt-12">
         <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <h2 className="type-h3 text-foreground">All Videos</h2>
+          <h2 className="type-h3 text-foreground">{allTitle}</h2>
           {available.length > 1 && <FilterBar options={available} value={category} onChange={setCategory} label="Filter videos by category" />}
         </div>
         <ul className="grid gap-x-card gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((v) => (
             <li key={v.id}>
-              <VideoCard video={v} onPlay={play} />
+              <VideoCard video={v} onPlay={play} showDescription={showDescriptions} />
             </li>
           ))}
         </ul>
