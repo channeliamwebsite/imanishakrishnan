@@ -9,10 +9,13 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AwardsGallery } from "@/components/awards/AwardsGallery";
 import { ViewAllArrow } from "@/components/ui/ViewAllArrow";
 import { NewsGallery } from "./NewsGallery";
-import { EcosystemHighlights, type Highlight } from "./EcosystemHighlights";
-import { formatDate } from "@/lib/format-date";
+import { EcosystemCollage } from "./EcosystemCollage";
 
-const ECOSYSTEM_BUILDER_HEADING = "Building Ecosystems Through Collaboration";
+const ECOSYSTEM_PATH = "/ecosystem-enabler";
+/** Default introduction of the Ecosystem Enabler section (editable in Admin → Ecosystem section). */
+const ECOSYSTEM_INTRO = [
+  "Beyond journalism, Nisha brings people, ideas and opportunities together. Through conversations, industry engagements and business events, she helps build connections across entrepreneurship, innovation, leadership and the wider business ecosystem.",
+];
 
 /** Small numbered marker used for achievements. */
 const num = (n: number) => String(n).padStart(2, "0");
@@ -124,24 +127,21 @@ export function ProfileView({
   const expertise = profile.expertise.items.filter((x) => x.published !== false);
   const panelQuote = profile.philosophy.quote;
 
-  // Ecosystem Builder: the published Ecosystem Enabler events marked "Show on the About page" (same
-  // records as /ecosystem-enabler, already filtered to published and in display order), then any
-  // supporting images. The section is hidden when nothing is selected.
+  // Ecosystem Enabler: up to four real event photographs — the section's own optional photographs,
+  // then the covers of the published events marked "Show on About page" (or, when none are marked,
+  // the latest published events). Same records as /ecosystem-enabler. Hidden without photographs.
   const eco = ecosystem?.about;
-  const ecoFeatured = eco && uploaded(eco.featuredImage) ? eco.featuredImage : undefined;
-  const ecoHighlights: Highlight[] = [
-    ...(ecosystem?.events ?? [])
-      .filter((e) => e.aboutHighlight && e.images.some(uploaded))
-      .map((e) => ({
-        key: `event-${e.id}`,
-        images: e.images.filter(uploaded),
-        title: e.name,
-        organisation: e.summit,
-        date: formatDate(e.date),
-        description: e.description,
-      })),
-    ...(eco?.images ?? []).filter(uploaded).map((m, i) => ({ key: `img-${m.publicId || i}`, images: [m], title: m.caption })),
-  ];
+  const events = (ecosystem?.events ?? []).filter((e) => e.images.some(uploaded));
+  const selected = events.some((e) => e.aboutHighlight) ? events.filter((e) => e.aboutHighlight) : events;
+  const ecoPhotos: MediaAsset[] = [
+    ...(eco && uploaded(eco.featuredImage) ? [eco.featuredImage] : []),
+    ...(eco?.images ?? []).filter(uploaded),
+    ...selected.map((e) => {
+      const cover = e.images.find(uploaded)!;
+      return { ...cover, alt: cover.alt || [e.name, e.summit].filter(Boolean).join(" — ") };
+    }),
+  ].slice(0, 4);
+  const ecoIntro = eco?.intro.length ? eco.intro : ECOSYSTEM_INTRO;
 
   return (
     <>
@@ -288,31 +288,24 @@ export function ProfileView({
         </section>
       )}
 
-      {/* ── 4 · Ecosystem Builder: introduction, then the selected event gallery ── */}
-      {ecoHighlights.length > 0 && (
+      {/* ── 4 · Ecosystem Enabler: introduction and link beside real event photographs ── */}
+      {ecoPhotos.length > 0 && (
         <section id="ecosystem" className="pb-section">
-          <div className="container-site section-rule">
-            <div className={cn("grid items-center gap-10", ecoFeatured && "lg:grid-cols-12 lg:gap-14")}>
-              <Reveal className={ecoFeatured ? "lg:col-span-6" : undefined}>
-                <SectionHeading label="Ecosystem Builder" title={eco?.heading || ECOSYSTEM_BUILDER_HEADING} />
-                {eco && <Paragraphs items={eco.intro} visible={2} className="max-w-[40rem]" />}
-                <Link
-                  href="/ecosystem-enabler"
-                  className="type-button group mt-5 inline-flex items-center gap-3 text-burgundy transition-colors hover:text-foreground"
-                >
-                  Explore More
-                  <ArrowRight className="size-3.5 transition-transform duration-300 motion-safe:group-hover:translate-x-1" aria-hidden />
-                </Link>
-              </Reveal>
-              {ecoFeatured && (
-                <Reveal delay={0.06} className="lg:col-span-6">
-                  <Photo media={ecoFeatured} alt={ecoFeatured.alt ?? (eco?.heading || ECOSYSTEM_BUILDER_HEADING)} sizes="(min-width: 1024px) 46vw, 100vw" className="h-auto max-h-[24rem] w-full" />
-                </Reveal>
-              )}
-            </div>
-            <div className="mt-10">
-              <EcosystemHighlights items={ecoHighlights} />
-            </div>
+          <div className="container-site section-rule grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            <Reveal className="lg:col-span-5">
+              <SectionHeading label="Connecting Ecosystems" title={eco?.heading || "Ecosystem Enabler"} />
+              <Paragraphs items={ecoIntro} visible={2} className="max-w-[34rem]" />
+              <Link
+                href={ECOSYSTEM_PATH}
+                className="type-button group mt-7 inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+              >
+                {eco?.ctaLabel || "Explore Ecosystem Engagements"}
+                <ArrowRight className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1" aria-hidden />
+              </Link>
+            </Reveal>
+            <Reveal delay={0.06} className="lg:col-span-7">
+              <EcosystemCollage photos={ecoPhotos} href={ECOSYSTEM_PATH} />
+            </Reveal>
           </div>
         </section>
       )}

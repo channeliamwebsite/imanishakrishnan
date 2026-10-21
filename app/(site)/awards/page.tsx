@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import type { ProfileContent, RecognitionItem } from "@/types/content";
 import { getAbout } from "@/lib/content";
 import { profile as fallbackProfile } from "@/lib/content/profile";
 import { PROFILE_PATH } from "@/lib/content/placeholder";
@@ -19,35 +18,15 @@ export const metadata: Metadata = {
   openGraph: { title: TITLE, description: DESCRIPTION, url: "/awards" },
 };
 
-const normalise = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-const num = (n: number) => String(n).padStart(2, "0");
-
 /**
- * A gallery image without its own description borrows the one written for the same award in the
- * awards list (Admin → Awards) — existing content only, matched by title.
- */
-function withArchiveDescriptions(items: RecognitionItem[], achievements: ProfileContent["achievements"]): RecognitionItem[] {
-  const archive = new Map(
-    achievements.groups.flatMap((g) => g.items).filter((a) => a.description).map((a) => [normalise(a.title), a.description]),
-  );
-  return items.map((item) =>
-    item.description || !item.title ? item : { ...item, description: archive.get(normalise(item.title)) || undefined },
-  );
-}
-
-/**
- * Awards & Recognition. Images come from the /about Recognition gallery and the complete record
- * from the awards list (about/main → profile.achievements, managed in Admin → Awards) — nothing
- * here is separate award data.
+ * Awards & Recognition: a visual showcase of the award images from the /about Recognition gallery
+ * (about/main → profile.achievements.gallery, managed in Admin → Awards). The written list of
+ * awards lives on /about, so it is not repeated here.
  */
 export default async function AwardsPage() {
   const about = await getAbout();
   const achievements = (about.profile ?? fallbackProfile).achievements;
-  const items = withArchiveDescriptions(
-    (achievements.gallery ?? []).filter((g) => g.published !== false && isCloudinaryUrl(g.image.url)),
-    achievements,
-  );
-  const record = achievements.groups.filter((g) => g.items.length > 0);
+  const items = (achievements.gallery ?? []).filter((g) => g.published !== false && isCloudinaryUrl(g.image.url));
 
   return (
     <>
@@ -82,9 +61,9 @@ export default async function AwardsPage() {
         </div>
       </section>
 
-      {/* ── Featured recognition and the gallery ── */}
+      {/* ── The gallery ── */}
       <section className="pb-section">
-        <div className="container-site border-t hairline pt-12 lg:pt-16">
+        <div className="container-site border-t hairline pt-10 lg:pt-14">
           {items.length > 0 ? (
             <AwardsShowcase items={items} />
           ) : (
@@ -93,40 +72,6 @@ export default async function AwardsPage() {
         </div>
       </section>
 
-      {/* ── The complete record: every award, with or without an image ── */}
-      {record.length > 0 && (
-        <section className="pb-section">
-          <div className="container-site">
-            <div className="border-t hairline pt-12 lg:pt-16">
-              <Reveal>
-                <p className="type-label text-rose">The Complete Record</p>
-                <h2 className="type-h3 mt-3 text-foreground">{achievements.heading}</h2>
-              </Reveal>
-              <div className="mt-10 grid gap-x-grid gap-y-10 md:grid-cols-2">
-                {record.map((group, g) => {
-                  const offset = record.slice(0, g).reduce((sum, prev) => sum + prev.items.length, 0);
-                  return (
-                    <div key={g}>
-                      <h3 className="type-caps flex items-center gap-4 text-rose">
-                        {group.heading}
-                        <span aria-hidden className="block h-px flex-1 bg-rose/25" />
-                      </h3>
-                      <ol className="mt-5 divide-y hairline">
-                        {group.items.map((a, i) => (
-                          <li key={i} className="flex items-baseline gap-5 py-3.5">
-                            <span className="type-figure w-7 shrink-0 text-base text-burgundy/70">{num(offset + i + 1)}</span>
-                            <span className="type-h4 text-foreground">{a.title}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 }

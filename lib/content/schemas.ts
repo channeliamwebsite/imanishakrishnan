@@ -613,6 +613,7 @@ export const ecosystemPageSchema: z.ZodType<EcosystemPage> = z.object({
       enabled: flag,
       heading: text,
       intro: stringList,
+      ctaLabel: optional,
       featuredImage: optionalMedia.transform((m) => (m?.url ? m : undefined)),
       images: mediaList.transform((list) => list.filter((m) => m.url)),
     })

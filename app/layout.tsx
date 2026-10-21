@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { cormorant, crimson, montserrat, oswald } from "./fonts";
 import { getSiteSettings } from "@/lib/content";
 import { resolveSiteUrl } from "@/lib/site-url";
+import { GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,6 +31,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${cormorant.variable} ${crimson.variable} ${montserrat.variable} ${oswald.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
+        {/* Google Tag Manager (noscript) — first in <body>. The loader itself is in app/(site)/layout.tsx. */}
+        <GoogleTagManagerNoScript />
         {/* Without JavaScript, scroll reveals never run — show their content as-is. */}
         <noscript>
           <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>

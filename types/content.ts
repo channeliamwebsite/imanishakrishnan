@@ -515,6 +515,8 @@ export interface EcosystemAbout {
   enabled: boolean;
   heading: string;
   intro: string[];
+  /** Label of the link to /ecosystem-enabler ("Explore Ecosystem Engagements"). */
+  ctaLabel?: string;
   featuredImage?: MediaAsset;
   /** Supporting images; captions are stored on each image. */
   images: MediaAsset[];

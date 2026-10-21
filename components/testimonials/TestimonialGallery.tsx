@@ -147,8 +147,10 @@ export function Lightbox({
       className="fixed inset-0 z-50 flex flex-col bg-foreground/95 px-4 py-4 sm:px-6"
     >
       <div className="flex items-center justify-between text-white">
-        <p className="type-meta text-white/70" aria-live="polite">
+        <p className="type-meta min-w-0 text-white/70" aria-live="polite">
           {index + 1} / {count}
+          {/* The image's caption (e.g. an award title), when one is set. */}
+          {image.caption && <span className="ml-4 text-white/90">{image.caption}</span>}
         </p>
         <button ref={closeButton} type="button" onClick={onClose} aria-label="Close" className={control}>
           <X className="size-5" aria-hidden />
@@ -172,10 +174,10 @@ export function Lightbox({
 
       {count > 1 && (
         <div className="flex items-center justify-center gap-4">
-          <button type="button" onClick={() => go(-1)} aria-label="Previous testimonial" className={control}>
+          <button type="button" onClick={() => go(-1)} aria-label="Previous image" className={control}>
             <ArrowLeft className="size-4" aria-hidden />
           </button>
-          <button type="button" onClick={() => go(1)} aria-label="Next testimonial" className={control}>
+          <button type="button" onClick={() => go(1)} aria-label="Next image" className={control}>
             <ArrowRight className="size-4" aria-hidden />
           </button>
         </div>

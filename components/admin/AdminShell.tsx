@@ -30,16 +30,16 @@ const NAV: { heading: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: "/admin/press", label: "Media & Press" },
       { href: "/admin/videos", label: "Video Gallery" },
-      { href: "/admin/ecosystem", label: "Ecosystem Enabler" },
+      { href: "/admin/ecosystem", label: "Ecosystem Enabler & events" },
       { href: "/admin/avatar", label: "Avatar Video" },
       { href: "/admin/editorial-insights", label: "Editorial Insights" },
-      { href: "/admin/ecosystem-builder", label: "Ecosystem Builder (About)" },
+      { href: "/admin/ecosystem-builder", label: "Ecosystem section (About)" },
     ],
   },
   {
     heading: "More content",
     links: [
-      { href: "/admin/events", label: "Events" },
+      { href: "/admin/events", label: "Events (legacy)" },
       { href: "/admin/testimonials", label: "Testimonials" },
     ],
   },

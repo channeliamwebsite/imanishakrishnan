@@ -8,13 +8,13 @@ export default function EcosystemAdminPage() {
   return (
     <div className="space-y-10">
       <AdminPageHeader
-        title="Ecosystem Enabler"
-        description="The /ecosystem-enabler page: introduction, events (Summits & Gatherings) and conversations (YouTube videos). Featured videos appear in Featured Conversations."
+        title="Ecosystem Enabler & events"
+        description="The /ecosystem-enabler page (Ecosystem Engagements): introduction, the events and their photographs, and conversations (YouTube videos). Events are the single source for both this page and the Ecosystem Enabler section of /about."
       />
       <SectionEditor section="ecosystem" title="Page text & images" fields={ECOSYSTEM_PAGE_FIELDS} />
       <SectionEditor
         section="ecosystemEvents"
-        title="Events"
+        title="Events & photographs"
         fields={ECOSYSTEM_EVENT_FIELDS}
         itemLabel="Event"
         summary={(item) => [item.featured ? "★" : "", item.date, item.name].filter(Boolean).join(" · ")}
