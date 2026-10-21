@@ -3,6 +3,7 @@
 import { useId, useMemo, useState } from "react";
 import { Play } from "lucide-react";
 import type { EditorialCategory, VideoCategory, VideoItem } from "@/types/content";
+import { parseYouTubeId } from "@/lib/youtube";
 import { CarouselNav } from "@/components/ui/CarouselNav";
 import { Reveal } from "@/components/ui/Reveal";
 import { FilterBar, VideoCard, VideoModal, VideoThumb, formatDate, usePlayer, videoCategoryLabel } from "./VideoPlayer";
@@ -37,6 +38,20 @@ export function VideoCarousel({ videos, onPlay, title }: { videos: VideoItem[]; 
 
 type Category = VideoCategory | EditorialCategory;
 
+/** The YouTube id that identifies a video, whatever URL format it was saved with. */
+const videoKey = (v: VideoItem) => parseYouTubeId(v.youtubeUrl) ?? v.videoId ?? v.id;
+
+/** Keeps the first entry of each YouTube video, in the CMS order. */
+function uniqueVideos(videos: VideoItem[]): VideoItem[] {
+  const seen = new Set<string>();
+  return videos.filter((v) => {
+    const key = videoKey(v);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /**
  * /videos and /editorial-insights: featured video, featured carousel, filters and the full grid.
  * Thumbnails only — the YouTube player is created when a video is played.
@@ -56,65 +71,73 @@ export function VideoGallery({
 }) {
   const { playing, play, close } = usePlayer();
   const [category, setCategory] = useState<Category | "all">("all");
-  const featuredList = videos.filter((v) => v.featured);
-  const lead = featuredList[0] ?? videos[0];
-  const carousel = featuredList.length > 1 ? featuredList.slice(1) : [];
-  const shown = useMemo(() => (category === "all" ? videos : videos.filter((v) => v.category === category)), [videos, category]);
-  const available = categories.filter((c) => videos.some((v) => v.category === c.value));
+  // One entry per YouTube video (the same video saved twice, e.g. as a watch and a youtu.be URL,
+  // is shown once). The first featured video — or, when none is featured, the first video — leads
+  // the page and is left out of the grid below, so no video appears twice.
+  const unique = useMemo(() => uniqueVideos(videos), [videos]);
+  const lead = unique.find((v) => v.featured) ?? unique[0];
+  const carousel = unique.filter((v) => v.featured && v !== lead);
+  const grid = useMemo(() => (lead ? unique.filter((v) => v !== lead) : unique), [unique, lead]);
+  const shown = useMemo(() => (category === "all" ? grid : grid.filter((v) => v.category === category)), [grid, category]);
+  const available = categories.filter((c) => grid.some((v) => v.category === c.value));
 
-  if (!lead) {
+  if (unique.length === 0) {
     return <p className="type-body text-muted">{emptyText}</p>;
   }
 
-  const leadMeta = [videoCategoryLabel(lead.category), formatDate(lead.date), lead.duration].filter(Boolean).join(" · ");
+  const leadMeta = lead ? [videoCategoryLabel(lead.category), formatDate(lead.date), lead.duration].filter(Boolean).join(" · ") : "";
 
   return (
     <>
       {/* Featured video — thumbnail until the visitor presses play. */}
-      <Reveal className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
-        <button
-          type="button"
-          onClick={() => play(lead)}
-          aria-label={`Play video: ${lead.title}`}
-          className="group block lg:col-span-7 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy"
-        >
-          <VideoThumb video={lead} sizes="(min-width: 1024px) 58vw, 100vw" priority />
-        </button>
-        <div className="lg:col-span-5">
-          <p className="type-label text-rose">Featured</p>
-          {leadMeta && <p className="type-meta mt-3 text-muted">{leadMeta}</p>}
-          <h2 className="type-h2 mt-3 text-foreground">{lead.title}</h2>
-          <span aria-hidden className="mt-5 block h-0.5 w-12 bg-burgundy" />
-          {lead.description && <p className="type-body mt-5 text-foreground/85">{lead.description}</p>}
+      {lead && (
+        <Reveal className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
           <button
             type="button"
             onClick={() => play(lead)}
-            className="type-button group mt-7 inline-flex h-12 items-center gap-3 bg-burgundy px-7 text-white transition-colors duration-300 hover:bg-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+            aria-label={`Play video: ${lead.title}`}
+            className="group block lg:col-span-7 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy"
           >
-            <Play className="size-3.5 fill-current" aria-hidden /> Watch Now
+            <VideoThumb video={lead} sizes="(min-width: 1024px) 58vw, 100vw" priority />
           </button>
-        </div>
-      </Reveal>
+          <div className="lg:col-span-5">
+            <p className="type-label text-rose">Featured</p>
+            {leadMeta && <p className="type-meta mt-3 text-muted">{leadMeta}</p>}
+            <h2 className="type-h2 mt-3 text-foreground">{lead.title}</h2>
+            <span aria-hidden className="mt-5 block h-0.5 w-12 bg-burgundy" />
+            {lead.description && <p className="type-body mt-5 text-foreground/85">{lead.description}</p>}
+            <button
+              type="button"
+              onClick={() => play(lead)}
+              className="type-button group mt-7 inline-flex h-12 items-center gap-3 bg-burgundy px-7 text-white transition-colors duration-300 hover:bg-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+            >
+              <Play className="size-3.5 fill-current" aria-hidden /> Watch Now
+            </button>
+          </div>
+        </Reveal>
+      )}
 
       {carousel.length > 0 && (
-        <div className="mt-section">
+        <div className={lead ? "mt-section" : undefined}>
           <VideoCarousel videos={carousel} onPlay={play} title="Featured Videos" />
         </div>
       )}
 
-      <div className="mt-section border-t hairline pt-12">
-        <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <h2 className="type-h3 text-foreground">{allTitle}</h2>
-          {available.length > 1 && <FilterBar options={available} value={category} onChange={setCategory} label="Filter videos by category" />}
+      {grid.length > 0 && (
+        <div className={lead || carousel.length > 0 ? "mt-section border-t hairline pt-12" : undefined}>
+          <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <h2 className="type-h3 text-foreground">{allTitle}</h2>
+            {available.length > 1 && <FilterBar options={available} value={category} onChange={setCategory} label="Filter videos by category" />}
+          </div>
+          <ul className="grid gap-x-card gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {shown.map((v) => (
+              <li key={v.id}>
+                <VideoCard video={v} onPlay={play} showDescription={showDescriptions} />
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="grid gap-x-card gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((v) => (
-            <li key={v.id}>
-              <VideoCard video={v} onPlay={play} showDescription={showDescriptions} />
-            </li>
-          ))}
-        </ul>
-      </div>
+      )}
 
       {playing && <VideoModal source={playing} onClose={close} />}
     </>
