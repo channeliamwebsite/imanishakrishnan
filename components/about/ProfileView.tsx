@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AwardsGallery } from "@/components/awards/AwardsGallery";
+import { ViewAllArrow } from "@/components/ui/ViewAllArrow";
 import { NewsGallery } from "./NewsGallery";
 import { EcosystemHighlights, type Highlight } from "./EcosystemHighlights";
 import { formatDate } from "@/lib/format-date";
@@ -183,8 +184,15 @@ export function ProfileView({
       {/* ── 2 · Awards & Recognition: gallery (natural proportions), archive, news clippings ── */}
       <section id="awards" className="pb-section">
         <div className="container-site section-rule">
-          <Reveal>
-            <SectionHeading label={page.recognitionLabel} title={profile.achievements.heading} intro={profile.achievements.tagline} />
+          <Reveal className="relative">
+            <SectionHeading
+              className="pr-14"
+              label={page.recognitionLabel}
+              title={profile.achievements.heading}
+              intro={profile.achievements.tagline}
+            />
+            {/* Arrow-only link to the full gallery, at the top right of the heading on every screen size. */}
+            <ViewAllArrow href="/awards" label="View all awards" className="absolute right-0 top-0" />
           </Reveal>
           {gallery.length > 0 && <AwardsGallery items={gallery} compact />}
 
@@ -224,15 +232,6 @@ export function ProfileView({
             </div>
           )}
 
-          <div className="mt-8 flex">
-            <Link
-              href="/awards"
-              className="type-button group inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
-            >
-              View More Award Gallery
-              <ArrowRight className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1" aria-hidden />
-            </Link>
-          </div>
         </div>
       </section>
 

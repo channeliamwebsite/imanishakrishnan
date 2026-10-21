@@ -1,11 +1,10 @@
-import Link from "next/link";
 import NextImage from "next/image";
-import { ArrowRight } from "lucide-react";
 import type { Achievement, MediaAsset, MediaFeature, SectionCopy } from "@/types/content";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { SECTION_IDS } from "@/lib/sections";
 import { CarouselNav } from "@/components/ui/CarouselNav";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ViewAllArrow } from "@/components/ui/ViewAllArrow";
 
 type StripItem = { id: string; name: string; logo?: MediaAsset; url?: string };
 type StripCopy = { label?: string; heading: string; tagline?: string };
@@ -14,14 +13,26 @@ type StripCopy = { label?: string; heading: string; tagline?: string };
  * Horizontal name/logo strip with a section heading — shared by "In the Media" (publications)
  * and "Awards & Honours" (achievements). Each section gets its own data source and id.
  */
-function NameStrip({ id, items, copy, cta }: { id: string; items: StripItem[]; copy: StripCopy; cta?: { label: string; href: string } }) {
+function NameStrip({
+  id,
+  items,
+  copy,
+  viewAll,
+}: {
+  id: string;
+  items: StripItem[];
+  copy: StripCopy;
+  /** Arrow-only "view all" link in the header. */
+  viewAll?: { href: string; label: string };
+}) {
   if (items.length === 0) return null;
   const trackId = `${id}-track`;
   return (
     <section id={id} className="pb-section">
       <div className="container-site">
-        <div className="section-rule">
+        <div className="section-rule relative">
           <SectionHeading
+            className={viewAll && "pr-14 md:pr-0"}
             label={copy.label}
             title={copy.heading}
             rule="after"
@@ -29,9 +40,12 @@ function NameStrip({ id, items, copy, cta }: { id: string; items: StripItem[]; c
               <>
                 {copy.tagline && <p className="type-small hidden text-muted xl:block">{copy.tagline}</p>}
                 <CarouselNav targetId={trackId} className="hidden md:flex" />
+                {viewAll && <ViewAllArrow {...viewAll} className="hidden md:grid" />}
               </>
             }
           />
+          {/* Phones: the arrow sits at the top right of the heading — no extra row. */}
+          {viewAll && <ViewAllArrow {...viewAll} className="absolute right-0 top-[var(--section-y)] md:hidden" />}
           {copy.tagline && <p className="type-small -mt-4 mb-6 text-muted xl:hidden">{copy.tagline}</p>}
 
           {/* Scrolls horizontally when names don't fit; evenly spread when they do. */}
@@ -68,17 +82,6 @@ function NameStrip({ id, items, copy, cta }: { id: string; items: StripItem[]; c
               );
             })}
           </ul>
-          {cta && (
-            <div className="mt-10 flex">
-              <Link
-                href={cta.href}
-                className="type-button group inline-flex h-12 items-center gap-3 border border-burgundy bg-background px-7 text-burgundy transition-colors duration-300 hover:bg-burgundy hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
-              >
-                {cta.label}
-                <ArrowRight className="size-3.5 transition-transform duration-300 ease-editorial motion-safe:group-hover:translate-x-1" aria-hidden />
-              </Link>
-            </div>
-          )}
         </div>
       </div>
     </section>
@@ -92,7 +95,7 @@ export function MediaSection({ items, copy }: { items: MediaFeature[]; copy: Sec
       id={SECTION_IDS.media}
       copy={copy}
       items={items.map((m) => ({ id: m.id, name: m.publication, logo: m.logo, url: m.articleUrl }))}
-      cta={{ label: "Explore All Press Coverage", href: "/media" }}
+      viewAll={{ href: "/media", label: "View all press coverage" }}
     />
   );
 }
