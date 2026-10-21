@@ -16,7 +16,7 @@ const linkHelp = "Internal pages start with / (e.g. /about or /#media); external
 /* ------------------------------------------------------------------ */
 
 export const HERO_FIELDS: FieldDef[] = [
-  { kind: "text", key: "eyebrow", label: "Eyebrow", help: "Small line above the name. Separate words with | ." },
+  { kind: "text", key: "eyebrow", label: "Eyebrow", help: "Small line above the name. Separate words with | . Hidden while a Professional identity is set (it would repeat it)." },
   { kind: "text", key: "name", label: "Name heading", required: true, help: 'A leading "I am" / "I\'m" is set smaller above the name.' },
   { kind: "text", key: "designation", label: "Designation", required: true },
   { kind: "strings", key: "roles", label: "Roles", itemLabel: "Role", help: "Shown after the designation." },

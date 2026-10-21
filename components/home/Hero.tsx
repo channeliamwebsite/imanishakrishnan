@@ -57,7 +57,8 @@ export function Hero({ content, avatar }: { content: HeroContent; avatar?: Avata
         {/* Copy */}
         {/* Entrance: each element rises in sequence (CSS only — visible without JS, off for reduced motion). */}
         <div className="relative z-10 flex flex-col justify-center pb-12 pt-10 sm:pt-14 lg:py-12 lg:pr-8">
-          {eyebrowWords.length > 0 && (
+          {/* The keyword eyebrow repeats the professional identity line — shown only without one. */}
+          {!identity && eyebrowWords.length > 0 && (
             // Separators live in each item's left padding; the row is shifted left by that padding and
             // clips overflow, so the separator of whichever item starts a line is hidden — a wrapped
             // line never starts or ends with "|".
