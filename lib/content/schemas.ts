@@ -611,7 +611,7 @@ export const ecosystemPageSchema: z.ZodType<EcosystemPage> = z.object({
   about: z
     .object({
       enabled: flag,
-      heading: text.transform((v) => v || "Ecosystem Builder"),
+      heading: text,
       intro: stringList,
       featuredImage: optionalMedia.transform((m) => (m?.url ? m : undefined)),
       images: mediaList.transform((list) => list.filter((m) => m.url)),

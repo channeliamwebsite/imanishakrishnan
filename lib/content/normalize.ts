@@ -55,7 +55,7 @@ export function parseMedia(raw: unknown, field = "image"): { value?: MediaAsset;
 
 export function parseHero(
   raw: unknown,
-  defaults: { primaryCta: HeroContent["primaryCta"] },
+  defaults: { primaryCta: HeroContent["primaryCta"]; identity?: string; tagline?: string },
 ): Parsed<HeroContent> {
   if (!isRecord(raw)) return fail("document is not an object");
   const warnings: string[] = [];
@@ -84,6 +84,13 @@ export function parseHero(
     else warnings.push("primaryCta needs label and link; using the default");
   }
 
+  // Identity and tagline: absent (records saved before these fields existed) → the approved default;
+  // saved as empty → hidden. A saved value is never replaced.
+  const optionalLine = (key: "identity" | "tagline") =>
+    raw[key] === undefined || raw[key] === null ? defaults[key] : str(raw[key]);
+  const identity = optionalLine("identity");
+  const tagline = optionalLine("tagline");
+
   let secondaryCta: HeroContent["secondaryCta"];
   if (isRecord(raw.secondaryCta) && str(raw.secondaryCta.label)) {
     secondaryCta = { label: str(raw.secondaryCta.label)!, url: str(raw.secondaryCta.url) };
@@ -98,6 +105,8 @@ export function parseHero(
       name,
       designation,
       roles,
+      identity,
+      tagline,
       description,
       primaryCta,
       secondaryCta,

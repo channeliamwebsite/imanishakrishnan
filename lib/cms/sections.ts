@@ -103,7 +103,7 @@ export const SECTIONS: Record<SectionKey, SectionDef> = {
     kind: "singleton",
     builtIn: () => builtIn.hero,
     validate: (data) => {
-      const parsed = parseHero(data, { primaryCta: builtIn.hero.primaryCta });
+      const parsed = parseHero(data, { primaryCta: builtIn.hero.primaryCta, identity: builtIn.hero.identity, tagline: builtIn.hero.tagline });
       if (parsed.value && parsed.warnings.some((w) => w.includes("primaryCta"))) {
         return { ok: false, issues: [{ path: "primaryCta", message: "The main button needs a label and a link" }] };
       }

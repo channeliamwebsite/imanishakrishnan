@@ -20,6 +20,20 @@ export const HERO_FIELDS: FieldDef[] = [
   { kind: "text", key: "name", label: "Name heading", required: true, help: 'A leading "I am" / "I\'m" is set smaller above the name.' },
   { kind: "text", key: "designation", label: "Designation", required: true },
   { kind: "strings", key: "roles", label: "Roles", itemLabel: "Role", help: "Shown after the designation." },
+  {
+    kind: "text",
+    key: "identity",
+    label: "Professional identity",
+    placeholder: "Journalist. Media Entrepreneur. Ecosystem Builder.",
+    help: "Shown directly under the name. Leave empty to show the designation and roles instead.",
+  },
+  {
+    kind: "text",
+    key: "tagline",
+    label: "Brand tagline",
+    placeholder: "From telling stories of change to building ecosystems of growth.",
+    help: "Shown under the professional identity. Leave empty to hide.",
+  },
   { kind: "textarea", key: "description", label: "Introduction", required: true, rows: 3 },
   { kind: "text", key: "location", label: "Location", help: "Separate lines with / (e.g. INDIA / UAE)." },
   { kind: "link", key: "primaryCta", label: "Main button", help: linkHelp, hrefKey: "link" },
@@ -600,17 +614,29 @@ export const ECOSYSTEM_PAGE_FIELDS: FieldDef[] = [
 ];
 
 export const ECOSYSTEM_EVENT_FIELDS: FieldDef[] = [
-  { kind: "text", key: "name", label: "Event name", required: true },
-  { kind: "text", key: "summit", label: "Summit or conference" },
-  { kind: "date", key: "date", label: "Date" },
+  { kind: "text", key: "name", label: "Event title", required: true },
+  { kind: "text", key: "summit", label: "Organisation or event name" },
+  { kind: "text", key: "date", label: "Date or year", placeholder: "2024 or 2024-03-12" },
   { kind: "text", key: "location", label: "Location" },
   { kind: "text", key: "role", label: "Role / participation", placeholder: "Speaker, Panelist, Moderator…" },
   { kind: "text", key: "category", label: "Category", placeholder: "Summit, Conference, Panel…" },
   { kind: "textarea", key: "description", label: "Description", rows: 3 },
-  { kind: "images", key: "images", label: "Photographs", folder: CLOUDINARY_FOLDERS.speaking, help: "The first photograph is the cover." },
+  {
+    kind: "images",
+    key: "images",
+    label: "Photographs",
+    folder: CLOUDINARY_FOLDERS.speaking,
+    crop: false,
+    help: "At least one. The first is the cover. To reuse an uploaded photo, click “Add image” → “Choose from library” (no new upload).",
+  },
   { kind: "text", key: "url", label: "Event link (optional)", placeholder: "https://…" },
   { kind: "toggle", key: "featured", label: "Featured event" },
-  { kind: "toggle", key: "aboutHighlight", label: "Highlight on the About page", help: "Shown in the Ecosystem Builder section of /about." },
+  {
+    kind: "toggle",
+    key: "aboutHighlight",
+    label: "Show on About page",
+    help: "Adds this event to the Ecosystem Builder gallery on /about (when the event is visible and published).",
+  },
 ];
 
 export const AVATAR_FIELDS: FieldDef[] = [
@@ -648,8 +674,7 @@ export const ECOSYSTEM_ABOUT_FIELDS: FieldDef[] = [
     key: "about",
     label: "Ecosystem Builder (About page)",
     fields: [
-      { kind: "toggle", key: "enabled", label: "Show this section on /about" },
-      { kind: "text", key: "heading", label: "Heading", placeholder: "Ecosystem Builder" },
+      { kind: "text", key: "heading", label: "Heading", placeholder: "Building Ecosystems Through Collaboration" },
       { kind: "strings", key: "intro", label: "Introduction", itemLabel: "Paragraph", multiline: true },
       { kind: "image", key: "featuredImage", label: "Featured image", folder: CLOUDINARY_FOLDERS.speaking },
       {

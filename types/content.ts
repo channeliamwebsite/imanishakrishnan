@@ -77,6 +77,10 @@ export interface HeroContent {
   name: string; // "I'm Nisha Krishnan" — a leading "I'm" is set small/italic
   designation: string; // "Founder & CEO"
   roles: string[]; // ["Journalist", "Media Entrepreneur"] — shown after the designation
+  /** "Journalist. Media Entrepreneur. Ecosystem Builder." — shown under the name (replaces the role line). */
+  identity?: string;
+  /** Brand line under the identity, e.g. "From telling stories of change to building ecosystems of growth." */
+  tagline?: string;
   description: string;
   primaryCta: { label: string; link: string };
   secondaryCta?: { label: string; url?: string };

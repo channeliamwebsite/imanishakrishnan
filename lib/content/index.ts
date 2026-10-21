@@ -178,7 +178,7 @@ export async function getHero(): Promise<HeroContent> {
   "use cache";
   cacheTag(COLLECTIONS.hero);
   return settle(
-    await loadSingleton(COLLECTIONS.hero, (raw) => parseHero(raw, { primaryCta: fallback.hero.primaryCta })),
+    await loadSingleton(COLLECTIONS.hero, (raw) => parseHero(raw, { primaryCta: fallback.hero.primaryCta, identity: fallback.hero.identity, tagline: fallback.hero.tagline })),
     fallback.hero,
   );
 }

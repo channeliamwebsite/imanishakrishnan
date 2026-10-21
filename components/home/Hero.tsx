@@ -40,7 +40,7 @@ function secondaryLinkProps(url: string) {
  * portrait fills the remaining ~55% and bleeds to the right viewport edge.
  */
 export function Hero({ content, avatar }: { content: HeroContent; avatar?: AvatarVideo | null }) {
-  const { eyebrow, name, designation, roles, description, primaryCta, secondaryCta, image, location } = content;
+  const { eyebrow, name, designation, roles, identity, tagline, description, primaryCta, secondaryCta, image, location } = content;
   const { greeting, lines } = splitName(name);
   const eyebrowWords = splitOn(eyebrow, "|");
   const roleLine = [designation, ...roles].filter(Boolean);
@@ -51,7 +51,8 @@ export function Hero({ content, avatar }: { content: HeroContent; avatar?: Avata
     : { url: "", publicId: "", alt: image?.alt ?? `Portrait of ${lines.join(" ")}` };
 
   return (
-    <section className="relative">
+    <section className="relative overflow-x-clip">
+      {/* overflow-x-clip: the portrait bleed uses 100vw, which includes a classic scrollbar — clip that sliver. */}
       <div className="container-site grid lg:min-h-[clamp(36rem,calc(100svh-var(--nav-height)),41rem)] lg:grid-cols-[45fr_55fr]">
         {/* Copy */}
         {/* Entrance: each element rises in sequence (CSS only — visible without JS, off for reduced motion). */}
@@ -87,27 +88,44 @@ export function Hero({ content, avatar }: { content: HeroContent; avatar?: Avata
             ))}
           </h1>
 
-          {/* Same clipped-separator technique as the eyebrow: no line starts or ends with "·". */}
-          
-<div className="animate-rise mt-5 overflow-hidden [animation-delay:260ms]">
-  <p className="-ml-6 flex flex-wrap items-center gap-y-2 font-sans text-[clamp(0.875rem,1.05vw,1rem)] font-semibold uppercase tracking-[0.08em] text-foreground/85">
-    {roleLine.map((role, i) => (
-      <span
-        key={i}
-        className="relative whitespace-nowrap pl-6 before:absolute before:left-[0.6rem] before:text-foreground/50 before:content-['·']"
-      >
-        {role}
-      </span>
-    ))}
-  </p>
-</div>
+          {/* 2 · Professional identity — the CMS line; without one, the designation and roles. */}
+          {identity ? (
+            <p className="animate-rise mt-5 font-sans text-[clamp(0.8125rem,1vw,0.9375rem)] font-semibold uppercase tracking-[0.08em] text-foreground/85 [animation-delay:260ms]">
+              {identity}
+            </p>
+          ) : (
+            // Same clipped-separator technique as the eyebrow: no line starts or ends with "·".
+            <div className="animate-rise mt-5 overflow-hidden [animation-delay:260ms]">
+              <p className="-ml-6 flex flex-wrap items-center gap-y-2 font-sans text-[clamp(0.875rem,1.05vw,1rem)] font-semibold uppercase tracking-[0.08em] text-foreground/85">
+                {roleLine.map((role, i) => (
+                  <span
+                    key={i}
+                    className="relative whitespace-nowrap pl-6 before:absolute before:left-[0.6rem] before:text-foreground/50 before:content-['·']"
+                  >
+                    {role}
+                  </span>
+                ))}
+              </p>
+            </div>
+          )}
 
+          <span aria-hidden className="animate-rise mt-6 block h-0.5 w-16 bg-burgundy [animation-delay:320ms]" />
 
-          <span aria-hidden className="animate-rise mt-7 block h-0.5 w-16 bg-burgundy [animation-delay:320ms]" />
+          {/* 3 · Brand tagline — serif italic, between the identity and the introduction. */}
+          {tagline && (
+            <p className="animate-rise mt-6 max-w-[30rem] font-display text-[clamp(1.375rem,1.9vw,1.75rem)] font-medium italic leading-snug text-burgundy [animation-delay:340ms]">
+              {tagline}
+            </p>
+          )}
 
-          <p className="animate-rise type-lead mt-7 max-w-[31rem] text-foreground/85 [animation-delay:360ms]">{description}</p>
+          {/* 4 · Introduction */}
+          <p
+            className={`animate-rise type-body max-w-[31rem] text-foreground/80 [animation-delay:380ms] ${tagline ? "mt-4" : "mt-6"}`}
+          >
+            {description}
+          </p>
 
-          <div className="animate-rise mt-9 flex flex-wrap items-center gap-x-10 gap-y-5 [animation-delay:460ms]">
+          <div className="animate-rise mt-8 flex flex-wrap items-center gap-x-10 gap-y-5 [animation-delay:460ms]">
             <Button href={primaryCta.link}>{primaryCta.label}</Button>
             {/* CMS: Avatar Video — only when enabled with a video URL. */}
             {avatar && <AvatarButton avatar={avatar} />}

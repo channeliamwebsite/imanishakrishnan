@@ -116,6 +116,8 @@ export const hero: HeroContent = {
   name: "I am Nisha Krishnan",
   designation: "Founder & CEO",
   roles: ["Journalist", "Media Entrepreneur"],
+  identity: "Journalist. Media Entrepreneur. Ecosystem Builder.",
+  tagline: "From telling stories of change to building ecosystems of growth.",
   description:
     "Award-winning journalist and founder of channeliam.com, a digital media platform for entrepreneurship, innovation and business growth.",
   primaryCta: { label: "EXPLORE HER JOURNEY", link: PROFILE_PATH },

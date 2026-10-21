@@ -6,10 +6,10 @@ import NextImage from "next/image";
 import { Play, X } from "lucide-react";
 import type { VideoItem } from "@/types/content";
 import { cn } from "@/lib/cn";
+import { formatDate } from "@/lib/format-date";
 import { parseYouTubeId, youTubeEmbedUrl, youTubeThumbnail } from "@/lib/youtube";
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-export const formatDate = (iso?: string) => (iso && !Number.isNaN(Date.parse(iso)) ? dateFormat.format(new Date(iso)) : undefined);
+export { formatDate };
 
 const VIDEO_CATEGORY_LABELS: Record<VideoItem["category"], string> = {
   talk: "Talk",
