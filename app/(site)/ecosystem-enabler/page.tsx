@@ -5,6 +5,8 @@ import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EcosystemSections } from "@/components/ecosystem/EcosystemSections";
+import { breadcrumbLd, getSiteUrl, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const TITLE = "Ecosystem Engagements";
 /** Default introduction (Admin → Ecosystem Enabler & events → Introduction replaces it). */
@@ -15,13 +17,7 @@ const DESCRIPTION =
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getEcosystemPage();
-  const description = page.intro || DESCRIPTION;
-  return {
-    title: TITLE,
-    description,
-    alternates: { canonical: "/ecosystem-enabler" },
-    openGraph: { title: TITLE, description, url: "/ecosystem-enabler" },
-  };
+  return pageMetadata({ title: TITLE, description: page.intro || DESCRIPTION, path: "/ecosystem-enabler", image: page.heroImage });
 }
 
 /** Everything comes from the CMS (Ecosystem Enabler); sections without published content are omitted. */
@@ -34,6 +30,7 @@ export default async function EcosystemEnablerPage() {
 
   return (
     <>
+      <JsonLd data={breadcrumbLd(await getSiteUrl(), [{ name: TITLE, path: "/ecosystem-enabler" }])} />
       {/* A — Hero */}
       <section className="section-y">
         <div className="container-site grid items-center gap-12 lg:grid-cols-12 lg:gap-16">

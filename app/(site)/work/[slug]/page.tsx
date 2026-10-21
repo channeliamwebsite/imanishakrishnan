@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getWorkDetail, getWorkDetailSlugs } from "@/lib/content";
 import { workPath } from "@/lib/sections";
 import { WorkDetailView } from "@/components/work/WorkDetailView";
+import { breadcrumbLd, getSiteUrl, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 /** Never a real slug (slugs are lowercase letters, numbers and hyphens). */
 const PLACEHOLDER_SLUG = "_none";
@@ -20,23 +22,21 @@ export async function generateMetadata({ params }: PageProps<"/work/[slug]">): P
   const content = await getWorkDetail((await params).slug);
   if (!content) return {};
   const { item } = content;
-  const image = item.coverImage?.url ? item.coverImage : undefined;
-  const title = item.detail?.seo?.title ?? item.detail?.title ?? item.title;
-  const description = item.detail?.seo?.description ?? item.detail?.intro ?? item.description;
-  return {
-    title,
-    description,
-    alternates: { canonical: workPath(item.slug!) },
-    openGraph: {
-      title,
-      description,
-      images: image ? [{ url: image.url, alt: image.alt }] : undefined,
-    },
-  };
+  return pageMetadata({
+    title: item.detail?.seo?.title ?? item.detail?.title ?? item.title,
+    description: item.detail?.seo?.description ?? item.detail?.intro ?? item.description,
+    path: workPath(item.slug!),
+    image: item.coverImage,
+  });
 }
 
 export default async function WorkDetailPage({ params }: PageProps<"/work/[slug]">) {
   const content = await getWorkDetail((await params).slug);
   if (!content) notFound();
-  return <WorkDetailView {...content} />;
+  return (
+    <>
+      <JsonLd data={breadcrumbLd(await getSiteUrl(), [{ name: content.item.title, path: workPath(content.item.slug!) }])} />
+      <WorkDetailView {...content} />
+    </>
+  );
 }

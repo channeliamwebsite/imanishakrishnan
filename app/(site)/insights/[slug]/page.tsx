@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getInsightBySlug, getInsights } from "@/lib/content";
 import { sanitizeArticleHtml } from "@/lib/content/html";
 import { ArticleView } from "@/components/insights/ArticleView";
+import { articleLd, breadcrumbLd, getSiteUrl, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 /** Never a real slug (slugs are lowercase letters, numbers and hyphens). */
 const PLACEHOLDER_SLUG = "_none";
@@ -20,27 +22,35 @@ export async function generateMetadata({ params }: PageProps<"/insights/[slug]">
   const article = await getInsightBySlug((await params).slug);
   if (!article) return {};
   const image = article.seo?.image?.url ? article.seo.image : article.coverImage?.url ? article.coverImage : undefined;
-  const title = article.seo?.title || article.title;
-  const description = article.seo?.description || article.excerpt || undefined;
-  return {
-    title,
-    description,
-    alternates: { canonical: `/insights/${article.slug}` },
+  return pageMetadata({
+    title: article.seo?.title || article.title,
+    description: article.seo?.description || article.excerpt || undefined,
+    path: `/insights/${article.slug}`,
+    image,
+    type: "article",
     openGraph: {
-      type: "article",
-      title,
-      description,
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
       authors: article.author ? [article.author] : undefined,
       tags: article.tags,
-      images: image ? [{ url: image.url, alt: image.alt }] : undefined,
     },
-  };
+  });
 }
 
 export default async function ArticlePage({ params }: PageProps<"/insights/[slug]">) {
   const article = await getInsightBySlug((await params).slug);
   if (!article) notFound();
-  return <ArticleView article={article} html={sanitizeArticleHtml(article.body)} />;
+  const siteUrl = await getSiteUrl();
+  return (
+    <>
+      <JsonLd data={articleLd(siteUrl, article)} />
+      <JsonLd
+        data={breadcrumbLd(siteUrl, [
+          { name: "Insights", path: "/insights" },
+          { name: article.title, path: `/insights/${article.slug}` },
+        ])}
+      />
+      <ArticleView article={article} html={sanitizeArticleHtml(article.body)} />
+    </>
+  );
 }

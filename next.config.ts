@@ -1,5 +1,16 @@
 import type { NextConfig } from "next";
 
+/** Primary domain (see .env.production) — every secondary host redirects here, keeping path and query. */
+const PRIMARY_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://iamnisha.in").replace(/\/+$/, "");
+
+/**
+ * Secondary hosts that reach this Vercel project. www.iamnisha.in is deliberately not listed:
+ * redirect it in Vercel → Domains (iamnisha.in primary) — listing it here while Vercel still
+ * sends iamnisha.in to www would create a loop. Hosts on other providers (e.g. Cloudflare) never
+ * reach this app and must be redirected where their DNS is managed.
+ */
+const SECONDARY_HOSTS = ["www.iamnishakrishnan.com", "iamnishakrishnan.com", "imanishakrishnan.vercel.app"];
+
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
@@ -17,6 +28,14 @@ const nextConfig: NextConfig = {
   },
   // The admin may not be framed by any site; the preview viewport only by the admin itself.
   // Neither is ever indexed.
+  async redirects() {
+    return SECONDARY_HOSTS.map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: `${PRIMARY_SITE_URL}/:path*`,
+      permanent: true,
+    }));
+  },
   async headers() {
     const noindex = { key: "X-Robots-Tag", value: "noindex, nofollow" };
     return [

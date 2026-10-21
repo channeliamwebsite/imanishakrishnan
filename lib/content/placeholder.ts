@@ -87,7 +87,7 @@ export const siteSettings: SiteSettings = {
     description:
       "Nisha Krishnan is an award-winning journalist, media entrepreneur and founder of channeliam.com, championing entrepreneurship, innovation and business growth.",
     keywords: ["Nisha Krishnan", "Channeliam", "She Power", "I AM Startup Studio", "media entrepreneur", "journalist"],
-    siteUrl: "https://imanishakrishnan.vercel.app",
+    siteUrl: "https://iamnisha.in",
   },
   sections: {
     work: { label: "Initiatives", heading: "Selected Work & Impact", detail: workDetailCopy },

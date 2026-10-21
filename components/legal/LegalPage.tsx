@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import type { LegalPageContent } from "@/lib/content/legal";
 import { Reveal } from "@/components/ui/Reveal";
+import { pageMetadata } from "@/lib/seo";
 
-export const legalMetadata = (page: LegalPageContent): Metadata => ({
-  title: page.title,
-  description: page.description,
-  alternates: { canonical: page.path },
-  openGraph: { title: page.title, description: page.description, url: page.path },
-});
+export const legalMetadata = (page: LegalPageContent): Promise<Metadata> =>
+  pageMetadata({ title: page.title, description: page.description, path: page.path });
 
 /** Shared layout for /privacy and /terms — same page header as /testimonials. */
 export function LegalPage({ page }: { page: LegalPageContent }) {

@@ -4,6 +4,8 @@ import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { siteSettings as fallbackSettings } from "@/lib/content/placeholder";
 import { Reveal } from "@/components/ui/Reveal";
 import { TestimonialGallery } from "@/components/testimonials/TestimonialGallery";
+import { breadcrumbLd, getSiteUrl, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 async function getCopy() {
   const { sections } = await getSiteSettings();
@@ -12,7 +14,7 @@ async function getCopy() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const copy = await getCopy();
-  return { title: copy.heading, description: copy.intro, alternates: { canonical: "/testimonials" } };
+  return pageMetadata({ title: copy.heading, description: copy.intro, path: "/testimonials" });
 }
 
 /** Every testimonial image (siteSettings → sections.testimonials.images), in the admin's order. */
@@ -21,6 +23,7 @@ export default async function TestimonialsPage() {
   const images = (copy.images ?? []).filter((m) => isCloudinaryUrl(m.url));
   return (
     <>
+      <JsonLd data={breadcrumbLd(await getSiteUrl(), [{ name: copy.heading, path: "/testimonials" }])} />
       <section className="section-y pb-0">
         <div className="container-site">
           <Reveal>

@@ -7,16 +7,16 @@ import { PROFILE_PATH } from "@/lib/content/placeholder";
 import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { Reveal } from "@/components/ui/Reveal";
 import { AwardsShowcase } from "@/components/awards/AwardsShowcase";
+import { breadcrumbLd, getSiteUrl, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const TITLE = "Awards & Recognition";
-const DESCRIPTION = "Explore the awards, achievements, and recognitions of Nisha Krishnan.";
+const DESCRIPTION =
+  "Awards and honours received by journalist Nisha Krishnan, including the Laadli Media Award, the Kerala State Media Award and the Dr. B. R. Ambedkar Award.";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/awards" },
-  openGraph: { title: TITLE, description: DESCRIPTION, url: "/awards" },
-};
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ title: TITLE, description: DESCRIPTION, path: "/awards" });
+}
 
 /**
  * Awards & Recognition: a visual showcase of the award images from the /about Recognition gallery
@@ -30,6 +30,7 @@ export default async function AwardsPage() {
 
   return (
     <>
+      <JsonLd data={breadcrumbLd(await getSiteUrl(), [{ name: TITLE, path: "/awards" }])} />
       {/* ── Hero ── */}
       <section className="pb-12 pt-[clamp(2.5rem,5vw,4.5rem)] lg:pb-16">
         <div className="container-site">

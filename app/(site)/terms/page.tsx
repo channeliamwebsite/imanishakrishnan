@@ -1,7 +1,7 @@
 import { termsPage } from "@/lib/content/legal";
 import { LegalPage, legalMetadata } from "@/components/legal/LegalPage";
 
-export const metadata = legalMetadata(termsPage);
+export const generateMetadata = () => legalMetadata(termsPage);
 
 export default function TermsPage() {
   return <LegalPage page={termsPage} />;

@@ -2,13 +2,21 @@ import type { Metadata } from "next";
 import { getAbout, getEcosystemEvents, getEcosystemPage, getTimeline } from "@/lib/content";
 import { profile as fallbackProfile } from "@/lib/content/profile";
 import { ProfileView } from "@/components/about/ProfileView";
+import { breadcrumbLd, getSiteUrl, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const fallbackPage = fallbackProfile.page!;
 
 export async function generateMetadata(): Promise<Metadata> {
   const about = await getAbout();
   const page = about.profile?.page ?? fallbackPage;
-  return { title: "About", description: page.metaDescription || undefined, alternates: { canonical: "/about" } };
+  return pageMetadata({
+    absoluteTitle: "About Nisha Krishnan — Journalist & Media Entrepreneur",
+    description: page.metaDescription || undefined,
+    path: "/about",
+    image: about.profile?.intro?.image,
+    type: "profile",
+  });
 }
 
 /**
@@ -25,11 +33,14 @@ export default async function AboutPage() {
   ]);
   const profile = about.profile ?? fallbackProfile;
   return (
-    <ProfileView
+    <>
+      <JsonLd data={breadcrumbLd(await getSiteUrl(), [{ name: "About", path: "/about" }])} />
+      <ProfileView
       profile={profile}
       page={profile.page ?? fallbackPage}
       timeline={timeline}
       ecosystem={{ about: ecosystemPage.about, events: ecosystemEvents }}
-    />
+      />
+    </>
   );
 }

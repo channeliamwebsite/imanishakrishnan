@@ -2,15 +2,18 @@ import type { Metadata } from "next";
 import { getEditorialVideos } from "@/lib/content";
 import { PageIntro } from "@/components/layout/PageIntro";
 import { VideoGallery } from "@/components/video/VideoGallery";
+import { breadcrumbLd, getSiteUrl, pageMetadata, videoListLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const SUBTITLE = "Perspectives, conversations, and ideas shaping business, entrepreneurship, leadership, and growth.";
 
-export const metadata: Metadata = {
-  title: "Editorial Insights",
-  description: `${SUBTITLE} Editorials, commentary and interviews by Nisha Krishnan.`,
-  alternates: { canonical: "/editorial-insights" },
-  openGraph: { title: "Editorial Insights", description: SUBTITLE, url: "/editorial-insights" },
-};
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({
+    title: "Editorial Insights",
+    description: `${SUBTITLE} Editorials, commentary and interviews by Nisha Krishnan.`,
+    path: "/editorial-insights",
+  });
+}
 
 const CATEGORIES = [
   { value: "editorial" as const, label: "Editorials" },
@@ -23,9 +26,11 @@ const CATEGORIES = [
 
 /** Published YouTube editorials (CMS: Editorial Insights). Players load only when a video is played. */
 export default async function EditorialInsightsPage() {
-  const videos = await getEditorialVideos();
+  const [videos, siteUrl] = await Promise.all([getEditorialVideos(), getSiteUrl()]);
   return (
     <>
+      <JsonLd data={breadcrumbLd(siteUrl, [{ name: "Editorial Insights", path: "/editorial-insights" }])} />
+      <JsonLd data={videoListLd(siteUrl, "/editorial-insights", videos)} />
       <section className="section-y pb-0">
         <div className="container-site">
           <PageIntro label="Editorials · Commentary · Interviews" title="Editorial Insights" intro={SUBTITLE} />
