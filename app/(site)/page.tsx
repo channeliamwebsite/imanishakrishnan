@@ -4,6 +4,7 @@ import { resolveSiteUrl } from "@/lib/site-url";
 import { pageMetadata, siteGraph } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Hero } from "@/components/home/Hero";
+import { HashScroll } from "@/components/home/HashScroll";
 import { ImpactStats } from "@/components/home/ImpactStats";
 import { AboutSection } from "@/components/home/AboutSection";
 import { WorkSection } from "@/components/home/WorkSection";
@@ -32,6 +33,7 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={graph} />
+      <HashScroll />
       <Hero content={content.hero} avatar={avatar} />
       <ImpactStats items={content.statistics} />
       <AboutSection content={content.about} timeline={content.timeline} />
