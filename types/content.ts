@@ -375,7 +375,16 @@ export interface Achievement extends ListItemBase {
 export interface MediaFeature extends ListItemBase {
   publication: string;
   logo?: MediaAsset;
+  /** The original article, when it is still online. */
   articleUrl?: string;
+  /** A screenshot of the published coverage (for articles no longer online). */
+  screenshot?: MediaAsset;
+  /**
+   * What a click opens. "screenshot" shows the screenshot in the image viewer; "article" (or
+   * unset — records saved before this field) opens the article. Each falls back to the other
+   * when its own destination is missing.
+   */
+  displayMode?: "article" | "screenshot";
 }
 
 /**

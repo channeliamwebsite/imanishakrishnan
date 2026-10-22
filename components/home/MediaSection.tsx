@@ -4,9 +4,20 @@ import { isCloudinaryUrl } from "@/lib/cloudinary/url";
 import { SECTION_IDS } from "@/lib/sections";
 import { CarouselNav } from "@/components/ui/CarouselNav";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { MediaScreenshot } from "./MediaScreenshot";
 import { ViewAllArrow } from "@/components/ui/ViewAllArrow";
 
-type StripItem = { id: string; name: string; logo?: MediaAsset; url?: string };
+type StripItem = { id: string; name: string; logo?: MediaAsset; url?: string; screenshot?: MediaAsset };
+
+/**
+ * Where a media mention leads: the screenshot when chosen (or when it is the only destination),
+ * otherwise the article. The CMS choice decides — a temporarily failing website is not detected.
+ */
+function destination(m: MediaFeature): Pick<StripItem, "url" | "screenshot"> {
+  const shot = m.screenshot?.url && isCloudinaryUrl(m.screenshot.url) ? m.screenshot : undefined;
+  if (m.displayMode === "screenshot") return shot ? { screenshot: shot } : { url: m.articleUrl };
+  return m.articleUrl ? { url: m.articleUrl } : { screenshot: shot };
+}
 type StripCopy = { label?: string; heading: string; tagline?: string };
 
 /**
@@ -71,8 +82,12 @@ function NameStrip({
                 );
               return (
                 <li key={item.id} className="shrink-0 py-2">
-                  {item.url ? (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer">
+                  {item.screenshot ? (
+                    <MediaScreenshot screenshot={item.screenshot} publication={item.name}>
+                      {content}
+                    </MediaScreenshot>
+                  ) : item.url ? (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" aria-label={`${item.name} article (opens in a new tab)`}>
                       {content}
                     </a>
                   ) : (
@@ -94,7 +109,7 @@ export function MediaSection({ items, copy }: { items: MediaFeature[]; copy: Sec
     <NameStrip
       id={SECTION_IDS.media}
       copy={copy}
-      items={items.map((m) => ({ id: m.id, name: m.publication, logo: m.logo, url: m.articleUrl }))}
+      items={items.map((m) => ({ id: m.id, name: m.publication, logo: m.logo, ...destination(m) }))}
       viewAll={{ href: "/media", label: "View all press coverage" }}
     />
   );

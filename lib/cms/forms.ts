@@ -385,8 +385,26 @@ export const WORK_COPY_FIELDS: FieldDef[] = [
 
 export const MEDIA_FIELDS: FieldDef[] = [
   { kind: "text", key: "publication", label: "Publication", required: true },
-  { kind: "text", key: "articleUrl", label: "Article link", placeholder: "https://…" },
   { kind: "image", key: "logo", label: "Logo", folder: CLOUDINARY_FOLDERS.logos, help: "Optional. Without a logo the name is shown.", crop: false },
+  { kind: "text", key: "articleUrl", label: "Original article link (optional)", placeholder: "https://…" },
+  {
+    kind: "image",
+    key: "screenshot",
+    label: "Screenshot of the coverage (optional)",
+    folder: CLOUDINARY_FOLDERS.media,
+    crop: false,
+    help: "For articles no longer online. Use “Choose from library” to reuse an image already uploaded.",
+  },
+  {
+    kind: "select",
+    key: "displayMode",
+    label: "When clicked, open",
+    options: [
+      { value: "article", label: "The original article (new tab)" },
+      { value: "screenshot", label: "The screenshot (image viewer)" },
+    ],
+    help: "If the chosen one is missing, the other is used; with neither, the logo is shown without a link.",
+  },
 ];
 
 export const MEDIA_COPY_FIELDS: FieldDef[] = [

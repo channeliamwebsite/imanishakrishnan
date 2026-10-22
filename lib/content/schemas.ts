@@ -439,6 +439,12 @@ export const mediaFeatureSchema: z.ZodType<MediaFeature> = z.object({
   publication: required("Publication"),
   logo: optionalMedia,
   articleUrl: optionalUrl("Article link"),
+  screenshot: optionalMedia.transform((m) => (m?.url ? m : undefined)),
+  displayMode: z
+    .enum(["article", "screenshot"])
+    .nullish()
+    .catch(undefined)
+    .transform((v) => v ?? undefined),
 });
 
 const SOCIAL_PLATFORMS = ["linkedin", "x", "instagram", "youtube", "facebook", "email"] as const satisfies readonly SocialPlatform[];
